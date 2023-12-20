@@ -1,0 +1,38 @@
+spring-doc:
+  version: '@project.version@'
+  api-docs:
+    path: /api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+    doc-expansion: none
+  paths-to-match:
+    - /**
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/aicareer
+    username: aicareer
+    password: aicareer
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    database: mysql
+    properties:
+      hibernate:
+        format_sql: true
+    generate-ddl: true
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+server:
+  error:
+    include-message: always
