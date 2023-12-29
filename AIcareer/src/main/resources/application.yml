@@ -1,5 +1,4 @@
 spring-doc:
-  version: '@project.version@'
   api-docs:
     path: /api-docs
   default-consumes-media-type: application/json
@@ -9,7 +8,6 @@ spring-doc:
     tags-sorter: alpha
     path: /swagger-ui.html
     disable-swagger-default-url: true
-    display-query-params-without-oauth2: true
     doc-expansion: none
   paths-to-match:
     - /**
@@ -30,9 +28,22 @@ spring:
       hibernate:
         format_sql: true
     generate-ddl: true
+
   mvc:
     path match:
       matching-strategy: ant_path_matcher
 server:
   error:
     include-message: always
+
+jwt:
+  secret: "하나둘셋언러닝화이팅하나둘셋넷"
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          servlet:
+            handler:
+              HandlerMappingIntrospect=ERROR:

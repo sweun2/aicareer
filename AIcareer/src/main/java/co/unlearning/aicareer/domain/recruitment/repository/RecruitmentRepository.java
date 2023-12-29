@@ -8,5 +8,4 @@ import java.util.Optional;
 
 public interface RecruitmentRepository extends JpaRepository<Recruitment,Integer> {
     Optional<Recruitment> findByUid(Long uid);
-    List<Recruitment> findAllByRecruitmentSt();
 }

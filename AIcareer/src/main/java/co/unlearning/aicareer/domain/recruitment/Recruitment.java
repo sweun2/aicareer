@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.recruitment;
 
 import co.unlearning.aicareer.domain.careerrequirement.CareerRequirement;
+import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
@@ -18,16 +19,13 @@ import java.util.Set;
 @Getter
 @Setter
 public class Recruitment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @Column(unique = true)
     private Long uid; // 채용 공고 uid
-    @Column
-    private String companyName; //회사명
-    @Column
-    private CompanyType companyType; //회사 타입
+    @ManyToOne
+    private Company company;
     @OneToMany(fetch = FetchType.EAGER)
     private Set<RecruitingJob> recruitingJobSet;
     @OneToMany(fetch = FetchType.EAGER)
