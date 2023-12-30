@@ -1,4 +1,4 @@
-package co.unlearning.aicareer.global.utils.error;
+package co.unlearning.aicareer.global.utils.error.code;
 
 
 import lombok.Builder;

@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment;
 
+import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.careerrequirement.CareerRequirement;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
@@ -11,6 +12,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -52,5 +54,9 @@ public class Recruitment {
     private String recruitmentAddress; //지역
     @ManyToOne
     private User user; //북마크
+    @OneToOne
+    private Image mainImage;
+    @OneToMany
+    private Set<Image> contentImage;
 }
 

@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.user.controller;
 
+import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.user.User;
 import co.unlearning.aicareer.domain.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.user.dto.UserResponseDto;
@@ -7,7 +8,12 @@ import co.unlearning.aicareer.domain.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.user.service.UserService;
 import co.unlearning.aicareer.global.security.jwt.Token;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
+import co.unlearning.aicareer.global.utils.error.code.UserErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,57 +36,33 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
-    private final UserRepository userRepository;
-    /*@Operation(summary = "선생님 로그인하기", description = "선생님을 로그인 합니다. 쿠키로 accessToken이 갑니다.")
-    @PostMapping("/login")
-    public ResponseEntity<UserResponseDto.Simple> Login(@RequestBody UserRequestDto.LoginForm loginForm) {
-        User user = User.builder()
-                .phone(loginForm.getPhone())
-                .password(loginForm.getPassword())
-                .build();
-
-        if (userService.verifyLoginUser(user)){
-            Token token = tokenService.generateToken(user.getPhone(), "USER");
-
-            //samesite 재설정 필요
-            ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", token.getAccessToken())
-                    .maxAge(24 * 60 * 60)
-                    .path("/")
-                    .httpOnly(true)
-                    .build();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Set-Cookie", accessTokenCookie.toString());
-
-            ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
-                    .maxAge(7 * 24 * 60 * 60)
-                    .path("/")
-                    .httpOnly(true)
-                    .build();
-
-            headers.add("Set-Cookie", refreshTokenCookie.toString());
-
-
-            log.info(accessTokenCookie.toString());
-            log.info(refreshTokenCookie.toString());
-
-            User serverUser = userRepository.findByPhone(user.getPhone()).orElseThrow(
-                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.")
-            );
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(UserResponseDto.Simple.of(serverUser));
-
-        }
-        else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"로그인 실패");
-    }*/
-
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "유저 정보 가져오기", description = "현재 로그인된 유저 정보를 가져옵니다.")
-    @GetMapping("/info")
-    public ResponseEntity<UserResponseDto.Simple> userInfo() {
+    @Operation(summary = "유저의 기본 정보 가져오기", description = "현재 로그인된 유저의 기본 정보를 가져옵니다.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = UserResponseDto.Simple.class)))
+    @ApiErrorCodeExample(UserErrorCode.class)
+    @GetMapping("/simple")
+    public ResponseEntity<UserResponseDto.Simple> findUserSimple() {
         return ResponseEntity.ok(UserResponseDto.Simple.of(userService.getLoginUser()));
     }
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "유저의 모든 정보 가져오기", description = "현재 로그인된 유저의 모든 정보를 가져옵니다.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = UserResponseDto.Info.class)))
+    @ApiErrorCodeExample(UserErrorCode.class)
+    @GetMapping("/info")
+    public ResponseEntity<UserResponseDto.Info> findUserInfo() {
+        return ResponseEntity.ok(UserResponseDto.Info.of(userService.getLoginUser()));
+    }
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "로그아웃", description = "로그아웃하기 accessToken, refresh token 둘다 덮어쓰기")
+    @ApiErrorCodeExample(UserErrorCode.class)
     @GetMapping("/logout")
     public ResponseEntity<String> Login() {
         User user = userService.getLoginUser();
@@ -88,7 +70,7 @@ public class UserController {
             Token token = tokenService.generateToken(user.getEmail(), "USER");
 
             //samesite 재설정 필요
-            ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", token.getAccessToken())
+            ResponseCookie accessTokenCookie = ResponseCookie.from("access-token", token.getAccessToken())
                     .maxAge(0)
                     .path("/")
                     .httpOnly(true)
@@ -97,7 +79,7 @@ public class UserController {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Set-Cookie", accessTokenCookie.toString());
 
-            ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh-token", token.getRefreshToken())
                     .maxAge(0)
                     .path("/")
                     .httpOnly(true)
@@ -115,6 +97,7 @@ public class UserController {
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저 Role 변경", description = "현재 로그인된 유저의 Role을 변경합니다. Role이 ADMIN인 경우만 사용 가능, ADMIN으로의 변경은 DB에서 직접 변경")
+    @ApiErrorCodeExample(UserErrorCode.class)
     @PostMapping("/role")
     public ResponseEntity<UserResponseDto.Info> userInfo(UserRequestDto.UserRole userRole) {
         return ResponseEntity.ok(UserResponseDto.Info.of(userService.updateUserRole(userRole)));

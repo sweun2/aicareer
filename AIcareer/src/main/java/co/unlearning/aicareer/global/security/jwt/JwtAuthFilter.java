@@ -18,6 +18,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class JwtAuthFilter extends GenericFilterBean {
         if(list != null) {
             String token = "token";
             for (Cookie cookie : list) {
-                if (cookie.getName().equals("accessToken")) {
+                if (cookie.getName().equals("access-token")) {
                     token = cookie.getValue();
                 }
             }
@@ -54,6 +55,6 @@ public class JwtAuthFilter extends GenericFilterBean {
 
     public Authentication getAuthentication(User user){
         return new UsernamePasswordAuthenticationToken(user, "",
-                Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
+                List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }

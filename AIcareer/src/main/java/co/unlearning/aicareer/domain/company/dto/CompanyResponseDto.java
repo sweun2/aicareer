@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.company.dto;
 
+import co.unlearning.aicareer.domain.CompanyType.dto.CompanyTypeResponseDto;
 import co.unlearning.aicareer.domain.careerrequirement.dto.CareerRequirementResponseDto;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.dto.EducationResponseDto;
@@ -24,14 +25,14 @@ public class CompanyResponseDto {
         @Schema(description = "회사명")
         private String companyName;
         @Schema(description = "회사 타입",allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE"})
-        private String companyType;
+        private List<CompanyTypeResponseDto.CompanyTypeInfo> companyTypeInfos;
         @Schema(description = "회사 주소")
         private String companyAddress;
 
         public static CompanyInfo of(Company company) {
             return CompanyInfo.builder()
                     .companyName(company.getCompanyName())
-                    .companyType(String.valueOf(company.getCompanyType()))
+                    .companyTypeInfos(CompanyTypeResponseDto.CompanyTypeInfo.of(List.copyOf(company.getCompanyTypeSet())))
                     .companyAddress(company.getCompanyAddress())
                     .build();
         }

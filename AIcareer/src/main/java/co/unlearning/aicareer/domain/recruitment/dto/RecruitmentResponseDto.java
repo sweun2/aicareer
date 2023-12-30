@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment.dto;
 
+import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.domain.careerrequirement.dto.CareerRequirementResponseDto;
 import co.unlearning.aicareer.domain.company.dto.CompanyResponseDto;
 import co.unlearning.aicareer.domain.education.dto.EducationResponseDto;
@@ -20,8 +21,12 @@ public class RecruitmentResponseDto {
     @Setter
     @Builder
     public static class Info {
-        @Schema(description = "이미지 url")
-        private List<String> images;
+        @Schema(description = "채용 공고 uid")
+        private String recruitmentUid;
+        @Schema(description = "메인 이미지 url")
+        private ImageResponseDto.ImageData mainImage;
+        @Schema(description = "내용 이미지 url 리스트")
+        private List<ImageResponseDto.ImageData> contentImage;
         //new table
         @Schema(description = "회사 정보")
         private CompanyResponseDto.CompanyInfo companyInfo;
@@ -50,6 +55,9 @@ public class RecruitmentResponseDto {
 
         public static Info of(Recruitment recruitment) {
             return Info.builder()
+                    .recruitmentUid(String.valueOf(recruitment.getUid()))
+                    .mainImage(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
+                    .contentImage(ImageResponseDto.ImageData.of(List.copyOf(recruitment.getContentImage())))
                     .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNames.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNames.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
@@ -72,8 +80,10 @@ public class RecruitmentResponseDto {
     @Setter
     @Builder
     public static class Simple {
-        @Schema(description = "이미지 url")
-        private List<String> images;
+        @Schema(description = "채용 공고 uid")
+        private String recruitmentUid;
+        @Schema(description = "메인 이미지 url")
+        private String mainImageUrl;
         //new table
         @Schema(description = "회사 정보")
         private CompanyResponseDto.CompanyInfo companyInfo;
@@ -98,6 +108,8 @@ public class RecruitmentResponseDto {
 
         public static Simple of(Recruitment recruitment) {
             return Simple.builder()
+                    .recruitmentUid(String.valueOf(recruitment.getUid()))
+                    .mainImageUrl(recruitment.getMainImage().getUrl())
                     .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNames.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNames.of(List.copyOf(recruitment.getRecruitmentTypeSet())))

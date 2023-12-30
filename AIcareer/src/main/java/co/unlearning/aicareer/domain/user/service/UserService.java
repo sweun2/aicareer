@@ -5,6 +5,8 @@ import co.unlearning.aicareer.domain.user.User;
 import co.unlearning.aicareer.domain.user.UserRole;
 import co.unlearning.aicareer.domain.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.user.repository.UserRepository;
+import co.unlearning.aicareer.global.utils.error.code.UserErrorCode;
+import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,36 +26,34 @@ public class UserService {
     private final UserRepository userRepository;
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(
-                ()->new ResponseStatusException(HttpStatus.NOT_FOUND,"email 없음")
+                ()->new BusinessException(UserErrorCode.USER_NOT_FOUND)
         );
     }
     public User getLoginUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication.getPrincipal().equals("anonymousUser")){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"로그인 재시도 필요");
+            throw new BusinessException(UserErrorCode.USER_UNAUTHORIZED);
         }
         User user = (User) authentication.getPrincipal();
         return userRepository.findById(user.getId()).orElseThrow(
-                ()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"유저 없음"));
+                ()-> new BusinessException(UserErrorCode.USER_NOT_FOUND));
     }
 
     public Boolean verifyLoginUser(User user) {
         User user1 = userRepository.findByEmail(user.getEmail()).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.")
+                () -> new BusinessException(UserErrorCode.USER_NOT_FOUND)
         );
 
         if (!user1.getEmail().equals(user.getEmail())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "잘못된 이메일입니다.");
+            throw new BusinessException(UserErrorCode.USER_NOT_FOUND);
         } else if (!user1.getPassword().equals(user.getPassword())) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "잘못된 비밀번호 입니다.");
+            throw new BusinessException(UserErrorCode.USER_UNAUTHORIZED);
         } else return true;
     }
     public User updateUserRole(UserRequestDto.UserRole userRole) {
         User user = getLoginUser();
         if(user.getUserRole() != UserRole.ADMIN) {
-            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED,"ROLE ERR");
+            throw new BusinessException(UserErrorCode.USER_NOT_ALLOWED);
         }
         try {
             user.setUserRole(UserRole.valueOf(userRole.getUserRole()));

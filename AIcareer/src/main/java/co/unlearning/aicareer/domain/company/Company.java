@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.company;
 
+import co.unlearning.aicareer.domain.CompanyType.CompanyType;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,8 +23,8 @@ public class Company {
     private String companyAddress; //회사 주소
     @Column
     private String companyName; //회사명
-    @Column
-    private CompanyType companyType; //회사 타입
     @OneToMany
-    private Set<Recruitment> recruitments;
+    private Set<CompanyType> companyTypeSet; //회사 타입
+    @OneToMany
+    private Set<Recruitment> recruitmentSet;
 }

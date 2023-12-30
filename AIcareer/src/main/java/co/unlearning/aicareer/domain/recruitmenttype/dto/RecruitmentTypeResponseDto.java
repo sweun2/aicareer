@@ -15,7 +15,7 @@ public class RecruitmentTypeResponseDto {
     @Setter
     @Builder
     public static class RecruitmentTypeNames {
-        @Schema(description = "모집 유형 이름")
+        @Schema(description = "모집 직무 이름")
         private String recruitingTypeName;
         public static RecruitmentTypeNames of(RecruitmentType recruitmentType) {
             return RecruitmentTypeNames.builder()

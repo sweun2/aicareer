@@ -56,6 +56,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         //refresh token -> 쿠키로 전달, access token -> 쿼리 스트링으로 전달
+        Cookie accessTokenCookie = new Cookie("accessToken", token.getAccessToken());
+        accessTokenCookie.setMaxAge(1 * 24 * 60 * 60);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setPath("/");
+        response.addCookie(accessTokenCookie);
+
         Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
         cookie.setMaxAge(7 * 24 * 60 * 60);
         cookie.setHttpOnly(true);

@@ -1,9 +1,9 @@
 package co.unlearning.aicareer.global.swagger;
 
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
-import co.unlearning.aicareer.global.utils.error.BaseErrorCode;
-import co.unlearning.aicareer.global.utils.error.ErrorReason;
-import co.unlearning.aicareer.global.utils.error.ErrorResponse;
+import co.unlearning.aicareer.global.utils.error.code.BaseErrorCode;
+import co.unlearning.aicareer.global.utils.error.code.ErrorReason;
+import co.unlearning.aicareer.global.utils.error.dto.ErrorResponse;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -16,13 +16,9 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.OperationCustomizer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import java.util.Arrays;
 import java.util.List;
@@ -109,8 +105,7 @@ public class OpenApiConfig {
     }
 
     private Example getSwaggerExample(String value, ErrorReason errorReason) {
-//ErrorResponse 는 클라이언트한 실제 응답하는 공통 에러 응답 객체입니다.
-        ErrorResponse errorResponse = new ErrorResponse(errorReason, "요청시 패스정보입니다.");
+        ErrorResponse errorResponse = new ErrorResponse(errorReason);
         Example example = new Example();
         example.description(value);
         example.setValue(errorResponse);

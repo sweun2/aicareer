@@ -1,13 +1,8 @@
 package co.unlearning.aicareer.domain.recruitment.dto;
 
-import co.unlearning.aicareer.domain.careerrequirement.CareerRequirement;
 import co.unlearning.aicareer.domain.careerrequirement.dto.CareerRequirementResponseDto;
-import co.unlearning.aicareer.domain.company.CompanyType;
-import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.education.dto.EducationResponseDto;
-import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recruitmenttype.dto.RecruitmentTypeResponseDto;
-import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
 import co.unlearning.aicareer.domain.recrutingjob.dto.RecruitingJobResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -16,7 +11,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 public class RecruitmentRequirementDto {
     @Getter

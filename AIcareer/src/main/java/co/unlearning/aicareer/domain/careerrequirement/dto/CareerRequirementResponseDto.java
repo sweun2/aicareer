@@ -15,7 +15,7 @@ public class CareerRequirementResponseDto {
     @Setter
     @Builder
     public static class Career {
-        @Schema(description = "요구 경력")
+        @Schema(description = "경력 조건")
         private String careerRequirement;
         public static Career of(CareerRequirement careerRequirement) {
             return Career.builder()

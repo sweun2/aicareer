@@ -78,7 +78,7 @@ public class TokenService {
 
     @Transactional
     public Token refresh(HttpServletRequest request, HttpServletResponse response){
-        String accessToken = request.getHeader("accessToken");
+        String accessToken = request.getHeader("access-token");
         String refreshToken = getRefreshTokenFromCookie(request)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "refresh token이 없습니다."));
 
@@ -99,7 +99,7 @@ public class TokenService {
         Cookie[] cookies = request.getCookies();
         if(cookies != null){
             for(Cookie cookie : cookies){
-                if(cookie.getName().equals("refreshToken")){
+                if(cookie.getName().equals("refresh-token")){
                     return Optional.of(cookie.getValue());
                 }
             }

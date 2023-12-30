@@ -3,7 +3,7 @@ package co.unlearning.aicareer.domain.company.service;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.company.repository.CompanyRepository;
 import co.unlearning.aicareer.domain.company.dto.CompanyRequirementDto;
-import co.unlearning.aicareer.domain.company.CompanyType;
+import co.unlearning.aicareer.domain.CompanyType.CompanyType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,14 +26,18 @@ public class CompanyService {
     public Company addNewCompany(CompanyRequirementDto.CompanyInfo companyInfo) throws Exception {
         Optional<Company> companyOptional = companyRepository.findByCompanyName(companyInfo.getCompanyName());
         if(companyOptional.isEmpty()) {
-            return companyRepository.save(
-                    Company.builder()
-                            .companyName(companyInfo.getCompanyName())
-                            .companyType(CompanyType.ofCompanyType(companyInfo.getCompanyType()))
-                            .companyAddress(companyInfo.getCompanyAddress())
-                            .uid(Long.valueOf(UUID.randomUUID().toString()))
-                            .build()
-            );
+            Company company = Company.builder()
+                    .companyName(companyInfo.getCompanyName())
+                    .companyAddress(companyInfo.getCompanyAddress())
+                    .uid(Long.valueOf(UUID.randomUUID().toString()))
+                    .build();
+
+            CompanyType companyType = CompanyType.builder()
+                    .companyTypeName(CompanyType.CompanyTypeName.valueOf(companyInfo.getCompanyType()))
+                    .company(company)
+                    .build();
+
+            return companyRepository.save(company);
         }else return companyOptional.get();
     }
 }
