@@ -1,6 +1,5 @@
 package co.unlearning.aicareer.domain.company;
 
-import co.unlearning.aicareer.domain.recruitment.CompanyType;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;

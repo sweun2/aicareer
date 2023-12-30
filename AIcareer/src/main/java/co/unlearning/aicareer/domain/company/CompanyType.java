@@ -1,4 +1,4 @@
-package co.unlearning.aicareer.domain.recruitment;
+package co.unlearning.aicareer.domain.company;
 
 public enum CompanyType{
     STARTUP, MAJOR, UNICORN, MIDDLE;

@@ -5,6 +5,7 @@ import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -40,10 +41,16 @@ public class Recruitment {
     private LocalDateTime recruitmentDeadline; //모집 마감일
     @CreationTimestamp
     @Column
-    private LocalDateTime uploadDate; //업로드 날짜
+    private LocalDateTime uploadDate = LocalDateTime.now(); //업로드 날짜
+    @Column(columnDefinition = "TEXT")
+    private String content; //내용
     @Column
     private String recruitmentAnnouncementLink; //모집 공고 링크
     @Column
     private Integer hits; //조회수
+    @Column
+    private String recruitmentAddress; //지역
+    @ManyToOne
+    private User user; //북마크
 }
 

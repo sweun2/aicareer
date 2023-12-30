@@ -19,10 +19,10 @@ public class RecruitmentResponseDto {
     @Getter
     @Setter
     @Builder
-    public static class RecruitmentInfo {
-        private String image;
+    public static class Info {
+        @Schema(description = "이미지 url")
+        private List<String> images;
         //new table
-
         @Schema(description = "회사 정보")
         private CompanyResponseDto.CompanyInfo companyInfo;
         @Schema(description = "모집 직무",allowableValues = {})
@@ -39,13 +39,17 @@ public class RecruitmentResponseDto {
         private LocalDateTime recruitmentDeadline; //모집 마감일
         @Schema(description = "업로드 날짜",allowableValues = {})
         private LocalDateTime uploadDate; //업로드 날짜
-        @Schema(description = "업로드 링크",allowableValues = {})
+        @Schema(description = "모집 공고 링크",allowableValues = {})
         private String recruitmentAnnouncementLink; //모집 공고 링크
         @Schema(description = "조회수",allowableValues = {})
         private Integer hits; //조회수
+        @Schema(description = "지역",allowableValues = {})
+        private String recruitmentAddress; //지역
+        @Schema(description = "내용",allowableValues = {})
+        private String content; //내용
 
-        public static RecruitmentInfo of(Recruitment recruitment) {
-            return RecruitmentInfo.builder()
+        public static Info of(Recruitment recruitment) {
+            return Info.builder()
                     .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNames.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNames.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
@@ -56,10 +60,58 @@ public class RecruitmentResponseDto {
                     .uploadDate(recruitment.getUploadDate())
                     .recruitmentAnnouncementLink(recruitment.getRecruitmentAnnouncementLink())
                     .hits(recruitment.getHits())
+                    .recruitmentAddress(recruitment.getRecruitmentAddress())
+                    .content(recruitment.getContent())
                     .build();
         }
-        public static List<RecruitmentInfo> of(List<Recruitment> companies) {
-            return companies.stream().map(RecruitmentInfo::of).collect(Collectors.toList());
+        public static List<Info> of(List<Recruitment> companies) {
+            return companies.stream().map(Info::of).collect(Collectors.toList());
+        }
+    }
+    @Getter
+    @Setter
+    @Builder
+    public static class Simple {
+        @Schema(description = "이미지 url")
+        private List<String> images;
+        //new table
+        @Schema(description = "회사 정보")
+        private CompanyResponseDto.CompanyInfo companyInfo;
+        @Schema(description = "모집 직무",allowableValues = {})
+        private List<RecruitingJobResponseDto.RecruitingJobNames> recruitingJobNames;
+        @Schema(description = "채용 유형",allowableValues = {})
+        private List<RecruitmentTypeResponseDto.RecruitmentTypeNames> recruitmentTypeNames;
+        @Schema(description = "학력 조건",allowableValues = {})
+        private List<EducationResponseDto.EducationRequirement> educationRequirements;
+        @Schema(description = "경력 조건",allowableValues = {})
+        private List<CareerRequirementResponseDto.Career> careerRequirements;
+        @Schema(description = "모집 시작일",allowableValues = {})
+        private LocalDateTime recruitmentStartDate; // 모집 시작일
+        @Schema(description = "모집 마감일",allowableValues = {})
+        private LocalDateTime recruitmentDeadline; //모집 마감일
+        @Schema(description = "업로드 날짜",allowableValues = {})
+        private LocalDateTime uploadDate; //업로드 날짜
+        @Schema(description = "지역",allowableValues = {})
+        private String recruitmentAddress; //지역
+        @Schema(description = "조회수",allowableValues = {})
+        private Integer hits; //조회수
+
+        public static Simple of(Recruitment recruitment) {
+            return Simple.builder()
+                    .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
+                    .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNames.of(List.copyOf(recruitment.getRecruitingJobSet())))
+                    .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNames.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
+                    .educationRequirements(EducationResponseDto.EducationRequirement.of(List.copyOf(recruitment.getEducationSet())))
+                    .careerRequirements(CareerRequirementResponseDto.Career.of(List.copyOf(recruitment.getCareerRequirementSet())))
+                    .recruitmentStartDate(recruitment.getRecruitmentStartDate())
+                    .recruitmentDeadline(recruitment.getRecruitmentDeadline())
+                    .uploadDate(recruitment.getUploadDate())
+                    .recruitmentAddress(recruitment.getRecruitmentAddress())
+                    .hits(recruitment.getHits())
+                    .build();
+        }
+        public static List<Simple> of(List<Recruitment> companies) {
+            return companies.stream().map(Simple::of).collect(Collectors.toList());
         }
     }
 }

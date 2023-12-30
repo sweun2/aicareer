@@ -25,7 +25,7 @@ public class CompanyResponseDto {
         private String companyName;
         @Schema(description = "회사 타입",allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE"})
         private String companyType;
-        @Schema(description = "회사명")
+        @Schema(description = "회사 주소")
         private String companyAddress;
 
         public static CompanyInfo of(Company company) {
