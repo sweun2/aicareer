@@ -1,22 +1,22 @@
 package co.unlearning.aicareer.domain.recruitment.service;
 
-import co.unlearning.aicareer.domain.careerrequirement.dto.CareerRequirementResponseDto;
+import co.unlearning.aicareer.domain.careerrequirement.repository.CareerRequirementRepository;
+import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.company.repository.CompanyRepository;
-import co.unlearning.aicareer.domain.education.dto.EducationResponseDto;
+import co.unlearning.aicareer.domain.company.dto.CompanyRequirementDto;
+import co.unlearning.aicareer.domain.company.service.CompanyService;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentRepository;
-import co.unlearning.aicareer.domain.recruitmenttype.dto.RecruitmentTypeResponseDto;
-import co.unlearning.aicareer.domain.recrutingjob.dto.RecruitingJobResponseDto;
-import io.swagger.v3.oas.annotations.media.Schema;
+import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -24,6 +24,8 @@ import java.util.List;
 public class RecruitmentService {
     private final RecruitmentRepository recruitmentRepository;
     private final CompanyRepository companyRepository;
+    private final CompanyService companyService;
+    private final CareerRequirementRepository careerRequirementRepository;
     public Recruitment findRecruitmentInfo(String uid) {
         return recruitmentRepository.findByUid(Long.valueOf(uid)).orElseThrow(
                 () -> new ResponseStatusException(HttpStatusCode.valueOf(404),"text")
@@ -34,15 +36,27 @@ public class RecruitmentService {
                 () -> new ResponseStatusException(HttpStatusCode.valueOf(404),"text")
         );
     }*/
-    public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) {
+    public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         //image 처리 필요
 
+        //company 등록 안된 경우 예외 처리
+        Optional<Company> companyOptional = companyRepository.findByCompanyName(recruitmentPost.getCompanyName());
+        Company company = new Company();
+        if(companyOptional.isEmpty()) {
+            company = companyService.addNewCompany(CompanyRequirementDto.CompanyInfo.builder()
+                            .companyName(recruitmentPost.getCompanyName())
+                            .companyAddress(recruitmentPost.getCompanyAddress())
+                            .companyType(recruitmentPost.getCompanyType())
+                    .build());
+        }else {
+            company = companyOptional.get();
+        }
 
-        /*private String companyAddress;
-        @Schema(description = "회사명")
-        private String companyName;
-        @Schema(description = "회사 타입",allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE"})
-        private String companyType;
+        //RecruitingJob.builder().recruitJobName(recruitmentPost.getRecruitingJobNames()).build();
+
+
+
+        /*
         @Schema(description = "모집 직무",allowableValues = {})
         private List<RecruitingJobResponseDto.RecruitingJobNames> recruitingJobNames;
         @Schema(description = "모집 유형",allowableValues = {})

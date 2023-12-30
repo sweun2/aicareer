@@ -38,15 +38,14 @@ public class JwtAuthFilter extends GenericFilterBean {
             }
 
             if (tokenService.verifyToken(token)) {
-                String phone = tokenService.getUid(token);
-                log.info(phone);
-                User user = userService.getUserByPhone(phone);
-                log.info(user.getPhone());
+                String email = tokenService.getUid(token);
+                User user = userService.getUserByEmail(email);
+                log.info(user.getEmail());
 
-                if (user.getIsAgreeTerms()) {
-                    Authentication auth = getAuthentication(user);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+
+                Authentication auth = getAuthentication(user);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+
             }
         }
 

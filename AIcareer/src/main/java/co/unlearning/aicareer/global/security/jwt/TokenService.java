@@ -83,8 +83,8 @@ public class TokenService {
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "refresh token이 없습니다."));
 
         //access token에서 user 가져오기
-        String phone = getUid(accessToken);
-        User user = userRepository.findByPhone(phone).orElseThrow(()->
+        String email = getUid(accessToken);
+        User user = userRepository.findByEmail(email).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 회원이 없습니다."));
 
         if(!verifyToken(refreshToken)){
@@ -92,7 +92,7 @@ public class TokenService {
         }
 
         //토큰 재발급
-        return generateToken(phone, "USER");
+        return generateToken(email, "USER");
     }
 
     public Optional<String> getRefreshTokenFromCookie(HttpServletRequest request){

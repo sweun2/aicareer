@@ -31,9 +31,9 @@ public class Recruitment {
     @OneToMany(fetch = FetchType.EAGER)
     private Set<RecruitmentType> recruitmentTypeSet; //채용 유형 -> new table
     @OneToMany(fetch = FetchType.EAGER)
-    private Set<Education> education; //최종 학력
+    private Set<Education> educationSet; //최종 학력
     @OneToMany(fetch = FetchType.EAGER)
-    private Set<CareerRequirement> careerRequirement; // 요구 경력
+    private Set<CareerRequirement> careerRequirementSet; // 요구 경력
     @Column
     private LocalDateTime recruitmentStartDate; // 모집 시작일
     @Column

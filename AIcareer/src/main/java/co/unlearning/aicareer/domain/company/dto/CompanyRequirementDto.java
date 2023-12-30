@@ -1,4 +1,4 @@
-package co.unlearning.aicareer.domain.company.repository;
+package co.unlearning.aicareer.domain.company.dto;
 
 import co.unlearning.aicareer.domain.careerrequirement.dto.CareerRequirementResponseDto;
 import co.unlearning.aicareer.domain.education.dto.EducationResponseDto;

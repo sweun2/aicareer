@@ -1,11 +1,11 @@
 package co.unlearning.aicareer.domain.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -14,30 +14,22 @@ import org.hibernate.annotations.ColumnDefault;
 @AllArgsConstructor
 @Entity
 public class User {
-    public enum Gender {
-        Male,Female
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @ColumnDefault("0")
+    private String nickname;
+    @ColumnDefault("0")
     private String name;
     @ColumnDefault("0")
-    private String phone;
+    private String email;
     @ColumnDefault("0")
     private String password;
     @ColumnDefault("0")
-    private Gender gender;
-    @ColumnDefault("0")
-    private Boolean isSmsAuth;
-
-    @ColumnDefault("0")
-    private Boolean isAgreeTerms;
-    @ColumnDefault("0")
-    private Boolean isMarketing;
-    @ColumnDefault("0")
     private String recommender;
-    @ColumnDefault("0")
-    private String joinDate;
+    @CreationTimestamp
+    @Column
+    private LocalDateTime joinDate; //joinDate
+    @Column
+    private UserRole userRole;
 }
