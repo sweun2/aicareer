@@ -3,7 +3,6 @@ package co.unlearning.aicareer.global.security.jwt;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,8 +30,8 @@ public class TokenController {
     //access 토큰 만료시 refresh 토큰을 통해 재발급
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/token/refresh")
-    public ResponseEntity<String> refreshAuth(HttpServletRequest request, HttpServletResponse response) {
-        Token newToken = tokenService.refresh(request, response);
+    public ResponseEntity<String> refreshAuth(HttpServletRequest request) {
+        Token newToken = tokenService.refresh(request);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newToken.getAccessToken())
                 .maxAge(24 * 60 * 60)

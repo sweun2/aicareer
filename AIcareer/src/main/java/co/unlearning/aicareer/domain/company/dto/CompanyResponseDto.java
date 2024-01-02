@@ -14,23 +14,23 @@ public class CompanyResponseDto {
     @Builder
     @Getter
     @Setter
-    public static class CompanyInfo {
+    public static class CompanyResponseInfo {
         @Schema(description = "회사명")
         private String companyName;
         @Schema(description = "회사 타입",allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET"})
-        private List<CompanyTypeResponseDto.CompanyTypeInfo> companyTypeInfos;
+        private CompanyTypeResponseDto.CompanyTypeInfo companyTypeInfo;
         @Schema(description = "회사 주소")
         private String companyAddress;
 
-        public static CompanyInfo of(Company company) {
-            return CompanyInfo.builder()
+        public static CompanyResponseInfo of(Company company) {
+            return CompanyResponseInfo.builder()
                     .companyName(company.getCompanyName())
-                    .companyTypeInfos(CompanyTypeResponseDto.CompanyTypeInfo.of(List.copyOf(company.getCompanyTypeSet())))
+                    .companyTypeInfo(CompanyTypeResponseDto.CompanyTypeInfo.of(company.getCompanyType()))
                     .companyAddress(company.getCompanyAddress())
                     .build();
         }
-        public static List<CompanyInfo> of(List<Company> companies) {
-            return companies.stream().map(CompanyInfo::of).collect(Collectors.toList());
+        public static List<CompanyResponseInfo> of(List<Company> companies) {
+            return companies.stream().map(CompanyResponseInfo::of).collect(Collectors.toList());
         }
     }
 }

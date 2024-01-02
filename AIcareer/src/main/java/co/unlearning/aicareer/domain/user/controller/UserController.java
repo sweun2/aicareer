@@ -35,7 +35,6 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final TokenService tokenService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저의 기본 정보 가져오기", description = "현재 로그인된 유저의 기본 정보를 가져옵니다.")
     @ApiResponse(
@@ -60,41 +59,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto.Info> findUserInfo() {
         return ResponseEntity.ok(UserResponseDto.Info.of(userService.getLoginUser()));
     }
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "로그아웃", description = "로그아웃하기 accessToken, refresh token 둘다 덮어쓰기")
-    @ApiErrorCodeExample(UserErrorCode.class)
-    @GetMapping("/logout")
-    public ResponseEntity<String> Login() {
-        User user = userService.getLoginUser();
-        if (userService.verifyLoginUser(user)){
-            Token token = tokenService.generateToken(user.getEmail(), "USER");
 
-            //samesite 재설정 필요
-            ResponseCookie accessTokenCookie = ResponseCookie.from("access-token", token.getAccessToken())
-                    .maxAge(0)
-                    .path("/")
-                    .httpOnly(true)
-                    .build();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Set-Cookie", accessTokenCookie.toString());
-
-            ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh-token", token.getRefreshToken())
-                    .maxAge(0)
-                    .path("/")
-                    .httpOnly(true)
-                    .build();
-
-            headers.add("Set-Cookie", refreshTokenCookie.toString());
-
-
-            log.info(accessTokenCookie.toString());
-            log.info(refreshTokenCookie.toString());
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body("logout");
-
-        }
-        else throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"로그인 실패");
-    }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저 Role 변경", description = "현재 로그인된 유저의 Role을 변경합니다. Role이 ADMIN인 경우만 사용 가능, ADMIN으로의 변경은 DB에서 직접 변경")
     @ApiErrorCodeExample(UserErrorCode.class)

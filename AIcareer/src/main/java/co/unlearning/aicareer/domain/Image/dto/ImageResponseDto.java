@@ -1,8 +1,6 @@
 package co.unlearning.aicareer.domain.Image.dto;
 
 import co.unlearning.aicareer.domain.Image.Image;
-import co.unlearning.aicareer.domain.user.User;
-import co.unlearning.aicareer.domain.user.dto.UserResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -20,7 +18,7 @@ public class ImageResponseDto {
         private String url;
         public static ImageData of(Image image) {
             return ImageData.builder()
-                    .url(image.getUrl())
+                    .url(image.getImageUrl())
                     .build();
         }
 

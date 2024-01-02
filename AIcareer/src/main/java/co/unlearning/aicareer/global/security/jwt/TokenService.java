@@ -28,14 +28,13 @@ import java.util.Optional;
 public class TokenService {
 
     private final UserRepository userRepository;
-    @Value("${jwt.secret}")
-    private String SECRET_KEY;
     private Key key;
     private final long ACCESS_EXPIRE = 1000 * 60 * 60;             //60분
     private final long REFRESH_EXPIRE = 1000 * 60 * 60 * 24 * 7;   //7일
 
     @PostConstruct
     protected void init(){
+        String SECRET_KEY = "힘을 내라고 말해 줄래 그 눈을 반짝여 날 일으켜 줄래 사람들은 모두 원하지 더 빨리 더 많이 Oh 난 평범한 소년걸";
         key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -77,16 +76,13 @@ public class TokenService {
     }
 
     @Transactional
-    public Token refresh(HttpServletRequest request, HttpServletResponse response){
+    public Token refresh(HttpServletRequest request){
         String accessToken = request.getHeader("access-token");
         String refreshToken = getRefreshTokenFromCookie(request)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "refresh token이 없습니다."));
 
         //access token에서 user 가져오기
         String email = getUid(accessToken);
-        User user = userRepository.findByEmail(email).orElseThrow(()->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "해당하는 회원이 없습니다."));
-
         if(!verifyToken(refreshToken)){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "refresh token이 유효하지 않습니다.");
         }

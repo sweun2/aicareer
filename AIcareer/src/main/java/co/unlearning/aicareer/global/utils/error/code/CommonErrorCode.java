@@ -11,10 +11,14 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 public enum CommonErrorCode implements BaseErrorCode {
-    @ExplainError("서버 내부 에러, 문의 바람")
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "COMMON_001", "유저 정보가 없습니다."),
-    @ExplainError("입력하는 enum 값에 대해 철자가 틀린 경우")
-    INVALID_ENUM_STRING_INPUT(HttpStatus.BAD_REQUEST.value(), "COMMON_002","잘못된 입력 값입니다.")
+    @ExplainError("서버 내부 에러, 문의 바래요.")
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "COMMON_001", "서버 내부 에러"),
+    @ExplainError("입력하는 enum 값에 대해 잘못된 값을 입력한 경우, 각 enum 값 철자를 확인 하세요. ")
+    INVALID_ENUM_STRING_INPUT(HttpStatus.BAD_REQUEST.value(), "COMMON_002","잘못된 입력 값입니다."),
+    @ExplainError("입력하는 date 값에 대해 입력 패턴이 틀린 경우, 'yyyy-MM-dd HH:mm' 형식 으로 입력해야 합니다.")
+    INVALID_DATE_STRING_INPUT(HttpStatus.BAD_REQUEST.value(), "COMMON_003","잘못된 date 입력 값입니다."),
+    @ExplainError("입력하는 date 값이 유효하지 않은 경우,마감 일자 입력은 현재 보다 나중이어야 합니다.")
+    DATE_BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "COMMON_004","잘못된 date 입력 값입니다."),
     ;
     private final int status;
     private final String code;

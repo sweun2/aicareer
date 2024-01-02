@@ -17,7 +17,12 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @Column
-    private String url;
+    private String imageUrl;
+    @Column
+    private String imagePath;
+    @Column
+    private String originImageName;
+
     @CreationTimestamp
     @Column
     private LocalDateTime createdDate = LocalDateTime.now();

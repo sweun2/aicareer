@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RecruitmentRepository extends JpaRepository<Recruitment,Integer>, JpaSpecificationExecutor<Recruitment> {
-    Optional<Recruitment> findByUid(Long uid);
+    Optional<Recruitment> findByUid(String uid);
 }

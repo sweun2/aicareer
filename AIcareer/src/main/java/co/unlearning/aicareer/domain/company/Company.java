@@ -4,6 +4,8 @@ import co.unlearning.aicareer.domain.CompanyType.CompanyType;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import java.util.Set;
 
@@ -18,13 +20,14 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @Column
-    private Long uid;
+    private String uid;
     @Column
     private String companyAddress; //회사 주소
     @Column
     private String companyName; //회사명
-    @OneToMany
-    private Set<CompanyType> companyTypeSet; //회사 타입
+    @OneToOne
+    @Cascade(CascadeType.PERSIST)
+    private CompanyType companyType; //회사 타입
     @OneToMany
     private Set<Recruitment> recruitmentSet;
 }

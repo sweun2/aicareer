@@ -2,11 +2,7 @@ package co.unlearning.aicareer.domain.Image.controller;
 
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
-import co.unlearning.aicareer.domain.user.dto.UserResponseDto;
 import co.unlearning.aicareer.domain.user.service.UserService;
-import co.unlearning.aicareer.global.security.jwt.TokenService;
-import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
-import co.unlearning.aicareer.global.utils.error.code.UserErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -34,16 +30,15 @@ import java.net.MalformedURLException;
 @RequiredArgsConstructor
 public class ImageController {
     private final UserService userService;
-    private final TokenService tokenService;
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "이미지 파일 올리기", description = "이미지 파일을 저장합니다.")
+    @Operation(summary = "단일 이미지 파일 올리기", description = "이미지 파일을 저장합니다.")
     @ApiResponse(
             responseCode = "201",
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
     @PostMapping("/")
-    public ResponseEntity<ImageResponseDto.ImageData> postImage(MultipartFile image) {
+    public ResponseEntity<ImageResponseDto.ImageData> postImage(@RequestBody MultipartFile image) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(new Image()));
     }
     @Operation(summary = "이미지 파일 다운로드", description = "이미지 파일 다운로드하기")

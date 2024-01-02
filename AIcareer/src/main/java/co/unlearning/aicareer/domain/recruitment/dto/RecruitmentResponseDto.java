@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter.LocalDateTimeToString;
+
 public class RecruitmentResponseDto {
     @Getter
     @Setter
@@ -24,12 +26,10 @@ public class RecruitmentResponseDto {
         @Schema(description = "채용 공고 uid")
         private String recruitmentUid;
         @Schema(description = "메인 이미지 url")
-        private ImageResponseDto.ImageData mainImage;
-        @Schema(description = "내용 이미지 url 리스트")
-        private List<ImageResponseDto.ImageData> contentImage;
+        private ImageResponseDto.ImageData mainImageUrl;
         //new table
         @Schema(description = "회사 정보")
-        private CompanyResponseDto.CompanyInfo companyInfo;
+        private CompanyResponseDto.CompanyResponseInfo companyResponseInfo;
         @Schema(description = "모집 직무",allowableValues = {})
         private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
         @Schema(description = "모집 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
@@ -56,9 +56,8 @@ public class RecruitmentResponseDto {
         public static Info of(Recruitment recruitment) {
             return Info.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
-                    .mainImage(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
-                    .contentImage(ImageResponseDto.ImageData.of(List.copyOf(recruitment.getContentImage())))
-                    .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
+                    .mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
+                    .companyResponseInfo(CompanyResponseDto.CompanyResponseInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
                     .educationDtos(EducationResponseDto.EducationDto.of(List.copyOf(recruitment.getEducationSet())))
@@ -86,38 +85,38 @@ public class RecruitmentResponseDto {
         private String mainImageUrl;
         //new table
         @Schema(description = "회사 정보")
-        private CompanyResponseDto.CompanyInfo companyInfo;
-        @Schema(description = "모집 직무",allowableValues = {})
+        private CompanyResponseDto.CompanyResponseInfo companyResponseInfo;
+        @Schema(description = "모집 직무",allowableValues = {"RESEARCH", "MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST", "ETC"})
         private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
         @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
         private List<RecruitmentTypeResponseDto.RecruitmentTypeNameDto> recruitmentTypeNames;
-        @Schema(description = "학력 조건",allowableValues = {})
-        private List<EducationResponseDto.EducationDto> educationDtos;
-        @Schema(description = "경력 조건",allowableValues = {})
-        private List<CareerResponseDto.CareerDto> careerDtoRequirements;
-        @Schema(description = "모집 시작일",allowableValues = {})
-        private LocalDateTime recruitmentStartDate; // 모집 시작일
-        @Schema(description = "모집 마감일",allowableValues = {})
-        private LocalDateTime recruitmentDeadline; //모집 마감일
-        @Schema(description = "업로드 날짜",allowableValues = {})
-        private LocalDateTime uploadDate; //업로드 날짜
-        @Schema(description = "지역",allowableValues = {})
+        @Schema(description = "학력 조건",allowableValues = {"IRRELEVANCE", "HIGH_SCHOOL", "BACHELOR", "MASTER", "DOCTOR"})
+        private List<EducationResponseDto.EducationDto> educations;
+        @Schema(description = "경력 조건",allowableValues = {"NEW_COMER","JUNIOR","SENIOR","MIDDLE","LEADER"})
+        private List<CareerResponseDto.CareerDto> careers;
+        @Schema(description = "모집 시작일")
+        private String recruitmentStartDate; // 모집 시작일
+        @Schema(description = "모집 마감일")
+        private String recruitmentDeadline; //모집 마감일
+        @Schema(description = "업로드 날짜")
+        private String uploadDate; //업로드 날짜
+        @Schema(description = "지역")
         private String recruitmentAddress; //지역
-        @Schema(description = "조회수",allowableValues = {})
+        @Schema(description = "조회수")
         private Integer hits; //조회수
 
         public static Simple of(Recruitment recruitment) {
             return Simple.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
-                    .mainImageUrl(recruitment.getMainImage().getUrl())
-                    .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
+                    .mainImageUrl(recruitment.getMainImage().getImageUrl())
+                    .companyResponseInfo(CompanyResponseDto.CompanyResponseInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
-                    .educationDtos(EducationResponseDto.EducationDto.of(List.copyOf(recruitment.getEducationSet())))
-                    .careerDtoRequirements(CareerResponseDto.CareerDto.of(List.copyOf(recruitment.getCareerSet())))
-                    .recruitmentStartDate(recruitment.getRecruitmentStartDate())
-                    .recruitmentDeadline(recruitment.getRecruitmentDeadline())
-                    .uploadDate(recruitment.getUploadDate())
+                    .educations(EducationResponseDto.EducationDto.of(List.copyOf(recruitment.getEducationSet())))
+                    .careers(CareerResponseDto.CareerDto.of(List.copyOf(recruitment.getCareerSet())))
+                    .recruitmentStartDate(LocalDateTimeToString(recruitment.getRecruitmentStartDate()))
+                    .recruitmentDeadline(LocalDateTimeToString(recruitment.getRecruitmentDeadline()))
+                    .uploadDate(LocalDateTimeToString(recruitment.getUploadDate()))
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
                     .hits(recruitment.getHits())
                     .build();

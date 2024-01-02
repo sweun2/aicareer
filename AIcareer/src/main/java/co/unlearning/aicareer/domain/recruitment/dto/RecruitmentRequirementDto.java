@@ -17,31 +17,32 @@ public class RecruitmentRequirementDto {
     @Setter
     @Builder
     public static class RecruitmentPost {
+        @Schema(description = "메인 이미지 url")
+        private String mainImage;
         @Schema(description = "회사 주소")
         private String companyAddress;
         @Schema(description = "회사명")
         private String companyName;
         @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET"})
         private String companyType;
-        @Schema(description = "모집 직무", allowableValues = {})
-        private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
-        @Schema(description = "모집 유형", allowableValues = {})
-        private List<RecruitmentTypeResponseDto.RecruitmentTypeNameDto> recruitmentTypeNames;
-        @Schema(description = "최종 학력", allowableValues = {})
-        private List<EducationResponseDto.EducationDto> educationDtos;
-        @Schema(description = "요구 경력", allowableValues = {})
-        private List<CareerResponseDto.CareerDto> careerDtoRequirements;
-        @Schema(description = "모집 시작일", defaultValue = "작성 시 시간", allowableValues = {})
-        private LocalDateTime recruitmentStartDate; // 모집 시작일
-        @Schema(description = "모집 마감일", allowableValues = {})
-        private LocalDateTime recruitmentDeadline; //모집 마감일
-        @Schema(description = "모집 공고 링크", allowableValues = {})
+        @Schema(description = "모집 직무",allowableValues = {"RESEARCH", "MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST", "ETC"})
+        private List<String> recruitingJobNames;
+        @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
+        private List<String> recruitmentTypeNames;
+        @Schema(description = "학력 조건",allowableValues = {"IRRELEVANCE", "HIGH_SCHOOL", "BACHELOR", "MASTER", "DOCTOR"})
+        private List<String> educations;
+        @Schema(description = "요구 경력", allowableValues = {"NEW_COMER","JUNIOR","SENIOR","MIDDLE","LEADER"})
+        private List<String> careers;
+        @Schema(description = "모집 시작일, 일자/시간 사이 빈칸 필요", defaultValue = "작성 시 시간", allowableValues = {"yyyy-MM-dd HH:mm","2024-01-02 13:45"})
+        private String recruitmentStartDate; // 모집 시작일
+        @Schema(description = "모집 마감일 일자/시간 사이 빈칸 필요", allowableValues = {"yyyy-MM-dd HH:mm","2024-01-02 13:45"})
+        private String recruitmentDeadline; //모집 마감일
+        @Schema(description = "모집 공고 링크")
         private String recruitmentAnnouncementLink; //모집 공고 링크
-        @Schema(description = "모집 지역", allowableValues = {})
+        @Schema(description = "모집 지역")
         private String recruitmentAddress; //지역
-        @Schema(description = "내용", allowableValues = {})
+        @Schema(description = "내용")
         private String content; //내용
-
     }
 
     @Getter

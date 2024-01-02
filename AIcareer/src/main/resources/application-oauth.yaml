@@ -1,11 +1,11 @@
-pring:
+spring:
   security:
     oauth2:
       client:
         registration:
           naver:
-            client-id: PhnrNd7VHGviD1ecnn6o
-            client-secret: eU7R4eSMOA
+            client-id: aY6ehque07j5CjYTBIcX
+            client-secret: 73CHBBQ3sD
             redirect-uri: "{baseUrl}/login/oauth2/code/naver"
             authorization_grant_type: authorization_code
             scope:
@@ -34,4 +34,3 @@ pring:
             user-name-attribute: id
 jwt:
   secret_key: "힘을 내라고 말해 줄래 그 눈을 반짝여 날 일으켜 줄래 사람들은 모두 원하지 더 빨리 더 많이 Oh 난 평범한 소년걸"
-website:

@@ -17,15 +17,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @ColumnDefault("0")
+    @ColumnDefault("")
     private String nickname;
-    @ColumnDefault("0")
+    @ColumnDefault("")
     private String name;
-    @ColumnDefault("0")
+    @ColumnDefault("")
     private String email;
-    @ColumnDefault("0")
+    @ColumnDefault("")
     private String password;
-    @ColumnDefault("0")
+    @ColumnDefault("")
     private String recommender;
     @CreationTimestamp
     @Column

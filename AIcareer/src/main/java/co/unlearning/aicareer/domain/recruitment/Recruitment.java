@@ -27,20 +27,20 @@ public class Recruitment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @Column(unique = true)
-    private Long uid; // 채용 공고 uid
+    private String uid; // 채용 공고 uid
     @ManyToOne
     private Company company;
     @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.PERSIST)
     private Set<RecruitingJob> recruitingJobSet;
+    @Cascade(CascadeType.PERSIST)
     @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.ALL)
     private Set<RecruitmentType> recruitmentTypeSet; //채용 유형 -> new table
     @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.PERSIST)
     private Set<Education> educationSet; //최종 학력
     @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.PERSIST)
     private Set<Career> careerSet; // 요구 경력
     @Column
     private LocalDateTime recruitmentStartDate; // 모집 시작일
@@ -62,8 +62,5 @@ public class Recruitment {
     @OneToOne
     @Cascade(CascadeType.ALL)
     private Image mainImage;
-    @OneToMany
-    @Cascade(CascadeType.ALL)
-    private Set<Image> contentImage;
 }
 

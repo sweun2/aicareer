@@ -9,26 +9,26 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
+@Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenService tokenService;
     private final UserRepository userRepository;
-
-    @Transactional
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -38,15 +38,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Optional<User> userOptional = userRepository.findByEmail(email);
 
-        String url = "";
+        String url;
 
         //최초 로그인 시 회원가입
         if(userOptional.isEmpty()){
             userRepository.save(User.builder()
                     .email(email)
                     .name(oAuth2User.getAttribute("name"))
-                    .nickname(UUID.randomUUID().toString())
-                    .userRole(UserRole.USER)
+                            .nickname(UUID.randomUUID().toString())
+                            .userRole(UserRole.USER)
+                            .joinDate(LocalDateTime.now())
                     .build());
             url = makeRedirectUrl("signup", token.getAccessToken());
         } else {
@@ -56,13 +57,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         //refresh token -> 쿠키로 전달, access token -> 쿼리 스트링으로 전달
-        Cookie accessTokenCookie = new Cookie("accessToken", token.getAccessToken());
-        accessTokenCookie.setMaxAge(1 * 24 * 60 * 60);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        response.addCookie(accessTokenCookie);
-
-        Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
+        Cookie cookie = new Cookie("refresh-token", token.getRefreshToken());
         cookie.setMaxAge(7 * 24 * 60 * 60);
         cookie.setHttpOnly(true);
         cookie.setPath("/");

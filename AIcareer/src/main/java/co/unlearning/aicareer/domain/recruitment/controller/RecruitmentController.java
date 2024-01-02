@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,19 +26,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@Slf4j
 @Tag(name = "recruitment", description = "체용 공고 api")
 @RequiredArgsConstructor
 @RequestMapping("/api/recruitment")
 public class RecruitmentController {
     private final RecruitmentService recruitmentService;
-/*    @GetMapping("/{uid}")
-    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> getRecruitmentInfo(@PathVariable String uid) {
-        return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.findCompanyInfo(uid)));
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "글쓰기", description = "채용 공고 글쓰기")
+    @ApiResponse(
+            responseCode = "201",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
+    @ApiErrorCodeExample(CommonErrorCode.class)
+    @PostMapping("/test")
+    public ResponseEntity<Void> test(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) {
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @GetMapping("/all")
-    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentInfo>> getAllRecruitment() {
-        return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.findAllCompanyInfo()));
-    }*/
+
 
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글쓰기", description = "채용 공고 글쓰기")
@@ -122,15 +129,4 @@ public class RecruitmentController {
                                                                                  @PathVariable("uid") String uid) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-
-
-    @GetMapping("/test")
-    @ApiResponse(
-            responseCode = "200",
-            description = "정상 응답",
-            content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
-    @ApiErrorCodeExample(UserErrorCode.class)
-    public void getUserErrorCode() {}
 }
