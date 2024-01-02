@@ -19,10 +19,7 @@ public class Image {
     @Column
     private String imageUrl;
     @Column
-    private String imagePath;
-    @Column
-    private String originImageName;
-
+    private String absolutePath;
     @CreationTimestamp
     @Column
     private LocalDateTime createdDate = LocalDateTime.now();

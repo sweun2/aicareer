@@ -10,5 +10,5 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ImageRepository extends JpaRepository<Image,Integer> {
-    Optional<Image> findByUrl(String url);
+    Optional<Image> findByImageUrl(String imageUrl);
 }

@@ -84,7 +84,7 @@ public class RecruitmentService {
         //마감 일이 미래 인지 확인
         TimeValidator.RemainingTimeValidator(deadLine);
         log.info("date");
-        Image image = imageRepository.findByUrl(recruitmentPost.getMainImage()).orElseThrow(
+        Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage()).orElseThrow(
                 ()-> new BusinessException(ImageErrorCode.INVALID_IMAGE_URL)
         );
 

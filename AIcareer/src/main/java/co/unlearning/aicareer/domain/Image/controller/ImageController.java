@@ -1,7 +1,9 @@
 package co.unlearning.aicareer.domain.Image.controller;
 
 import co.unlearning.aicareer.domain.Image.Image;
+import co.unlearning.aicareer.domain.Image.dto.ImageRequirementDto;
 import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
+import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,11 +19,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @Tag(name = "image", description = "이미지 api")
@@ -30,18 +36,32 @@ import java.net.MalformedURLException;
 @RequiredArgsConstructor
 public class ImageController {
     private final UserService userService;
+    private final ImageService imageService;
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "단일 이미지 파일 올리기", description = "이미지 파일을 저장합니다.")
+    @Operation(summary = "단일 이미지 파일 올리기", description = "딘ㅇ;ㄹ 이미지 파일을 저장합니다.")
     @ApiResponse(
             responseCode = "201",
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
-    @PostMapping("/")
-    public ResponseEntity<ImageResponseDto.ImageData> postImage(@RequestBody MultipartFile image) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(new Image()));
+    @PostMapping(value = "/one", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImageResponseDto.ImageData> postOneImage(ImageRequirementDto.ImagePost imagePost) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addOneImage(imagePost)));
     }
-    @Operation(summary = "이미지 파일 다운로드", description = "이미지 파일 다운로드하기")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "다중 이미지 파일 올리기", description = "여러 이미지 파일을 저장합니다.")
+    @ApiResponse(
+            responseCode = "201",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
+    @PostMapping(value = "/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<List<ImageResponseDto.ImageData>> postAllImage(List<ImageRequirementDto.ImagePost> imagePosts) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addAllImage(imagePosts)));
+
+    }
+
+    @Operation(summary = "이미지 파일 다운로드", description = "이미지 파일 다운로드하기,imageUrl을 입력하세요")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
@@ -49,22 +69,23 @@ public class ImageController {
                     schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
     @GetMapping("/{url}")
     public ResponseEntity<Resource> downloadAttach(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
-                                                       @PathVariable String url) throws MalformedURLException {
-        //...itemId 이용해서 고객이 업로드한 파일 이름인 uploadFileName랑 서버 내부에서 사용하는 파일 이름인 storeFileName을 얻는다는 내용은 생략
+                                                   @PathVariable String url) throws MalformedURLException {
+        Image image = imageService.getImageByUrl(url);
+        UrlResource resource = new UrlResource("file:" +image.getAbsolutePath() + image.getImageUrl());
 
-
-        //UrlResource resource = new UrlResource("file:/home/ubuntu/img/"+filePath);
-
-/*        //한글 파일 이름이나 특수 문자의 경우 깨질 수 있으니 인코딩 한번 해주기
-        String encodedUploadFileName = UriUtils.encode(uploadFileName,
-                StandardCharsets.UTF_8);*/
+        log.info("test");
+        //한글 파일 이름이나 특수 문자의 경우 깨질 수 있으니 인코딩 한번 해주기
+        String encodedUploadFileName = UriUtils.encode(image.getImageUrl(),
+                StandardCharsets.UTF_8);
+        log.info("test");
 
         //아래 문자를 ResponseHeader에 넣어줘야 한다. 그래야 링크를 눌렀을 때 다운이 된다.
         //정해진 규칙이다.
-        String contentDisposition = "attachment; filename=\"" + "file:/home/ubuntu/img/" ;
+        String contentDisposition = "attachment; filename=\"" + encodedUploadFileName + "\"";
+        log.info("test");
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                .body(new UrlResource(""));
+                .body(resource);
     }
 }

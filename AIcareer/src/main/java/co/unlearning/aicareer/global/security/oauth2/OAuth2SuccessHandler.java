@@ -5,6 +5,7 @@ import co.unlearning.aicareer.domain.user.UserRole;
 import co.unlearning.aicareer.domain.user.repository.UserRepository;
 import co.unlearning.aicareer.global.security.jwt.Token;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
+import jakarta.persistence.Column;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -39,13 +41,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Optional<User> userOptional = userRepository.findByEmail(email);
 
         String url;
-
         //최초 로그인 시 회원가입
         if(userOptional.isEmpty()){
             userRepository.save(User.builder()
                     .email(email)
                     .name(oAuth2User.getAttribute("name"))
                             .nickname(UUID.randomUUID().toString())
+                            .password("none")
+                            .recommender("none")
                             .userRole(UserRole.USER)
                             .joinDate(LocalDateTime.now())
                     .build());

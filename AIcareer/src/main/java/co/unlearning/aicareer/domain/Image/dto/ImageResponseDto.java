@@ -15,10 +15,13 @@ public class ImageResponseDto {
     @AllArgsConstructor
     public static class ImageData {
         @Schema(description = "이미지 url")
-        private String url;
+        private String imageUrl;
+        @Schema(description = "원본 이미지 파일 이름")
+        private String absolutePath;
         public static ImageData of(Image image) {
             return ImageData.builder()
-                    .url(image.getImageUrl())
+                    .imageUrl(image.getImageUrl())
+                    .absolutePath(image.getAbsolutePath())
                     .build();
         }
 
