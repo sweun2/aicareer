@@ -1,7 +1,6 @@
 package co.unlearning.aicareer.domain.recruitmenttype.dto;
 
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
-import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,16 +13,16 @@ public class RecruitmentTypeResponseDto {
     @Getter
     @Setter
     @Builder
-    public static class RecruitmentTypeNames {
-        @Schema(description = "모집 직무 이름")
+    public static class RecruitmentTypeNameDto {
+        @Schema(description = "모집 직무 이름",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
         private String recruitingTypeName;
-        public static RecruitmentTypeNames of(RecruitmentType recruitmentType) {
-            return RecruitmentTypeNames.builder()
+        public static RecruitmentTypeNameDto of(RecruitmentType recruitmentType) {
+            return RecruitmentTypeNameDto.builder()
                     .recruitingTypeName(String.valueOf(recruitmentType.getRecruitmentTypeName()))
                     .build();
         }
-        public static List<RecruitmentTypeNames> of(List<RecruitmentType> recruitmentTypes) {
-            return recruitmentTypes.stream().map(RecruitmentTypeNames::of).collect(Collectors.toList());
+        public static List<RecruitmentTypeNameDto> of(List<RecruitmentType> recruitmentTypes) {
+            return recruitmentTypes.stream().map(RecruitmentTypeNameDto::of).collect(Collectors.toList());
         }
     }
 }

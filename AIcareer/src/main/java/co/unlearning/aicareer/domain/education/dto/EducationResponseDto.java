@@ -1,7 +1,6 @@
 package co.unlearning.aicareer.domain.education.dto;
 
 import co.unlearning.aicareer.domain.education.Education;
-import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,16 +13,16 @@ public class EducationResponseDto {
     @Getter
     @Setter
     @Builder
-    public static class EducationRequirement {
-        @Schema(description = "학력 조건")
-        private String educationRequirement;
-        public static EducationRequirement of(Education education) {
-            return EducationRequirement.builder()
-                    .educationRequirement(String.valueOf(education.getDegree()))
+    public static class EducationDto {
+        @Schema(description = "학력 조건",allowableValues = {"IRRELEVANCE", "HIGH_SCHOOL", "BACHELOR", "MASTER", "DOCTOR"})
+        private String education;
+        public static EducationDto of(Education education) {
+            return EducationDto.builder()
+                    .education(String.valueOf(education.getDegree()))
                     .build();
         }
-        public static List<EducationRequirement> of(List<Education> educations) {
-            return educations.stream().map(EducationRequirement::of).collect(Collectors.toList());
+        public static List<EducationDto> of(List<Education> educations) {
+            return educations.stream().map(EducationDto::of).collect(Collectors.toList());
         }
     }
 }

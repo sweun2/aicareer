@@ -1,7 +1,7 @@
 package co.unlearning.aicareer.domain.recruitment.dto;
 
 import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
-import co.unlearning.aicareer.domain.careerrequirement.dto.CareerRequirementResponseDto;
+import co.unlearning.aicareer.domain.career.dto.CareerResponseDto;
 import co.unlearning.aicareer.domain.company.dto.CompanyResponseDto;
 import co.unlearning.aicareer.domain.education.dto.EducationResponseDto;
 import co.unlearning.aicareer.domain.recruitment.*;
@@ -31,13 +31,13 @@ public class RecruitmentResponseDto {
         @Schema(description = "회사 정보")
         private CompanyResponseDto.CompanyInfo companyInfo;
         @Schema(description = "모집 직무",allowableValues = {})
-        private List<RecruitingJobResponseDto.RecruitingJobNames> recruitingJobNames;
-        @Schema(description = "모집 유형",allowableValues = {})
-        private List<RecruitmentTypeResponseDto.RecruitmentTypeNames> recruitmentTypeNames;
+        private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
+        @Schema(description = "모집 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
+        private List<RecruitmentTypeResponseDto.RecruitmentTypeNameDto> recruitmentTypeNames;
         @Schema(description = "최종 학력",allowableValues = {})
-        private List<EducationResponseDto.EducationRequirement> educationRequirements;
+        private List<EducationResponseDto.EducationDto> educationDtos;
         @Schema(description = "요구 경력",allowableValues = {})
-        private List<CareerRequirementResponseDto.Career> careerRequirements;
+        private List<CareerResponseDto.CareerDto> careerDtos;
         @Schema(description = "모집 시작일",allowableValues = {})
         private LocalDateTime recruitmentStartDate; // 모집 시작일
         @Schema(description = "모집 마감일",allowableValues = {})
@@ -59,10 +59,10 @@ public class RecruitmentResponseDto {
                     .mainImage(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
                     .contentImage(ImageResponseDto.ImageData.of(List.copyOf(recruitment.getContentImage())))
                     .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
-                    .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNames.of(List.copyOf(recruitment.getRecruitingJobSet())))
-                    .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNames.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
-                    .educationRequirements(EducationResponseDto.EducationRequirement.of(List.copyOf(recruitment.getEducationSet())))
-                    .careerRequirements(CareerRequirementResponseDto.Career.of(List.copyOf(recruitment.getCareerRequirementSet())))
+                    .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
+                    .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
+                    .educationDtos(EducationResponseDto.EducationDto.of(List.copyOf(recruitment.getEducationSet())))
+                    .careerDtos(CareerResponseDto.CareerDto.of(List.copyOf(recruitment.getCareerSet())))
                     .recruitmentStartDate(recruitment.getRecruitmentStartDate())
                     .recruitmentDeadline(recruitment.getRecruitmentDeadline())
                     .uploadDate(recruitment.getUploadDate())
@@ -88,13 +88,13 @@ public class RecruitmentResponseDto {
         @Schema(description = "회사 정보")
         private CompanyResponseDto.CompanyInfo companyInfo;
         @Schema(description = "모집 직무",allowableValues = {})
-        private List<RecruitingJobResponseDto.RecruitingJobNames> recruitingJobNames;
-        @Schema(description = "채용 유형",allowableValues = {})
-        private List<RecruitmentTypeResponseDto.RecruitmentTypeNames> recruitmentTypeNames;
+        private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
+        @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
+        private List<RecruitmentTypeResponseDto.RecruitmentTypeNameDto> recruitmentTypeNames;
         @Schema(description = "학력 조건",allowableValues = {})
-        private List<EducationResponseDto.EducationRequirement> educationRequirements;
+        private List<EducationResponseDto.EducationDto> educationDtos;
         @Schema(description = "경력 조건",allowableValues = {})
-        private List<CareerRequirementResponseDto.Career> careerRequirements;
+        private List<CareerResponseDto.CareerDto> careerDtoRequirements;
         @Schema(description = "모집 시작일",allowableValues = {})
         private LocalDateTime recruitmentStartDate; // 모집 시작일
         @Schema(description = "모집 마감일",allowableValues = {})
@@ -111,10 +111,10 @@ public class RecruitmentResponseDto {
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
                     .mainImageUrl(recruitment.getMainImage().getUrl())
                     .companyInfo(CompanyResponseDto.CompanyInfo.of(recruitment.getCompany()))
-                    .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNames.of(List.copyOf(recruitment.getRecruitingJobSet())))
-                    .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNames.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
-                    .educationRequirements(EducationResponseDto.EducationRequirement.of(List.copyOf(recruitment.getEducationSet())))
-                    .careerRequirements(CareerRequirementResponseDto.Career.of(List.copyOf(recruitment.getCareerRequirementSet())))
+                    .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
+                    .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
+                    .educationDtos(EducationResponseDto.EducationDto.of(List.copyOf(recruitment.getEducationSet())))
+                    .careerDtoRequirements(CareerResponseDto.CareerDto.of(List.copyOf(recruitment.getCareerSet())))
                     .recruitmentStartDate(recruitment.getRecruitmentStartDate())
                     .recruitmentDeadline(recruitment.getRecruitmentDeadline())
                     .uploadDate(recruitment.getUploadDate())

@@ -1,6 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment.dto;
 
-import co.unlearning.aicareer.domain.careerrequirement.dto.CareerRequirementResponseDto;
+import co.unlearning.aicareer.domain.career.dto.CareerResponseDto;
 import co.unlearning.aicareer.domain.education.dto.EducationResponseDto;
 import co.unlearning.aicareer.domain.recruitmenttype.dto.RecruitmentTypeResponseDto;
 import co.unlearning.aicareer.domain.recrutingjob.dto.RecruitingJobResponseDto;
@@ -21,16 +21,16 @@ public class RecruitmentRequirementDto {
         private String companyAddress;
         @Schema(description = "회사명")
         private String companyName;
-        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE"})
+        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET"})
         private String companyType;
         @Schema(description = "모집 직무", allowableValues = {})
-        private List<RecruitingJobResponseDto.RecruitingJobNames> recruitingJobNames;
+        private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
         @Schema(description = "모집 유형", allowableValues = {})
-        private List<RecruitmentTypeResponseDto.RecruitmentTypeNames> recruitmentTypeNames;
+        private List<RecruitmentTypeResponseDto.RecruitmentTypeNameDto> recruitmentTypeNames;
         @Schema(description = "최종 학력", allowableValues = {})
-        private List<EducationResponseDto.EducationRequirement> educationRequirements;
+        private List<EducationResponseDto.EducationDto> educationDtos;
         @Schema(description = "요구 경력", allowableValues = {})
-        private List<CareerRequirementResponseDto.Career> careerRequirements;
+        private List<CareerResponseDto.CareerDto> careerDtoRequirements;
         @Schema(description = "모집 시작일", defaultValue = "작성 시 시간", allowableValues = {})
         private LocalDateTime recruitmentStartDate; // 모집 시작일
         @Schema(description = "모집 마감일", allowableValues = {})

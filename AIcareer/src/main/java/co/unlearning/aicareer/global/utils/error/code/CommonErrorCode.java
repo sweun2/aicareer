@@ -11,8 +11,10 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 public enum CommonErrorCode implements BaseErrorCode {
-    @ExplainError("DB에 유저 정보가 없는 경우, 회원 가입 필요")
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "COMMON_001", "유저 정보가 없습니다.")
+    @ExplainError("서버 내부 에러, 문의 바람")
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "COMMON_001", "유저 정보가 없습니다."),
+    @ExplainError("입력하는 enum 값에 대해 철자가 틀린 경우")
+    INVALID_ENUM_STRING_INPUT(HttpStatus.BAD_REQUEST.value(), "COMMON_002","잘못된 입력 값입니다.")
     ;
     private final int status;
     private final String code;

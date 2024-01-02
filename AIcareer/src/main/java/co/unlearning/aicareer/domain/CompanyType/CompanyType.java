@@ -1,7 +1,6 @@
 package co.unlearning.aicareer.domain.CompanyType;
 
 import co.unlearning.aicareer.domain.company.Company;
-import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 public class CompanyType {
     public enum CompanyTypeName {
-        STARTUP, MAJOR, UNICORN, MIDDLE;
+        STARTUP, MAJOR, UNICORN, MIDDLE_MARKET;
     }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

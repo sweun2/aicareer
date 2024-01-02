@@ -13,16 +13,16 @@ public class RecruitingJobResponseDto {
     @Getter
     @Setter
     @Builder
-    public static class RecruitingJobNames {
-        @Schema(description = "모집 직무 이름")
+    public static class RecruitingJobNameDto {
+        @Schema(description = "모집 직무 이름",allowableValues = {"RESEARCH", "MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST", "ETC"})
         private String recruitingJobName;
-        public static RecruitingJobNames of(RecruitingJob recruitingJob) {
-            return RecruitingJobNames.builder()
-                    .recruitingJobName(recruitingJob.getRecruitJobName())
+        public static RecruitingJobNameDto of(RecruitingJob recruitingJob) {
+            return RecruitingJobNameDto.builder()
+                    .recruitingJobName(String.valueOf(recruitingJob.getRecruitJobName()))
                     .build();
         }
-        public static List<RecruitingJobNames> of(List<RecruitingJob> recruitingJob) {
-            return recruitingJob.stream().map(RecruitingJobNames::of).collect(Collectors.toList());
+        public static List<RecruitingJobNameDto> of(List<RecruitingJob> recruitingJob) {
+            return recruitingJob.stream().map(RecruitingJobNameDto::of).collect(Collectors.toList());
         }
     }
 }

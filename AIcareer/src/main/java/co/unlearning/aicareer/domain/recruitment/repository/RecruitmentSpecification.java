@@ -9,5 +9,5 @@ public class RecruitmentSpecification {
     private Set<CompanyType> companyTypeSet; //회사 종류
     private Set<RecruitmentType> recruitmentTypeSet; //채용 유형 -> new table
     private Set<Education> educationSet; //최종 학력
-    private Set<CareerRequirement> careerRequirementSet; // 요구 경력*/
+    private Set<CareerDto> careerSet; // 요구 경력*/
 }

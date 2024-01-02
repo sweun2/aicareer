@@ -5,6 +5,7 @@ import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
+import co.unlearning.aicareer.global.utils.error.code.CommonErrorCode;
 import co.unlearning.aicareer.global.utils.error.code.UserErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,6 +46,7 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
+    @ApiErrorCodeExample(CommonErrorCode.class)
     @PostMapping("/")
     public ResponseEntity<RecruitmentResponseDto.Info> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Info.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
