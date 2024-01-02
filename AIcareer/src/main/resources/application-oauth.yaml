@@ -12,8 +12,8 @@ spring:
               - name
               - email
           kakao:
-            client-id: 6f317dccd9c33008e0e1b08d1f58c2d7
-            client-secret: nB3sPaLezT1TAsRWu0VMDns8klUAaFhz
+            client-id: 567a3bba3ec24bb1cabaadaab32a2325
+            client-secret: tjIU8hKzP3G3MHOR4f2yoA5i2qMnd1oY
             redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             client-authentication-method: POST
