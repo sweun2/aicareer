@@ -38,19 +38,21 @@ public class RecruitmentResponseDto {
         private List<EducationResponseDto.EducationDto> educationDtos;
         @Schema(description = "요구 경력",allowableValues = {})
         private List<CareerResponseDto.CareerDto> careerDtos;
-        @Schema(description = "모집 시작일",allowableValues = {})
+        @Schema(description = "모집 시작일")
         private LocalDateTime recruitmentStartDate; // 모집 시작일
-        @Schema(description = "모집 마감일",allowableValues = {})
+        @Schema(description = "모집 마감일")
         private LocalDateTime recruitmentDeadline; //모집 마감일
-        @Schema(description = "업로드 날짜",allowableValues = {})
+        @Schema(description = "업로드 날짜")
         private LocalDateTime uploadDate; //업로드 날짜
-        @Schema(description = "모집 공고 링크",allowableValues = {})
+        @Schema(description = "모집 공고 링크")
         private String recruitmentAnnouncementLink; //모집 공고 링크
-        @Schema(description = "조회수",allowableValues = {})
+        @Schema(description = "조회수")
         private Integer hits; //조회수
-        @Schema(description = "지역",allowableValues = {})
+        @Schema(description = "지역")
         private String recruitmentAddress; //지역
-        @Schema(description = "내용",allowableValues = {})
+        @Schema(description = "제목")
+        private String title; //title
+        @Schema(description = "내용")
         private String content; //내용
 
         public static Info of(Recruitment recruitment) {
@@ -68,6 +70,7 @@ public class RecruitmentResponseDto {
                     .recruitmentAnnouncementLink(recruitment.getRecruitmentAnnouncementLink())
                     .hits(recruitment.getHits())
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
+                    .title(recruitment.getTitle())
                     .content(recruitment.getContent())
                     .build();
         }
@@ -102,6 +105,8 @@ public class RecruitmentResponseDto {
         private String uploadDate; //업로드 날짜
         @Schema(description = "지역")
         private String recruitmentAddress; //지역
+        @Schema(description = "제목")
+        private String title; //title
         @Schema(description = "조회수")
         private Integer hits; //조회수
 
@@ -118,6 +123,7 @@ public class RecruitmentResponseDto {
                     .recruitmentDeadline(LocalDateTimeToString(recruitment.getRecruitmentDeadline()))
                     .uploadDate(LocalDateTimeToString(recruitment.getUploadDate()))
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
+                    .title(recruitment.getTitle())
                     .hits(recruitment.getHits())
                     .build();
         }

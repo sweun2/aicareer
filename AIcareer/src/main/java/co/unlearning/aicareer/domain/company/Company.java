@@ -28,6 +28,6 @@ public class Company {
     @OneToOne
     @Cascade(CascadeType.PERSIST)
     private CompanyType companyType; //회사 타입
-    @OneToMany
+    @OneToMany(mappedBy = "company")
     private Set<Recruitment> recruitmentSet;
 }

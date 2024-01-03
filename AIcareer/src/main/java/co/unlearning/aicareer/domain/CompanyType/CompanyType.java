@@ -17,7 +17,7 @@ public class CompanyType {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @ManyToOne
+    @OneToOne
     private Company company;
     @Column
     private CompanyTypeName companyTypeName;

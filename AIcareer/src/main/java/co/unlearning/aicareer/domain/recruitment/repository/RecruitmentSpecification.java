@@ -1,13 +1,102 @@
 package co.unlearning.aicareer.domain.recruitment.repository;
 
+import co.unlearning.aicareer.domain.CompanyType.CompanyType;
+import co.unlearning.aicareer.domain.career.Career;
+import co.unlearning.aicareer.domain.company.Company;
+import co.unlearning.aicareer.domain.education.Education;
+import co.unlearning.aicareer.domain.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
+import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.global.utils.error.code.RecruitmentErrorCode;
+import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
+import jakarta.persistence.criteria.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+@Slf4j
 public class RecruitmentSpecification {
-    /*public static Specification<RecruitmentSearchDto> re*/
+    public static Specification<Recruitment> hasRecruitingJob(List<RecruitingJob.RecruitingJobName> recruitingJobNames) {
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
 
+            Join<Recruitment, RecruitingJob> recruitingJobJoin = root.join("recruitingJobSet", JoinType.INNER);
 
-/*
-    private Set<RecruitingJob> recruitingJobSet; //하는 업무
-    private Set<CompanyType> companyTypeSet; //회사 종류
-    private Set<RecruitmentType> recruitmentTypeSet; //채용 유형 -> new table
-    private Set<Education> educationSet; //최종 학력
-    private Set<CareerDto> careerSet; // 요구 경력*/
+            // Use join to access the attribute in RecruitingJob entity
+            Path<RecruitingJob.RecruitingJobName> recruitingJobNamePath = recruitingJobJoin.get("recruitJobName");
+
+            return recruitingJobNamePath.in(recruitingJobNames);
+        };
+    }
+    public static Specification<Recruitment> hasCompanyType(List<CompanyType.CompanyTypeName> companyTypeNames) {
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+
+            Join<Recruitment, Company> companyJoin = root.join("company", JoinType.INNER);
+            Join<Company,CompanyType> companyTypeJoin = companyJoin.join("companyType");
+            // Use join to access the attribute in RecruitingJob entity
+            Path<CompanyType.CompanyTypeName> companyTypeNamePath = companyTypeJoin.get("companyTypeName");
+
+            return companyTypeNamePath.in(companyTypeNames);
+        };
+    }
+    public static Specification<Recruitment> hasRecruitmentType(List<RecruitmentType.RecruitmentTypeName> recruitmentTypeNames) {
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+
+            Join<Recruitment, RecruitmentType> recruitmentTypeJoin = root.join("recruitmentTypeSet", JoinType.INNER);
+
+            // Use join to access the attribute in RecruitingJob entity
+            Path<RecruitmentType.RecruitmentTypeName> recruitmentTypeNamePath = recruitmentTypeJoin.get("recruitmentTypeName");
+
+            return recruitmentTypeNamePath.in(recruitmentTypeNames);
+        };
+    }
+    public static Specification<Recruitment> hasEducation(List<Education.DEGREE> degrees) {
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+
+            Join<Recruitment, Education> educationJoin = root.join("educationSet", JoinType.INNER);
+
+            // Use join to access the attribute in RecruitingJob entity
+            Path<Education.DEGREE> degreePath = educationJoin.get("degree");
+
+            return degreePath.in(degrees);
+        };
+    }
+    public static Specification<Recruitment> hasCareer(List<Career.AnnualLeave> annualLeaves) {
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+
+            Join<Recruitment, Career> careerJoin = root.join("careerSet", JoinType.INNER);
+
+            // Use join to access the attribute in RecruitingJob entity
+            Path<Career.AnnualLeave> annualLeavePath = careerJoin.get("annualLeave");
+
+            return annualLeavePath.in(annualLeaves);
+        };
+    }
+    public static Specification<Recruitment> hasRecruitmentAddress(List<String> recruitmentAddresses) {
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+            return criteriaBuilder.lower(root.get("name")).in(recruitmentAddresses.stream().map(String::toLowerCase).collect(Collectors.toList()));
+        };
+    }
+    public static Specification<Recruitment> isOpenRecruitment() {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThanOrEqualTo(root.get("recruitmentDeadLine"), LocalDateTime.now());
+    }
 }
+    /*
+    @Schema(description = "정렬 기준, 인기 순/마감임박 순/업로드 순 ", allowableValues = {"HITS","DEADLINE","UPLOAD"})
+    private String sortCondition;
+    @Schema(description = "정렬 순서, 내림차 순/오름차 순", allowableValues = {"DESC","ASC"})
+    private String orderBy;
+    @Schema(description = "제목")
+    private String title; //title
+    */

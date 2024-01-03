@@ -22,11 +22,6 @@ public class TokenController {
 
     private final TokenService tokenService;
 
-    @GetMapping("/token/expired")
-    public String auth() {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "access token이 만료되었습니다.");
-    }
-
     //access 토큰 만료시 refresh 토큰을 통해 재발급
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/token/refresh")

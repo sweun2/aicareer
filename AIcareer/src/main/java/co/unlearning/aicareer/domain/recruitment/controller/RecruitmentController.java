@@ -6,7 +6,6 @@ import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.code.CommonErrorCode;
-import co.unlearning.aicareer.global.utils.error.code.UserErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -22,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -40,25 +38,10 @@ public class RecruitmentController {
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
     @ApiErrorCodeExample(CommonErrorCode.class)
-    @PostMapping("/test")
-    public ResponseEntity<Void> test(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) {
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "글쓰기", description = "채용 공고 글쓰기")
-    @ApiResponse(
-            responseCode = "201",
-            description = "정상 응답",
-            content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
-    @ApiErrorCodeExample(CommonErrorCode.class)
     @PostMapping("/")
     public ResponseEntity<RecruitmentResponseDto.Info> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Info.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
     }
-
     @Operation(summary = "여러 공고 조회", description = "필터링 글 조회, 무관/전체 필터링 시 해당 값을 안 보내야 합니다.")
     @ApiResponse(
             responseCode = "200",
@@ -68,9 +51,9 @@ public class RecruitmentController {
     @PostMapping("/search")
     public ResponseEntity<List<RecruitmentResponseDto.Simple>> findAllRecruitmentInfo(@RequestBody RecruitmentRequirementDto.Search search,
                                                                              @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
-                                                                             @RequestParam("page") Integer page) throws Exception {
+                                                                             @RequestParam("page") Integer page) {
         PageRequest pageRequest = PageRequest.of(page,6);
-        return ResponseEntity.ok(RecruitmentResponseDto.Simple.of(new ArrayList<>()) );
+        return ResponseEntity.ok(RecruitmentResponseDto.Simple.of(recruitmentService.getFilteredRecruitment(search,pageRequest)));
     }
     @Operation(summary = "단일 글 조회", description = "단일 글 조회, 공고 uid 필요")
     @ApiResponse(
@@ -82,7 +65,7 @@ public class RecruitmentController {
     public ResponseEntity<RecruitmentResponseDto.Info> findRecruitmentInfo(
             @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid) throws Exception {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(RecruitmentResponseDto.Info.of(recruitmentService.findRecruitmentInfoByUid(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글 삭제", description = "글 삭제, 공고 uid 필요")
@@ -91,7 +74,9 @@ public class RecruitmentController {
             description = "정상 응답")
     @DeleteMapping("/{uid}")
     public ResponseEntity<Void> removeRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
-                                                                             @PathVariable("uid") String uid) throws Exception {
+                                                          @PathVariable("uid") String uid) throws Exception {
+        recruitmentService.deleteRecruitmentByUid(uid);
+
         return ResponseEntity.ok().build();
     }
 

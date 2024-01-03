@@ -30,17 +30,17 @@ public class Recruitment {
     private String uid; // 채용 공고 uid
     @ManyToOne
     private Company company;
-    @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.PERSIST)
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER)
+    @Cascade(CascadeType.ALL)
     private Set<RecruitingJob> recruitingJobSet;
-    @Cascade(CascadeType.PERSIST)
-    @OneToMany(fetch = FetchType.EAGER)
+    @Cascade(CascadeType.ALL)
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER)
     private Set<RecruitmentType> recruitmentTypeSet; //채용 유형 -> new table
-    @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.PERSIST)
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER)
+    @Cascade(CascadeType.ALL)
     private Set<Education> educationSet; //최종 학력
-    @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.PERSIST)
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER)
+    @Cascade(CascadeType.ALL)
     private Set<Career> careerSet; // 요구 경력
     @Column
     private LocalDateTime recruitmentStartDate; // 모집 시작일
@@ -49,6 +49,8 @@ public class Recruitment {
     @CreationTimestamp
     @Column
     private LocalDateTime uploadDate = LocalDateTime.now(); //업로드 날짜
+    @Column
+    private String title; //제목
     @Column(columnDefinition = "TEXT")
     private String content; //내용
     @Column
