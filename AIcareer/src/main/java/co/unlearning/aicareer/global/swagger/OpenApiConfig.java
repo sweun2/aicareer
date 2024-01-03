@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.global.swagger;
 
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.BaseErrorCode;
 import co.unlearning.aicareer.global.utils.error.code.ErrorReason;
 import co.unlearning.aicareer.global.utils.error.dto.ErrorResponse;

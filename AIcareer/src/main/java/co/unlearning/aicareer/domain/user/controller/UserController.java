@@ -9,6 +9,8 @@ import co.unlearning.aicareer.domain.user.service.UserService;
 import co.unlearning.aicareer.global.security.jwt.Token;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
+import co.unlearning.aicareer.global.utils.error.code.RecruitmentErrorCode;
 import co.unlearning.aicareer.global.utils.error.code.UserErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

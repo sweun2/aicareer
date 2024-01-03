@@ -15,6 +15,9 @@ import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentRepositor
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentSpecification;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.domain.user.User;
+import co.unlearning.aicareer.domain.user.repository.UserRepository;
+import co.unlearning.aicareer.domain.user.service.UserService;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import co.unlearning.aicareer.global.utils.error.code.ImageErrorCode;
 import co.unlearning.aicareer.global.utils.error.code.RecruitmentErrorCode;
@@ -47,16 +50,20 @@ public class RecruitmentService {
     private final CompanyRepository companyRepository;
     private final CompanyService companyService;
     private final ImageRepository imageRepository;
+    private final UserService userService;
+    private final UserRepository userRepository;
+    public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
+        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        recruitment.setHits(recruitment.getHits()+1);
+
+        return recruitment;
+    }
+
     public Recruitment findRecruitmentInfoByUid(String uid) {
         return recruitmentRepository.findByUid(uid).orElseThrow(
                 () -> new BusinessException(RECRUITMENT_UID_NOT_FOUND)
         );
     }
-    /*public Recruitment findAllRecruitmentInfo() {
-        return recruitmentRepository.findByUid().orElseThrow(
-                () -> new ResponseStatusException(HttpStatusCode.valueOf(404),"text")
-        );
-    }*/
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         //company 등록 안된 경우 예외 처리
         Optional<Company> companyOptional = companyRepository.findByCompanyName(recruitmentPost.getCompanyName());
@@ -203,7 +210,6 @@ public class RecruitmentService {
                     .and(RecruitmentSpecification.hasEducation(dgreeList))
                     .and(RecruitmentSpecification.hasCareer(annualLeaveList))
                     ;
-
             return getOrder(search, pageable, specification);
         }
     }
@@ -235,4 +241,24 @@ public class RecruitmentService {
                 )
         );
     }
+    public Recruitment addRecruitmentBookmark(String uid) {
+        User user = userService.getLoginUser();
+        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        user.getBookMark().add(recruitment);
+
+        userRepository.save(user);
+        return recruitment;
+    }
+    public void removeRecruitmentBookMark(String uid) {
+        User user = userService.getLoginUser();
+        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        user.getBookMark().remove(recruitment);
+
+        userRepository.save(user);
+    }
+    public List<Recruitment> findUserBookMark() {
+        User user = userService.getLoginUser();
+        return user.getBookMark().stream().toList();
+    }
+
 }

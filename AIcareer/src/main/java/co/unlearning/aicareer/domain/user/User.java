@@ -1,11 +1,16 @@
 package co.unlearning.aicareer.domain.user;
 
+import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -32,4 +37,6 @@ public class User {
     private LocalDateTime joinDate; //joinDate
     @Column
     private UserRole userRole;
+    @OneToMany(mappedBy = "user")
+    private Set<Recruitment> bookMark = new HashSet<>();
 }

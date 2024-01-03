@@ -60,6 +60,7 @@ public class Recruitment {
     @Column
     private String recruitmentAddress; //지역
     @ManyToOne
+    @Cascade(CascadeType.REMOVE)
     private User user; //북마크
     @OneToOne
     @Cascade(CascadeType.ALL)
