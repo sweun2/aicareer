@@ -1,6 +1,5 @@
 package co.unlearning.aicareer.global.utils.error.exception;
 
-import co.unlearning.aicareer.global.utils.error.code.BaseErrorCode;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import lombok.Getter;
 

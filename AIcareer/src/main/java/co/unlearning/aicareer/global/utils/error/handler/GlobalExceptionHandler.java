@@ -1,6 +1,5 @@
 package co.unlearning.aicareer.global.utils.error.handler;
 
-import co.unlearning.aicareer.global.utils.error.code.BaseErrorCode;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.dto.ErrorResponse;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;

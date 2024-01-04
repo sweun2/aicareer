@@ -34,6 +34,12 @@ public class UserController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = UserResponseDto.Simple.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+    })
     @GetMapping("/simple")
     public ResponseEntity<UserResponseDto.Simple> findUserSimple() {
         return ResponseEntity.ok(UserResponseDto.Simple.of(userService.getLoginUser()));
@@ -45,18 +51,26 @@ public class UserController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = UserResponseDto.Info.class)))
-    @GetMapping("/info")
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
-            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT)
-
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
+    @GetMapping("/info")
     public ResponseEntity<UserResponseDto.Info> findUserInfo() {
         return ResponseEntity.ok(UserResponseDto.Info.of(userService.getLoginUser()));
     }
 
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저 Role 변경", description = "현재 로그인된 유저의 Role을 변경합니다. Role이 ADMIN인 경우만 사용 가능, ADMIN으로의 변경은 DB에서 직접 변경")
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED),
+    })
     @PostMapping("/role")
     public ResponseEntity<UserResponseDto.Info> userInfo(UserRequestDto.UserRole userRole) {
         return ResponseEntity.ok(UserResponseDto.Info.of(userService.updateUserRole(userRole)));

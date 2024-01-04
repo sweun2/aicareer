@@ -3,6 +3,9 @@ package co.unlearning.aicareer.domain.recruitment.controller;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -34,6 +37,14 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
+
+    })
     @PostMapping("/")
     public ResponseEntity<RecruitmentResponseDto.Info> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Info.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
@@ -44,6 +55,14 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST),
+    })
     @PostMapping("/search")
     public ResponseEntity<List<RecruitmentResponseDto.Simple>> findAllRecruitmentInfo(@RequestBody RecruitmentRequirementDto.Search search,
                                                                              @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
@@ -57,10 +76,15 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+    })
     @GetMapping("/{uid}")
     public ResponseEntity<RecruitmentResponseDto.Info> findRecruitmentInfo(
             @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid) throws Exception {
+            @PathVariable("uid") String uid) {
         return ResponseEntity.ok(RecruitmentResponseDto.Info.of(recruitmentService.getOneRecruitmentPostWithUpdateHits(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -69,8 +93,12 @@ public class RecruitmentController {
             responseCode = "200",
             description = "정상 응답")
     @DeleteMapping("/{uid}")
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+    })
     public ResponseEntity<Void> removeRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
-                                                          @PathVariable("uid") String uid) throws Exception {
+                                                          @PathVariable("uid") String uid)  {
         recruitmentService.deleteRecruitmentByUid(uid);
 
         return ResponseEntity.ok().build();
@@ -84,6 +112,13 @@ public class RecruitmentController {
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
     @PostMapping("/bookmark/{uid}")
+    @DeleteMapping("/{uid}")
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+    })
     public ResponseEntity<RecruitmentResponseDto.Simple> postBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Simple.of(recruitmentService.addRecruitmentBookmark(uid)));
@@ -95,6 +130,11 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+    })
     @GetMapping("/bookmark/")
     public ResponseEntity<List<RecruitmentResponseDto.Simple>> findBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
@@ -105,6 +145,12 @@ public class RecruitmentController {
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답")
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+    })
     @DeleteMapping("/bookmark/{uid}")
     public ResponseEntity<Void> removeBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                          @PathVariable("uid") String uid) throws Exception {

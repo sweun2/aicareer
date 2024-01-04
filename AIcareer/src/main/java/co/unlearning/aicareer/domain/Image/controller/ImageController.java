@@ -5,6 +5,9 @@ import co.unlearning.aicareer.domain.Image.dto.ImageRequirementDto;
 import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.user.service.UserService;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -44,6 +47,11 @@ public class ImageController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE),
+            @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
+    })
     @PostMapping(value = "/one", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageResponseDto.ImageData> postOneImage(ImageRequirementDto.ImagePost imagePost) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addOneImage(imagePost)));
@@ -55,6 +63,11 @@ public class ImageController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE),
+            @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
+    })
     @PostMapping(value = "/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<ImageResponseDto.ImageData>> postAllImage(List<ImageRequirementDto.ImagePost> imagePosts) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addAllImage(imagePosts)));
@@ -67,6 +80,10 @@ public class ImageController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+    })
     @GetMapping("/{url}")
     public ResponseEntity<Resource> downloadAttach(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
                                                    @PathVariable String url) throws MalformedURLException {
