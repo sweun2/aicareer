@@ -19,27 +19,22 @@ import co.unlearning.aicareer.domain.user.User;
 import co.unlearning.aicareer.domain.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.user.service.UserService;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
-import co.unlearning.aicareer.global.utils.error.code.ImageErrorCode;
-import co.unlearning.aicareer.global.utils.error.code.RecruitmentErrorCode;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import co.unlearning.aicareer.global.utils.validator.TimeValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static co.unlearning.aicareer.global.utils.error.code.RecruitmentErrorCode.RECRUITMENT_UID_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -61,7 +56,7 @@ public class RecruitmentService {
 
     public Recruitment findRecruitmentInfoByUid(String uid) {
         return recruitmentRepository.findByUid(uid).orElseThrow(
-                () -> new BusinessException(RECRUITMENT_UID_NOT_FOUND)
+                () -> new BusinessException(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND)
         );
     }
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
@@ -93,7 +88,7 @@ public class RecruitmentService {
         TimeValidator.RemainingTimeValidator(deadLine);
         log.info("date");
         Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage()).orElseThrow(
-                ()-> new BusinessException(ImageErrorCode.INVALID_IMAGE_URL)
+                ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
 
         Recruitment recruitment = Recruitment.builder()
@@ -219,7 +214,7 @@ public class RecruitmentService {
             case "HITS" -> "hits";
             case "DEADLINE" -> "recruitmentDeadline"; // or use the correct attribute name
             case "UPLOAD" -> "uploadDate";
-            default -> throw new BusinessException(RecruitmentErrorCode.SORT_CONDITION_BAD_REQUEST);
+            default -> throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
         };
 
         if (Objects.equals(search.getOrderBy(), "DESC")) {
@@ -227,7 +222,7 @@ public class RecruitmentService {
         } else if (Objects.equals(search.getOrderBy(), "ASC")) {
             sort = Sort.by(Sort.Direction.ASC, sortAttribute);
         } else {
-            throw new BusinessException(RecruitmentErrorCode.SORT_CONDITION_BAD_REQUEST);
+            throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
         }
 
         PageRequest pageableWithSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
@@ -237,7 +232,7 @@ public class RecruitmentService {
     public void deleteRecruitmentByUid (String uid) {
         recruitmentRepository.delete(
                 recruitmentRepository.findByUid(uid).orElseThrow(
-                        ()-> new BusinessException(RECRUITMENT_UID_NOT_FOUND)
+                        ()-> new BusinessException(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND)
                 )
         );
     }

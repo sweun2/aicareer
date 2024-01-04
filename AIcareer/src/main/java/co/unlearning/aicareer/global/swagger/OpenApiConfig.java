@@ -1,8 +1,7 @@
 package co.unlearning.aicareer.global.swagger;
 
-import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
-import co.unlearning.aicareer.global.utils.error.code.BaseErrorCode;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.code.ErrorReason;
 import co.unlearning.aicareer.global.utils.error.dto.ErrorResponse;
 import io.swagger.v3.oas.models.Components;
@@ -22,8 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -47,62 +44,48 @@ public class OpenApiConfig {
     @Bean
     public OperationCustomizer customize() {
         return (Operation operation, HandlerMethod handlerMethod) -> {
-            ApiErrorCodeExample apiErrorCodeExample =
-                    handlerMethod.getMethodAnnotation(ApiErrorCodeExample.class);
-            // ApiErrorCodeExample 어노테이션 단 메소드 적용
-            if (apiErrorCodeExample != null) {
-                generateErrorCodeResponseExample(operation, apiErrorCodeExample.value());
+
+            ApiErrorCodeExamples apiErrorCodeExamples = handlerMethod.getMethodAnnotation(ApiErrorCodeExamples.class);
+            if(apiErrorCodeExamples!=null) {
+                Arrays.stream(apiErrorCodeExamples.value()).forEach(code ->{
+                    generateErrorCodeResponseExample(operation, code.value());
+                });
             }
             return operation;
         };
     }
     private void generateErrorCodeResponseExample(
-            Operation operation, Class<? extends BaseErrorCode> type) {
+            Operation operation, ResponseErrorCode type) {
         ApiResponses responses = operation.getResponses();
-        // 해당 이넘에 선언된 에러코드들의 목록을 가져옵니다.
-        BaseErrorCode[] errorCodes = type.getEnumConstants();
-        // 400, 401, 404 등 에러코드의 상태코드들로 리스트로 모읍니다.
-        // 400 같은 상태코드에 여러 에러코드들이 있을 수 있습니다.
-        Map<Integer, List<ExampleHolder>> statusWithExampleHolders =
-                Arrays.stream(errorCodes)
-                        .map(
-                                baseErrorCode -> {
-                                    try {
-                                        ErrorReason errorReason = baseErrorCode.getErrorReason();
-                                        return ExampleHolder.builder()
-                                                .holder(
-                                                        getSwaggerExample(
-                                                                baseErrorCode.getExplainError(),
-                                                                errorReason))
-                                                .code(errorReason.getStatus())
-                                                .name(errorReason.getCode())
-                                                .build();
-                                    } catch (NoSuchFieldException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                })
-                        .collect(groupingBy(ExampleHolder::getCode));
+
+        ErrorReason errorReason = type.getErrorReason();
+        ExampleHolder exampleHolder =  ExampleHolder.builder()
+                .holder(
+                        getSwaggerExample(
+                                type.getExplainError(),
+                                errorReason))
+                .code(errorReason.getStatus())
+                .name(errorReason.getCode())
+                .build();
         // response 객체들을 responses 에 넣습니다.
-        addExamplesToResponses(responses, statusWithExampleHolders);
+        addExamplesToResponses(responses, exampleHolder);
     }
-    private void addExamplesToResponses(
-            ApiResponses responses, Map<Integer, List<ExampleHolder>> statusWithExampleHolders) {
-        statusWithExampleHolders.forEach(
-                (status, v) -> {
-                    Content content = new Content();
-                    MediaType mediaType = new MediaType();
-                    // 상태 코드마다 ApiResponse을 생성합니다.
-                    ApiResponse apiResponse = new ApiResponse();
-                    //  List<ExampleHolder> 를 순회하며, mediaType 객체에 예시값을 추가합니다.
-                    v.forEach(
-                            exampleHolder -> mediaType.addExamples(
-                                    exampleHolder.getName(), exampleHolder.getHolder()));
-                    // ApiResponse 의 content 에 mediaType을 추가합니다.
-                    content.addMediaType("application/json", mediaType);
-                    apiResponse.setContent(content);
-                    // 상태코드를 key 값으로 responses 에 추가합니다.
-                    responses.addApiResponse(status.toString(), apiResponse);
-                });
+    private void addExamplesToResponses(ApiResponses responses, ExampleHolder exampleHolder) {
+        Content content = new Content();
+        MediaType mediaType = new MediaType();
+
+        // 상태 코드마다 ApiResponse을 생성합니다.
+        ApiResponse apiResponse = new ApiResponse();
+
+        // ExampleHolder에 있는 값을 가져와 mediaType 객체에 예시값을 추가합니다.
+        mediaType.addExamples(exampleHolder.getName(), exampleHolder.getHolder());
+
+        // ApiResponse의 content에 mediaType을 추가합니다.
+        content.addMediaType("application/json", mediaType);
+        apiResponse.setContent(content);
+
+        // 상태코드를 key 값으로 responses에 추가합니다.
+        responses.addApiResponse(String.valueOf(exampleHolder.getCode()), apiResponse);
     }
 
     private Example getSwaggerExample(String value, ErrorReason errorReason) {

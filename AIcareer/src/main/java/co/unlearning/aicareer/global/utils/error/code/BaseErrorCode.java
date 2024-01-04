@@ -7,6 +7,5 @@ import org.springframework.http.HttpStatus;
 public interface BaseErrorCode {
     public ErrorReason getErrorReason();
 
-    String getExplainError() throws NoSuchFieldException;
-
+    String getExplainError();
 }

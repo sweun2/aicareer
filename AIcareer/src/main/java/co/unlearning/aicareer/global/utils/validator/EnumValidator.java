@@ -2,7 +2,7 @@ package co.unlearning.aicareer.global.utils.validator;
 
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 
-import static co.unlearning.aicareer.global.utils.error.code.CommonErrorCode.INVALID_ENUM_STRING_INPUT;
+import static co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode.INVALID_ENUM_STRING_INPUT;
 
 public class EnumValidator<T extends Enum<T>> {
 

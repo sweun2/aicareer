@@ -5,8 +5,8 @@ import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static co.unlearning.aicareer.global.utils.error.code.CommonErrorCode.DATE_BAD_REQUEST;
-import static co.unlearning.aicareer.global.utils.error.code.CommonErrorCode.INVALID_DATE_STRING_INPUT;
+import static co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode.DATE_BAD_REQUEST;
+import static co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode.INVALID_DATE_STRING_INPUT;
 
 public class TimeValidator {
     public static LocalDateTime AllowedLocalDateTimeValidator(String time) {

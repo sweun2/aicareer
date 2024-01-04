@@ -3,7 +3,7 @@ package co.unlearning.aicareer.domain.Image.service;
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.dto.ImageRequirementDto;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
-import co.unlearning.aicareer.global.utils.error.code.ImageErrorCode;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.ImageValidator;
 import jakarta.transaction.Transactional;
@@ -38,7 +38,7 @@ public class ImageService {
         } else if (Objects.equals(multipartFile.getContentType(), "image/png")) {
             contentType = ".png";
         } else {
-            throw new BusinessException(ImageErrorCode.INVALID_IMAGE_CONTENT_TYPE);
+            throw new BusinessException(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE);
         }
         //window 구별
         String osPath;
@@ -75,7 +75,7 @@ public class ImageService {
     }
     public Image getImageByUrl(String url) {
         return imageRepository.findByImageUrl(url).orElseThrow(
-                () -> new BusinessException(ImageErrorCode.INVALID_IMAGE_URL)
+                () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
     }
 }

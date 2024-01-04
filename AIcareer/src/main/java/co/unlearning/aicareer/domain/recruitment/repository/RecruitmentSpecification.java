@@ -7,16 +7,12 @@ import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
-import co.unlearning.aicareer.global.utils.error.code.RecruitmentErrorCode;
-import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j

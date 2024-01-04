@@ -1,13 +1,8 @@
 package co.unlearning.aicareer.domain.recruitment.controller;
 
-import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
-import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
-import co.unlearning.aicareer.global.utils.error.code.CommonErrorCode;
-import co.unlearning.aicareer.global.utils.error.code.RecruitmentErrorCode;
-import co.unlearning.aicareer.global.utils.error.code.UserErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -39,7 +34,6 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
-    @ApiErrorCodeExample(RecruitmentErrorCode.class)
     @PostMapping("/")
     public ResponseEntity<RecruitmentResponseDto.Info> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Info.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
@@ -50,7 +44,6 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
-    @ApiErrorCodeExample(RecruitmentErrorCode.class)
     @PostMapping("/search")
     public ResponseEntity<List<RecruitmentResponseDto.Simple>> findAllRecruitmentInfo(@RequestBody RecruitmentRequirementDto.Search search,
                                                                              @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
@@ -65,7 +58,6 @@ public class RecruitmentController {
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
     @GetMapping("/{uid}")
-    @ApiErrorCodeExample(RecruitmentErrorCode.class)
     public ResponseEntity<RecruitmentResponseDto.Info> findRecruitmentInfo(
             @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid) throws Exception {
@@ -92,7 +84,6 @@ public class RecruitmentController {
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
     @PostMapping("/bookmark/{uid}")
-    @ApiErrorCodeExample(UserErrorCode.class)
     public ResponseEntity<RecruitmentResponseDto.Simple> postBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Simple.of(recruitmentService.addRecruitmentBookmark(uid)));
@@ -105,7 +96,6 @@ public class RecruitmentController {
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
     @GetMapping("/bookmark/")
-    @ApiErrorCodeExample(UserErrorCode.class)
     public ResponseEntity<List<RecruitmentResponseDto.Simple>> findBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.Simple.of(recruitmentService.findUserBookMark()));
@@ -116,7 +106,6 @@ public class RecruitmentController {
             responseCode = "200",
             description = "정상 응답")
     @DeleteMapping("/bookmark/{uid}")
-    @ApiErrorCodeExample(UserErrorCode.class)
     public ResponseEntity<Void> removeBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                          @PathVariable("uid") String uid) throws Exception {
         recruitmentService.removeRecruitmentBookMark(uid);
