@@ -52,11 +52,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             .userRole(UserRole.USER)
                             .joinDate(LocalDateTime.now())
                     .build());
-            url = makeRedirectUrl("signup", token.getAccessToken());
+            url = makeRedirectUrl("login=true", token.getAccessToken());
         } else {
             User user = userOptional.get();
             userRepository.save(user);
-            url = makeRedirectUrl("login", token.getAccessToken());
+            url = makeRedirectUrl("login=true", token.getAccessToken());
         }
 
         //refresh token -> 쿠키로 전달, access token -> 쿼리 스트링으로 전달
