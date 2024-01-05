@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment.dto;
 
+import co.unlearning.aicareer.domain.recruitment.RecruitmentDeadlineType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +32,7 @@ public class RecruitmentRequirementDto {
         @Schema(description = "모집 시작일, 일자/시간 사이 빈칸 필요", defaultValue = "작성 시 시간", allowableValues = {"yyyy-MM-dd HH:mm","2024-01-02 13:45"})
         private String recruitmentStartDate; // 모집 시작일
         @Schema(description = "모집 마감일 일자/시간 사이 빈칸 필요", allowableValues = {"yyyy-MM-dd HH:mm","2024-01-02 13:45"})
-        private String recruitmentDeadline; //모집 마감일
+        private RecruitmentDeadLine recruitmentDeadline; //모집 마감일
         @Schema(description = "모집 공고 링크")
         private String recruitmentAnnouncementLink; //모집 공고 링크
         @Schema(description = "모집 지역")
@@ -40,6 +41,15 @@ public class RecruitmentRequirementDto {
         private String title; //title
         @Schema(description = "내용")
         private String content; //내용
+    }
+    @Getter
+    @Setter
+    @Builder
+    public static class RecruitmentDeadLine {
+        @Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE"})
+        private String deadlineType;
+        @Schema(description = "모집 마감일/ deadlineType이 DUE_DATE인 경우에만 입력, 모집 마감일 일자/시간 사이 빈칸 필요", allowableValues = {"yyyy-MM-dd HH:mm","2024-01-02 13:45"})
+        private String recruitmentDeadline; //모집 마감일
     }
 
     @Getter
@@ -68,4 +78,6 @@ public class RecruitmentRequirementDto {
         @Schema(description = "제목")
         private String title; //title
     }
+
+
 }

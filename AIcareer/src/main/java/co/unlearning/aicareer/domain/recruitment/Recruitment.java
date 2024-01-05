@@ -45,6 +45,8 @@ public class Recruitment {
     @Column
     private LocalDateTime recruitmentStartDate; // 모집 시작일
     @Column
+    private RecruitmentDeadlineType recruitmentDeadlineType; //모집 마감 유형
+    @Column
     private LocalDateTime recruitmentDeadline; //모집 마감일
     @CreationTimestamp
     @Column

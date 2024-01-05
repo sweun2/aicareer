@@ -10,6 +10,7 @@ import co.unlearning.aicareer.domain.company.dto.CompanyRequirementDto;
 import co.unlearning.aicareer.domain.company.service.CompanyService;
 import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentRepository;
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentSpecification;
@@ -81,11 +82,17 @@ public class RecruitmentService {
         } else {
             startDate =  LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentStartDate());
         }
-        //모집 마감일
+        //모집 마감일 ALL_TIME, CLOSE_WHEN_RECRUITMENT, DUE_DATE
+        EnumValidator<RecruitmentDeadlineType> recruitmentDeadlineTypeEnumValidator = new EnumValidator<>();
+        RecruitmentDeadlineType deadlineType = recruitmentDeadlineTypeEnumValidator.validateEnumString(recruitmentPost.getRecruitmentDeadline().getDeadlineType(),RecruitmentDeadlineType.class);
         LocalDateTime deadLine;
-        deadLine = LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentDeadline());
-        //마감 일이 미래 인지 확인
-        TimeValidator.RemainingTimeValidator(deadLine);
+        if(deadlineType == RecruitmentDeadlineType.DUE_DATE) {
+            deadLine = LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentDeadline().getRecruitmentDeadline());
+            //마감 일이 미래 인지 확인
+            TimeValidator.RemainingTimeValidator(deadLine);
+        } else{
+            deadLine = LocalDateTime.now();
+        }
         log.info("date");
         Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage()).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
@@ -95,6 +102,7 @@ public class RecruitmentService {
                 .uid(UUID.randomUUID().toString())
                 .company(companyTemp)
                 .recruitmentStartDate(startDate)
+                .recruitmentDeadlineType(deadlineType)
                 .recruitmentDeadline(deadLine)
                 .uploadDate(LocalDateTime.now())
                 .recruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink()) //validator 필요

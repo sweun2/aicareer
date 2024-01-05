@@ -99,8 +99,13 @@ public class RecruitmentResponseDto {
         private List<CareerResponseDto.CareerDto> careers;
         @Schema(description = "모집 시작일")
         private String recruitmentStartDate; // 모집 시작일
-        @Schema(description = "모집 마감일")
-        private String recruitmentDeadline; //모집 마감일
+
+        /*@Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE"})
+        private String deadlineTYPE;
+        @Schema(description = "모집 마감일/ deadlineFormat이 DUE_DATE인 경우에만 입력")
+        private String recruitmentDeadline; //모집 마감일*/
+        @Schema(description = "마감 유형/날짜 ")
+        private RecruitmentDeadLine recruitmentDeadLine;
         @Schema(description = "업로드 날짜")
         private String uploadDate; //업로드 날짜
         @Schema(description = "지역")
@@ -120,7 +125,7 @@ public class RecruitmentResponseDto {
                     .educations(EducationResponseDto.EducationDto.of(List.copyOf(recruitment.getEducationSet())))
                     .careers(CareerResponseDto.CareerDto.of(List.copyOf(recruitment.getCareerSet())))
                     .recruitmentStartDate(LocalDateTimeToString(recruitment.getRecruitmentStartDate()))
-                    .recruitmentDeadline(LocalDateTimeToString(recruitment.getRecruitmentDeadline()))
+                    .recruitmentDeadLine(RecruitmentDeadLine.of(recruitment.getRecruitmentDeadlineType(),LocalDateTimeToString(recruitment.getRecruitmentDeadline())))
                     .uploadDate(LocalDateTimeToString(recruitment.getUploadDate()))
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
                     .title(recruitment.getTitle())
@@ -129,6 +134,19 @@ public class RecruitmentResponseDto {
         }
         public static List<Simple> of(List<Recruitment> companies) {
             return companies.stream().map(Simple::of).collect(Collectors.toList());
+        }
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class RecruitmentDeadLine {
+        @Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE"})
+        private String deadlineType;
+        @Schema(description = "모집 마감일/ deadlineType이 DUE_DATE인 경우에만 입력")
+        private String recruitmentDeadline; //모집 마감일
+        public static RecruitmentDeadLine of(RecruitmentDeadlineType deadlineType, String recruitmentDeadline) {
+            return RecruitmentDeadLine.builder().deadlineType(deadlineType.toString()).recruitmentDeadline(recruitmentDeadline).build();
         }
     }
 }

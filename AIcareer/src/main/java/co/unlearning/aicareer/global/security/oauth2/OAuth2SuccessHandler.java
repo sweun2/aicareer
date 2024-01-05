@@ -52,21 +52,26 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             .userRole(UserRole.USER)
                             .joinDate(LocalDateTime.now())
                     .build());
-            url = makeRedirectUrl("login=true", token.getAccessToken());
         } else {
             User user = userOptional.get();
             userRepository.save(user);
-            url = makeRedirectUrl("login=true", token.getAccessToken());
         }
 
-        //refresh token -> 쿠키로 전달, access token -> 쿼리 스트링으로 전달
-        Cookie cookie = new Cookie("refresh-token", token.getRefreshToken());
-        cookie.setMaxAge(7 * 24 * 60 * 60);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        Cookie accessToken = new Cookie("accessToken", token.getAccessToken());
+        accessToken.setMaxAge(1 * 24 * 60 * 60);
+        accessToken.setHttpOnly(true);
+        accessToken.setPath("/");
+        response.addCookie(accessToken);
 
-        getRedirectStrategy().sendRedirect(request, response, url);
+        //refresh token -> 쿠키로 전달, access token -> 쿼리 스트링으로 전달
+        Cookie refreshToken = new Cookie("refreshToken", token.getRefreshToken());
+        refreshToken.setMaxAge(7 * 24 * 60 * 60);
+        refreshToken.setHttpOnly(true);
+        refreshToken.setPath("/");
+        response.addCookie(refreshToken);
+
+        getRedirectStrategy().sendRedirect(request, response,  UriComponentsBuilder.fromUriString("http://localhost:3000").queryParam("login","true").toUriString());
+
     }
 
     private String makeRedirectUrl(String path, String token) {
