@@ -32,8 +32,11 @@ public class UserController {
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
+            useReturnTypeSchema = true,
             content = @Content(
-                    schema = @Schema(implementation = UserResponseDto.Simple.class)))
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UserResponseDto.UserSimple.class)
+            ))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
@@ -41,8 +44,8 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
     @GetMapping("/simple")
-    public ResponseEntity<UserResponseDto.Simple> findUserSimple() {
-        return ResponseEntity.ok(UserResponseDto.Simple.of(userService.getLoginUser()));
+    public ResponseEntity<UserResponseDto.UserSimple> findUserSimple() {
+        return ResponseEntity.ok(UserResponseDto.UserSimple.of(userService.getLoginUser()));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저의 모든 정보 가져오기", description = "현재 로그인된 유저의 모든 정보를 가져옵니다.")
@@ -50,7 +53,7 @@ public class UserController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = UserResponseDto.Info.class)))
+                    schema = @Schema(implementation = UserResponseDto.UserInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
@@ -58,12 +61,17 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
     @GetMapping("/info")
-    public ResponseEntity<UserResponseDto.Info> findUserInfo() {
-        return ResponseEntity.ok(UserResponseDto.Info.of(userService.getLoginUser()));
+    public ResponseEntity<UserResponseDto.UserInfo> findUserInfo() {
+        return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.getLoginUser()));
     }
 
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저 Role 변경", description = "현재 로그인된 유저의 Role을 변경합니다. Role이 ADMIN인 경우만 사용 가능, ADMIN으로의 변경은 DB에서 직접 변경")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = UserResponseDto.UserInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
@@ -72,7 +80,7 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED),
     })
     @PostMapping("/role")
-    public ResponseEntity<UserResponseDto.Info> userInfo(UserRequestDto.UserRole userRole) {
-        return ResponseEntity.ok(UserResponseDto.Info.of(userService.updateUserRole(userRole)));
+    public ResponseEntity<UserResponseDto.UserInfo> userInfo(UserRequestDto.UserRole userRole) {
+        return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserRole(userRole)));
     }
 }

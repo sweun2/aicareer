@@ -2,37 +2,31 @@ package co.unlearning.aicareer.domain.user.dto;
 
 import co.unlearning.aicareer.domain.user.User;
 import co.unlearning.aicareer.domain.user.UserRole;
-import jakarta.persistence.Column;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.ColumnDefault;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-@Builder
-@Getter @Setter
-@AllArgsConstructor
+
 public class UserResponseDto {
     @Builder
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Simple {
+    public static class UserSimple {
         private Integer userId;
         private String name;
         private String nickname;
-        public static Simple of(User user) {
-            return Simple.builder()
+        public static UserSimple of(User user) {
+            return UserSimple.builder()
                     .userId(user.getId())
                     .name(user.getName())
                     .nickname(user.getNickname())
                     .build();
         }
 
-        public static List<Simple> of(List<User> users) {
-            return users.stream().map(Simple::of).collect(Collectors.toList());
+        public static List<UserSimple> of(List<User> users) {
+            return users.stream().map(UserSimple::of).collect(Collectors.toList());
         }
     }
     @Builder
@@ -40,14 +34,14 @@ public class UserResponseDto {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Info {
+    public static class UserInfo {
         private String nickname;
         private String name;
         private String email;
         private String joinDate;
         private UserRole userRole;
-        public static Info of(User user) {
-            return Info.builder()
+        public static UserInfo of(User user) {
+            return UserInfo.builder()
                     .nickname(user.getNickname())
                     .name(user.getName())
                     .email(user.getEmail())
@@ -55,8 +49,8 @@ public class UserResponseDto {
                     .build();
         }
 
-        public static List<Info> of(List<User> users) {
-            return users.stream().map(Info::of).collect(Collectors.toList());
+        public static List<UserInfo> of(List<User> users) {
+            return users.stream().map(UserInfo::of).collect(Collectors.toList());
         }
     }
 }

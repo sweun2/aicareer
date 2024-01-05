@@ -36,7 +36,7 @@ public class RecruitmentController {
             responseCode = "201",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
+                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
@@ -46,15 +46,15 @@ public class RecruitmentController {
 
     })
     @PostMapping("/")
-    public ResponseEntity<RecruitmentResponseDto.Info> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
-        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Info.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
+        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
     }
     @Operation(summary = "여러 공고 조회", description = "필터링 글 조회, 무관/전체 필터링 시 해당 값을 안 보내야 합니다.")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
+                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
@@ -64,28 +64,28 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST),
     })
     @PostMapping("/search")
-    public ResponseEntity<List<RecruitmentResponseDto.Simple>> findAllRecruitmentInfo(@RequestBody RecruitmentRequirementDto.Search search,
-                                                                             @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
+    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findAllRecruitmentInfo(@RequestBody RecruitmentRequirementDto.Search search,
+                                                                                                 @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
                                                                              @RequestParam("page") Integer page) {
         PageRequest pageRequest = PageRequest.of(page,6);
-        return ResponseEntity.ok(RecruitmentResponseDto.Simple.of(recruitmentService.getFilteredRecruitment(search,pageRequest)));
+        return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.getFilteredRecruitment(search,pageRequest)));
     }
     @Operation(summary = "단일 글 조회", description = "단일 글 조회, 공고 uid 필요")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.Info.class)))
+                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
     })
     @GetMapping("/{uid}")
-    public ResponseEntity<RecruitmentResponseDto.Info> findRecruitmentInfo(
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> findRecruitmentInfo(
             @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(RecruitmentResponseDto.Info.of(recruitmentService.getOneRecruitmentPostWithUpdateHits(uid)));
+        return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.getOneRecruitmentPostWithUpdateHits(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글 삭제", description = "글 삭제, 공고 uid 필요")
@@ -110,7 +110,7 @@ public class RecruitmentController {
             responseCode = "201",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
+                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class)))
     @PostMapping("/bookmark/{uid}")
     @DeleteMapping("/{uid}")
     @ApiErrorCodeExamples({
@@ -119,9 +119,9 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
-    public ResponseEntity<RecruitmentResponseDto.Simple> postBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentSimple> postBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
-        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.Simple.of(recruitmentService.addRecruitmentBookmark(uid)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.addRecruitmentBookmark(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "채용 공고 북마크된 목록 보기", description = "채용 공고 북마크보기, 로그인 필요")
@@ -129,16 +129,16 @@ public class RecruitmentController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.Simple.class)))
+                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
     @GetMapping("/bookmark/")
-    public ResponseEntity<List<RecruitmentResponseDto.Simple>> findBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
+    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.Simple.of(recruitmentService.findUserBookMark()));
+        return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.findUserBookMark()));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "채용 공고 북마크 제거", description = "채용 공고 북마크 취소하기, 로그인 필요")

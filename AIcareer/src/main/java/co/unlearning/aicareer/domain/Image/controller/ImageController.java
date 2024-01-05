@@ -11,6 +11,7 @@ import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,8 +53,11 @@ public class ImageController {
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE),
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
     })
-    @PostMapping(value = "/one", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ImageResponseDto.ImageData> postOneImage(ImageRequirementDto.ImagePost imagePost) throws IOException {
+    @PostMapping(value = "/one",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImageResponseDto.ImageData> postOneImage(
+            @RequestPart("imagePost") ImageRequirementDto.ImagePost imagePost) throws IOException {
+        // 메소드 구현
         return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addOneImage(imagePost)));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -62,13 +66,16 @@ public class ImageController {
             responseCode = "201",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
+                    array = @ArraySchema(schema = @Schema(implementation = ImageResponseDto.ImageData.class))
+            )
+    )
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE),
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
     })
-    @PostMapping(value = "/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/all",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<ImageResponseDto.ImageData>> postAllImage(List<ImageRequirementDto.ImagePost> imagePosts) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addAllImage(imagePosts)));
 
