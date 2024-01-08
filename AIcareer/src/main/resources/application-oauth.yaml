@@ -3,6 +3,13 @@ spring:
     oauth2:
       client:
         registration:
+          google:
+            client-id: 47627470600-dgjrp1bb3c4rpqkft51rqujs2l43t2gm.apps.googleusercontent.com
+            client-secret: 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
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            scope:
+              - email
+              - profile
           naver:
             client-id: aY6ehque07j5CjYTBIcX
             client-secret: 73CHBBQ3sD

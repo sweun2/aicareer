@@ -25,8 +25,8 @@ class OAuth2Attribute {
     static OAuth2Attribute of(String provider, String attributeKey,
                               Map<String, Object> attributes) {
         switch (provider) {
-            /*case "google":
-                return ofGoogle(attributeKey, attributes);*/
+            case "google":
+                return ofGoogle(attributeKey, attributes);
             case "kakao":
                 log.info("kakao");
                 return ofKakao("email", attributes);
@@ -40,7 +40,7 @@ class OAuth2Attribute {
     }
 
 
-    /*private static OAuth2Attribute ofGoogle(String attributeKey,
+    private static OAuth2Attribute ofGoogle(String attributeKey,
                                             Map<String, Object> attributes) {
         return OAuth2Attribute.builder()
                 .name((String) attributes.get("name"))
@@ -49,7 +49,7 @@ class OAuth2Attribute {
                 .attributes(attributes)
                 .attributeKey(attributeKey)
                 .build();
-    }*/
+    }
 
     private static OAuth2Attribute ofKakao(String attributeKey,
                                            Map<String, Object> attributes) {

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,7 @@ public class UserController {
     }
 
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "유저 Role 변경", description = "현재 로그인된 유저의 Role을 변경합니다. Role이 ADMIN인 경우만 사용 가능, ADMIN으로의 변경은 DB에서 직접 변경")
+    @Operation(summary = "유저 Role 변경", description = "현재 로그인된 유저의 Role을 변경합니다. Role이 ADMIN인 경우만 사용 가능, ADMIN으로의 변경은 DB에서 직접 변경 필요, 문의바람")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
@@ -82,5 +83,20 @@ public class UserController {
     @PostMapping("/role")
     public ResponseEntity<UserResponseDto.UserInfo> userInfo(UserRequestDto.UserRole userRole) {
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserRole(userRole)));
+    }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "유저 로그아웃", description = "로그아웃하기")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답")
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Void> userLogout(HttpServletResponse response) {
+        userService.logout(response);
+        return ResponseEntity.ok().build();
     }
 }

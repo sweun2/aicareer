@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment.controller;
 
+import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
@@ -9,6 +10,7 @@ import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -54,7 +56,7 @@ public class RecruitmentController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class)))
+                    array = @ArraySchema(schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class))))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
@@ -129,7 +131,8 @@ public class RecruitmentController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class)))
+                    array = @ArraySchema(schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class))
+            ))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
