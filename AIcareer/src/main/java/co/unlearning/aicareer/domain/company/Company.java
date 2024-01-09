@@ -26,7 +26,7 @@ public class Company {
     @Column
     private String companyName; //회사명
     @OneToOne
-    @Cascade(CascadeType.PERSIST)
+    @Cascade(CascadeType.ALL)
     private CompanyType companyType; //회사 타입
     @OneToMany(mappedBy = "company")
     private Set<Recruitment> recruitmentSet;

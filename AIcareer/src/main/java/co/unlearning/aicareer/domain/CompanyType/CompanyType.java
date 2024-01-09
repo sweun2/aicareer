@@ -3,6 +3,8 @@ package co.unlearning.aicareer.domain.CompanyType;
 import co.unlearning.aicareer.domain.company.Company;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 @Entity
 @Getter
@@ -18,6 +20,7 @@ public class CompanyType {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @OneToOne
+    @Cascade(CascadeType.ALL)
     private Company company;
     @Column
     private CompanyTypeName companyTypeName;

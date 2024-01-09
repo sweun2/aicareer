@@ -51,6 +51,28 @@ public class RecruitmentController {
     public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
     }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "글 수정하기", description = "채용 공고 글 수정하기")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentInfo.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
+
+    })
+    @PutMapping("/{uid}")
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> putRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost,
+                                                                                        @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
+                                                                                        @PathVariable("uid") String uid) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.updateRecruitmentPost(uid,recruitmentPost)));
+    }
     @Operation(summary = "여러 공고 조회", description = "필터링 글 조회, 무관/전체 필터링 시 해당 값을 안 보내야 합니다.")
     @ApiResponse(
             responseCode = "200",

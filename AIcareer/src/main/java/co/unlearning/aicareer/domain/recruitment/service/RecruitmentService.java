@@ -3,6 +3,7 @@ package co.unlearning.aicareer.domain.recruitment.service;
 import co.unlearning.aicareer.domain.CompanyType.CompanyType;
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
+import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.career.Career;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.company.repository.CompanyRepository;
@@ -24,6 +25,7 @@ import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import co.unlearning.aicareer.global.utils.validator.TimeValidator;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,7 @@ public class RecruitmentService {
     private final CompanyRepository companyRepository;
     private final CompanyService companyService;
     private final ImageRepository imageRepository;
+    private final ImageService imageService;
     private final UserService userService;
     private final UserRepository userRepository;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
@@ -60,6 +63,22 @@ public class RecruitmentService {
         return recruitmentRepository.findByUid(uid).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND)
         );
+    }
+    public Recruitment updateRecruitmentPost(String uid, RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
+        // 수정 필요
+        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        Image image = recruitment.getMainImage();
+        Image newImage = Image.builder()
+                .createdDate(image.getCreatedDate())
+                .imageUrl(image.getImageUrl())
+                .absolutePath(image.getAbsolutePath())
+                .build();
+
+        deleteRecruitmentByUid(uid);
+
+        imageRepository.save(newImage);
+
+        return addRecruitmentPost(recruitmentPost);
     }
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         //company 등록 안된 경우 예외 처리
@@ -92,7 +111,7 @@ public class RecruitmentService {
             //마감 일이 미래 인지 확인
             TimeValidator.RemainingTimeValidator(deadLine);
         } else{
-            deadLine = LocalDateTime.MAX;
+            deadLine = LocalDateTime.of(2999,12,12,12,12);
         }
         log.info("date");
         Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage()).orElseThrow(

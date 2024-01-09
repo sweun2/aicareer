@@ -43,9 +43,9 @@ public class ImageService {
         //window 구별
         String osPath;
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            osPath = "\\img\\";
+            osPath = "\\image\\";
         }else {
-            osPath = "/img/";
+            osPath = "/image/";
         }
         String imagePath = originImageName + UUID.randomUUID() + contentType;
         String absolutePath = Paths.get("").toAbsolutePath().toString()+osPath;
@@ -61,7 +61,7 @@ public class ImageService {
 
         Image image = Image.builder()
                 .absolutePath(absolutePath)
-                .imageUrl(imagePath)
+                .imageUrl("/api/image/"+imagePath)
                 .createdDate(LocalDateTime.now())
                 .build();
         return imageRepository.save(image);
