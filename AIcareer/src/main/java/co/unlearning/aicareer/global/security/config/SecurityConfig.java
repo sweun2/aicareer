@@ -68,7 +68,9 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .oauth2Login(oauth2 -> {
                     oauth2.loginPage("/token/expired")
                             .successHandler(oAuth2SuccessHandler)
-                            .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service));
+                            .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))
+                            .failureUrl("/login?error=true")
+                    ;
                 })
                 /*.oauth2Login(oauth2 -> {
                     oauth2.successHandler(oAuth2SuccessHandler)
