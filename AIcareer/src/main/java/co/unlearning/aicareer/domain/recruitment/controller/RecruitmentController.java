@@ -65,7 +65,6 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
-
     })
     @PutMapping("/{uid}")
     public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> putRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost,

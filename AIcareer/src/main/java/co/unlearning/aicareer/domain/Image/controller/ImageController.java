@@ -42,7 +42,7 @@ public class ImageController {
     private final UserService userService;
     private final ImageService imageService;
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "단일 이미지 파일 올리기", description = "딘ㅇ;ㄹ 이미지 파일을 저장합니다.")
+    @Operation(summary = "단일 이미지 파일 올리기", description = "딘일 이미지 파일을 저장합니다.")
     @ApiResponse(
             responseCode = "201",
             description = "정상 응답",
@@ -107,5 +107,23 @@ public class ImageController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                 .body(resource);
+    }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "이미지 파일 제거하기", description = "이미지 파일을 제거합니다.")
+    @ApiResponse(
+            responseCode = "201",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = ImageResponseDto.ImageData.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+    })
+    @DeleteMapping(value = "/url")
+    public ResponseEntity<Void> deleteImage(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
+                                                 @PathVariable String url) throws IOException {
+        imageService.deleteImage(url);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

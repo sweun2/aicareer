@@ -41,12 +41,7 @@ public class ImageService {
             throw new BusinessException(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE);
         }
         //window 구별
-        String osPath;
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            osPath = "\\image\\";
-        }else {
-            osPath = "/image/";
-        }
+        String osPath = getOsPath();
         String imagePath = originImageName + UUID.randomUUID() + contentType;
         String absolutePath = Paths.get("").toAbsolutePath().toString()+osPath;
 
@@ -77,5 +72,24 @@ public class ImageService {
         return imageRepository.findByImageUrl(url).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
+    }
+    public void deleteImage(String url) {
+        Image image = getImageByUrl(url);
+        String osPath = getOsPath();
+        try {
+            File file = new File(image.getAbsolutePath() + image.getImageUrl().substring(11));
+            file.delete();
+        }catch (Exception e) {
+            log.info(e.getMessage());
+            throw new BusinessException(ResponseErrorCode.NOT_FOUND_IMAGE_FILE);
+        }
+    }
+
+    private static String getOsPath() {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            return "\\image\\";
+        }else {
+            return "/image/";
+        }
     }
 }
