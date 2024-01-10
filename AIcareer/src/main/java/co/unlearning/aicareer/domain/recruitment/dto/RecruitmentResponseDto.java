@@ -50,7 +50,7 @@ public class RecruitmentResponseDto {
         //@Schema(description = "조회수")
         private Integer hits; //조회수
         //@Schema(description = "지역")
-        private String recruitmentAddress; //지역
+        private RecruitmentAddress recruitmentAddress; //지역
         //@Schema(description = "제목")
         private String title; //title
         //@Schema(description = "내용")
@@ -110,7 +110,7 @@ public class RecruitmentResponseDto {
         //@Schema(description = "업로드 날짜")
         private String uploadDate; //업로드 날짜
         //@Schema(description = "지역")
-        private String recruitmentAddress; //지역
+        private RecruitmentAddress recruitmentAddress; //지역
         //@Schema(description = "제목")
         private String title; //title
         //@Schema(description = "조회수")

@@ -5,8 +5,10 @@ import co.unlearning.aicareer.domain.career.Career;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.recruitment.RecruitmentAddress;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -77,10 +79,10 @@ public class RecruitmentSpecification {
             return annualLeavePath.in(annualLeaves);
         };
     }
-    public static Specification<Recruitment> hasRecruitmentAddress(List<String> recruitmentAddresses) {
+    public static Specification<Recruitment> hasRecruitmentAddress(List<RecruitmentAddress> recruitmentAddresses) {
         return (root, query, criteriaBuilder) -> {
             query.distinct(true);
-            return criteriaBuilder.lower(root.get("name")).in(recruitmentAddresses.stream().map(String::toLowerCase).collect(Collectors.toList()));
+            return criteriaBuilder.lower(root.get("recruitmentAddress")).in(recruitmentAddresses);
         };
     }
     public static Specification<Recruitment> isOpenRecruitment() {

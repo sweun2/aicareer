@@ -35,7 +35,7 @@ public class RecruitmentRequirementDto {
         private RecruitmentDeadLine recruitmentDeadline; //모집 마감일
         @Schema(description = "모집 공고 링크")
         private String recruitmentAnnouncementLink; //모집 공고 링크
-        @Schema(description = "모집 지역")
+        @Schema(description = "모집 지역",allowableValues = {"SEOUL", "GANGNAM","MAPO","GURO_GARSAN_GAME","BUNDANG_PANGYO","ETC"})
         private String recruitmentAddress; //지역
         @Schema(description = "제목")
         private String title; //title
@@ -73,10 +73,10 @@ public class RecruitmentRequirementDto {
         private List<String> educations;
         @Schema(description = "요구 경력", allowableValues = {"NEW_COMER","JUNIOR","SENIOR","MIDDLE","LEADER"})
         private List<String> careers;
-        @Schema(description = "모집 지역")
+        @Schema(description = "모집 지역",allowableValues = {"SEOUL", "GANGNAM","MAPO","GURO_GARSAN_GAME","BUNDANG_PANGYO","ETC"})
         private List<String> recruitmentAddress; //지역
-        @Schema(description = "제목")
-        private String title; //title
+        /*@Schema(description = "제목")
+        private String title; //title*/
     }
 
 

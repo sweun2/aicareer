@@ -11,6 +11,7 @@ import co.unlearning.aicareer.domain.company.dto.CompanyRequirementDto;
 import co.unlearning.aicareer.domain.company.service.CompanyService;
 import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.recruitment.RecruitmentAddress;
 import co.unlearning.aicareer.domain.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentRepository;
@@ -81,6 +82,7 @@ public class RecruitmentService {
         return addRecruitmentPost(recruitmentPost);
     }
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
+        log.info("add");
         //company 등록 안된 경우 예외 처리
         Optional<Company> companyOptional = companyRepository.findByCompanyName(recruitmentPost.getCompanyName());
         Company companyTemp;
@@ -113,10 +115,12 @@ public class RecruitmentService {
         } else{
             deadLine = LocalDateTime.of(2999,12,12,12,12);
         }
-        log.info("date");
         Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage()).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
+        //모집 공고 위치
+        EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
+        RecruitmentAddress recruitmentAddress = recruitmentAddressEnumValidator.validateEnumString(recruitmentPost.getRecruitmentAddress(),RecruitmentAddress.class);
 
         Recruitment recruitment = Recruitment.builder()
                 .uid(UUID.randomUUID().toString())
@@ -128,10 +132,9 @@ public class RecruitmentService {
                 .recruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink()) //validator 필요
                 .mainImage(image)
                 .content(recruitmentPost.getContent())
-                .recruitmentAddress(recruitmentPost.getRecruitmentAddress())
+                .recruitmentAddress(recruitmentAddress)
                 .hits(0)
                 .build();
-        log.info("recruitment");
 
         Set<RecruitingJob> recruitingJobs = new HashSet<>();
         for(String strRecruitingJobNameDto : recruitmentPost.getRecruitingJobNames()) {
@@ -169,16 +172,17 @@ public class RecruitmentService {
         recruitment.setRecruitmentTypeSet(recruitmentTypes);
         recruitment.setEducationSet(educations);
         recruitment.setCareerSet(careers);
-        log.info("oneToMany");
         return recruitmentRepository.save(recruitment);
     }
 
     public List<Recruitment> getFilteredRecruitment(RecruitmentRequirementDto.Search search, Pageable pageable) {
+        log.info("search");
         List<RecruitingJob.RecruitingJobName> recruitingJobList = new ArrayList<>();
         List<CompanyType.CompanyTypeName> companyTypeNameList = new ArrayList<>();
         List<RecruitmentType.RecruitmentTypeName> recruitmentTypeNameList = new ArrayList<>();
         List<Education.DEGREE> dgreeList = new ArrayList<>();
         List<Career.AnnualLeave> annualLeaveList = new ArrayList<>();
+        List<RecruitmentAddress> recruitmentAddresses = new ArrayList<>();
 
         if (!search.getRecruitingJobNames().isEmpty()) {
             EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobEnumValidator = new EnumValidator<>();
@@ -215,6 +219,15 @@ public class RecruitmentService {
                 annualLeaveList.add(annualLeave);
             }
         }
+        if(!search.getRecruitmentAddress().isEmpty()) {
+            EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
+            for (String recruitmentAddressStr : search.getRecruitmentAddress()) {
+                RecruitmentAddress recruitmentAddress = recruitmentAddressEnumValidator.validateEnumString(recruitmentAddressStr, RecruitmentAddress.class);
+                recruitmentAddresses.add(recruitmentAddress);
+            }
+        }
+        log.info("search");
+
         //마감된 공고 처리 true 면 아직 마감 안된 공고
         if(!search.getIsOpen()) {
             Specification<Recruitment> specification = Specification.where(RecruitmentSpecification.hasRecruitingJob(recruitingJobList))
@@ -222,7 +235,7 @@ public class RecruitmentService {
                     .and(RecruitmentSpecification.hasRecruitmentType(recruitmentTypeNameList))
                     .and(RecruitmentSpecification.hasEducation(dgreeList))
                     .and(RecruitmentSpecification.hasCareer(annualLeaveList))
-                    .and(RecruitmentSpecification.hasRecruitmentAddress(search.getRecruitmentAddress()))
+                    .and(RecruitmentSpecification.hasRecruitmentAddress(recruitmentAddresses))
                     .and(RecruitmentSpecification.isOpenRecruitment())
                     ;
             return getOrder(search, pageable, specification);

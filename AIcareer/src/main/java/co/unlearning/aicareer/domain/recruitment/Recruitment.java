@@ -60,7 +60,7 @@ public class Recruitment {
     @Column
     private Integer hits; //조회수
     @Column
-    private String recruitmentAddress; //지역
+    private RecruitmentAddress recruitmentAddress; //지역
     @ManyToOne
     @Cascade(CascadeType.REMOVE)
     private User user; //북마크
