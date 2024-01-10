@@ -88,7 +88,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         refreshToken.setPath("/");
         response.addCookie(refreshToken);
 
-        getRedirectStrategy().sendRedirect(request, response,  UriComponentsBuilder.fromUriString("http://223.130.143.213/:3000").queryParam("login","true").toUriString());
+        getRedirectStrategy().sendRedirect(request, response,  UriComponentsBuilder.fromUriString("http://223.130.143.213:3000").queryParam("login","true").toUriString());
 
     }
 
