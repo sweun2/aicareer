@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -56,8 +57,25 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             User user = userOptional.get();
             userRepository.save(user);
         }
+        ResponseCookie accessToken = ResponseCookie.from("accessToken",token.getAccessToken())
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(false)
+                .maxAge(24*60*60)
+                .build();
+        response.addHeader("Set-Cookie", accessToken.toString());
 
-        Cookie accessToken = new Cookie("accessToken", token.getAccessToken());
+        ResponseCookie refreshToken = ResponseCookie.from("refreshToken",token.getRefreshToken())
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(false)
+                .maxAge(24*60*60)
+                .build();
+        response.addHeader("Set-Cookie", refreshToken.toString());
+
+        /*Cookie accessToken = new Cookie("accessToken", token.getAccessToken());
         accessToken.setMaxAge(1 * 24 * 60 * 60);
         accessToken.setHttpOnly(true);
         accessToken.setPath("/");
@@ -68,7 +86,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         refreshToken.setMaxAge(7 * 24 * 60 * 60);
         refreshToken.setHttpOnly(true);
         refreshToken.setPath("/");
-        response.addCookie(refreshToken);
+        response.addCookie(refreshToken);*/
 
         getRedirectStrategy().sendRedirect(request, response,  UriComponentsBuilder.fromUriString("http://localhost:3000").queryParam("login","true").toUriString());
 
