@@ -47,7 +47,7 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
 
     })
-    @PostMapping("/")
+    @PostMapping("/post")
     public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         log.info("add1");
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
