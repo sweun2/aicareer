@@ -25,10 +25,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.List.of;
 
@@ -45,9 +47,10 @@ public class SecurityConfig implements WebMvcConfigurer {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedHeaders(Collections.singletonList("*"));
-            config.setAllowedMethods(Collections.singletonList("*"));
+            config.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
             config.setAllowedOriginPatterns(Collections.singletonList("*")); //
             config.setAllowCredentials(true);
+
 
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", config);
@@ -63,6 +66,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize
+                                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> {
