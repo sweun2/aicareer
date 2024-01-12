@@ -20,7 +20,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -47,47 +48,41 @@ public class OpenApiConfig {
 
             ApiErrorCodeExamples apiErrorCodeExamples = handlerMethod.getMethodAnnotation(ApiErrorCodeExamples.class);
             if(apiErrorCodeExamples!=null) {
-                Arrays.stream(apiErrorCodeExamples.value()).forEach(code ->{
-                    generateErrorCodeResponseExample(operation, code.value());
-                });
+                generateErrorCodeResponseExample(operation,apiErrorCodeExamples);
             }
             return operation;
         };
     }
     private void generateErrorCodeResponseExample(
-            Operation operation, ResponseErrorCode type) {
+            Operation operation, ApiErrorCodeExamples apiErrorCodeExamples) {
         ApiResponses responses = operation.getResponses();
+        Map<Integer, List<ExampleHolder>> statusWithExampleHolders = Arrays.stream(apiErrorCodeExamples.value())
+                .map(apiErrorCodeExample -> {
+                    ErrorReason errorReason = apiErrorCodeExample.value().getErrorReason();
+                    return ExampleHolder.builder()
+                            .holder(getSwaggerExample(apiErrorCodeExample.value().getExplainError(), errorReason))
+                            .code(errorReason.getStatus())
+                            .name(errorReason.getCode())
+                            .build();
+                })
+                .collect(Collectors.groupingBy(ExampleHolder::getCode));
 
-        ErrorReason errorReason = type.getErrorReason();
-        ExampleHolder exampleHolder =  ExampleHolder.builder()
-                .holder(
-                        getSwaggerExample(
-                                type.getExplainError(),
-                                errorReason))
-                .code(errorReason.getStatus())
-                .name(errorReason.getCode())
-                .build();
-        // response 객체들을 responses 에 넣습니다.
-        addExamplesToResponses(responses, exampleHolder);
+        addExamplesToResponses(responses, statusWithExampleHolders);
     }
-    private void addExamplesToResponses(ApiResponses responses, ExampleHolder exampleHolder) {
-        Content content = new Content();
-        MediaType mediaType = new MediaType();
-
-        // 상태 코드마다 ApiResponse을 생성합니다.
-        ApiResponse apiResponse = new ApiResponse();
-
-        // ExampleHolder에 있는 값을 가져와 mediaType 객체에 예시값을 추가합니다.
-        mediaType.addExamples(exampleHolder.getName(), exampleHolder.getHolder());
-
-        // ApiResponse의 content에 mediaType을 추가합니다.
-        content.addMediaType("application/json", mediaType);
-        apiResponse.setContent(content);
-
-        // 상태코드를 key 값으로 responses에 추가합니다.
-        responses.addApiResponse(String.valueOf(exampleHolder.getCode()), apiResponse);
+    private void addExamplesToResponses(ApiResponses responses, Map<Integer, List<ExampleHolder>> statusWithExampleHolders) {
+        statusWithExampleHolders.forEach(
+                (status, v) -> {
+                    Content content = new Content();
+                    MediaType mediaType = new MediaType();
+                    ApiResponse apiResponse = new ApiResponse();
+                    v.forEach(
+                            exampleHolder -> mediaType.addExamples(
+                                    exampleHolder.getName(), exampleHolder.getHolder()));
+                    content.addMediaType("application/json", mediaType);
+                    apiResponse.setContent(content);
+                    responses.addApiResponse(status.toString(), apiResponse);
+                });
     }
-
     private Example getSwaggerExample(String value, ErrorReason errorReason) {
         ErrorResponse errorResponse = new ErrorResponse(errorReason);
         Example example = new Example();

@@ -39,7 +39,6 @@ public enum ResponseErrorCode {
     @ExplainError("이미지 파일이 형식 에러,이미지 파일 형식을 확인해 주세요. jpg, png 만 가능합니다. ")
     INVALID_IMAGE_CONTENT_TYPE(HttpStatus.BAD_REQUEST.value(), "IMAGE_003","잘못된 image 파일 형식입니다."),
     ;
-    ;
     private final int status;
     private final String code;
     private final String reason;
