@@ -138,6 +138,7 @@ public class RecruitmentService {
                 .mainImage(image)
                 .content(recruitmentPost.getContent())
                 .recruitmentAddress(recruitmentAddress)
+                .title(recruitmentPost.getTitle())
                 .hits(0)
                 .build();
 
