@@ -194,42 +194,42 @@ public class RecruitmentService {
                  RecruitingJob.RecruitingJobName recruitingJobName = recruitingJobEnumValidator.validateEnumString(recruitJobNameStr, RecruitingJob.RecruitingJobName.class);
                  recruitingJobList.add(recruitingJobName);
             }
-        }
+        } else recruitingJobList.addAll(List.of(RecruitingJob.RecruitingJobName.values()));
         if(!search.getCompanyTypes().isEmpty()) {
             EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
             for(String companyTypeStr : search.getCompanyTypes()) {
                 CompanyType.CompanyTypeName companyTypeName =  companyTypeNameEnumValidator.validateEnumString(companyTypeStr, CompanyType.CompanyTypeName.class);
                 companyTypeNameList.add(companyTypeName);
             }
-        }
+        } else companyTypeNameList.addAll(List.of(CompanyType.CompanyTypeName.values()));
         if (!search.getRecruitmentTypeNames().isEmpty()) {
             EnumValidator<RecruitmentType.RecruitmentTypeName> recruitmentTypeNameEnumValidator = new EnumValidator<>();
             for (String recruitmentTypeStr : search.getRecruitmentTypeNames()) {
                 RecruitmentType.RecruitmentTypeName recruitmentTypeName = recruitmentTypeNameEnumValidator.validateEnumString(recruitmentTypeStr, RecruitmentType.RecruitmentTypeName.class);
                 recruitmentTypeNameList.add(recruitmentTypeName);
             }
-        }
+        } else recruitmentTypeNameList.addAll(List.of(RecruitmentType.RecruitmentTypeName.values()));
         if (!search.getEducations().isEmpty()) {
             EnumValidator<Education.DEGREE> educationNameEnumValidator = new EnumValidator<>();
             for (String educationNameStr : search.getEducations()) {
                 Education.DEGREE degree = educationNameEnumValidator.validateEnumString(educationNameStr, Education.DEGREE.class);
                 dgreeList.add(degree);
             }
-        }
+        } else dgreeList.addAll(List.of(Education.DEGREE.values()));
         if (!search.getCareers().isEmpty()) {
             EnumValidator<Career.AnnualLeave> careerNameEnumValidator = new EnumValidator<>();
             for (String careerNameStr : search.getCareers()) {
                 Career.AnnualLeave annualLeave = careerNameEnumValidator.validateEnumString(careerNameStr, Career.AnnualLeave.class);
                 annualLeaveList.add(annualLeave);
             }
-        }
+        } else annualLeaveList.addAll(List.of(Career.AnnualLeave.values()));
         if(!search.getRecruitmentAddress().isEmpty()) {
             EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
             for (String recruitmentAddressStr : search.getRecruitmentAddress()) {
                 RecruitmentAddress recruitmentAddress = recruitmentAddressEnumValidator.validateEnumString(recruitmentAddressStr, RecruitmentAddress.class);
                 recruitmentAddresses.add(recruitmentAddress);
             }
-        }
+        } else recruitmentAddresses.addAll(List.of(RecruitmentAddress.values()));
         log.info("search");
 
         //마감된 공고 처리 true 면 아직 마감 안된 공고
