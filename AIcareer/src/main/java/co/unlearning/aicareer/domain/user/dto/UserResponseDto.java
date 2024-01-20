@@ -46,6 +46,7 @@ public class UserResponseDto {
                     .name(user.getName())
                     .email(user.getEmail())
                     .joinDate(String.valueOf(user.getJoinDate()))
+                    .userRole(user.getUserRole())
                     .build();
         }
 
