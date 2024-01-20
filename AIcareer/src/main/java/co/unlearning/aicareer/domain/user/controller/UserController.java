@@ -63,6 +63,7 @@ public class UserController {
     })
     @GetMapping("/info")
     public ResponseEntity<UserResponseDto.UserInfo> findUserInfo() {
+        log.info("/info");
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.getLoginUser()));
     }
 
