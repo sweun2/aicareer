@@ -119,6 +119,7 @@ public class RecruitmentService {
             deadLine = LocalDateTime.of(2999,12,12,12,12);
         }
         int num = (serverPath+"/api/image/").length();
+        log.info(recruitmentPost.getMainImage().substring(num));
         Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage().substring(num)).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );

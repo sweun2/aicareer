@@ -14,7 +14,7 @@ public class RecruitingJobResponseDto {
     @Setter
     @Builder
     public static class RecruitingJobNameDto {
-        @Schema(description = "모집 직무 이름",allowableValues = {"RESEARCH", "MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST", "ETC"})
+        @Schema(description = "모집 직무 이름",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC"})
         private String recruitingJobName;
         public static RecruitingJobNameDto of(RecruitingJob recruitingJob) {
             return RecruitingJobNameDto.builder()
