@@ -145,14 +145,7 @@ public class RecruitmentController {
     })
     public ResponseEntity<RecruitmentResponseDto.RecruitmentSimple> postBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
-        Recruitment recruitment = null;
-        try {
-            recruitment= recruitmentService.addRecruitmentBookmark(uid);
-        }catch (Exception e) {
-            log.info("err");
-            log.info(e.getMessage());
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitment));
+        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.addRecruitmentBookmark(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "채용 공고 북마크된 목록 보기", description = "채용 공고 북마크보기, 로그인 필요")

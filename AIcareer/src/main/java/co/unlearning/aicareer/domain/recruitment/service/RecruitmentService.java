@@ -302,7 +302,6 @@ public class RecruitmentService {
         recruitment.setBookmarkSet(recruitBookmarkSet);
 
         bookmarkRepository.save(bookmark);
-        log.info("add bookmark end");
         return recruitment;
     }
     public void removeRecruitmentBookMark(String uid) {
@@ -315,10 +314,8 @@ public class RecruitmentService {
     }
     public List<Recruitment> findUserBookMark() {
         User user = userService.getLoginUser();
-        log.info("test");
         List<Bookmark> bookmarkList = bookmarkRepository.findAllByUser(user);
         List<Recruitment> recruitmentList = new ArrayList<>();
-        log.info("test");
         bookmarkList.forEach(
                 bookmark -> {recruitmentList.add(bookmark.getRecruitment());}
         );
