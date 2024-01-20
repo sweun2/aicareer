@@ -34,9 +34,12 @@ public class UserService {
     public User getLoginUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication.getPrincipal().equals("anonymousUser")){
+            log.info("annnoy");
             throw new BusinessException(ResponseErrorCode.USER_UNAUTHORIZED);
         }
         User user = (User) authentication.getPrincipal();
+        log.info("getLoginUser");
+
         return userRepository.findById(user.getId()).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.USER_NOT_FOUND));
     }
