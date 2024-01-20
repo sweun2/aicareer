@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -53,6 +54,8 @@ public class RecruitmentService {
     private final ImageService imageService;
     private final UserService userService;
     private final UserRepository userRepository;
+    @Value("${url}")
+    private String serverPath;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
         recruitment.setHits(recruitment.getHits()+1);
@@ -115,7 +118,8 @@ public class RecruitmentService {
         } else{
             deadLine = LocalDateTime.of(2999,12,12,12,12);
         }
-        Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage()).orElseThrow(
+        int num = (serverPath+"/api/image/").length();
+        Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage().substring(num)).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
         //모집 공고 위치

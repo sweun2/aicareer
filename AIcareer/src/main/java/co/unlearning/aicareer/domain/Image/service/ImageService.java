@@ -28,8 +28,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ImageService {
     private final ImageRepository imageRepository;
-    @Value("${url}")
-    private String serverPath;
 
     public Image addOneImage(ImageRequirementDto.ImagePost imagePost) throws IOException {
         ImageValidator.ImageExistValidator(imagePost.getImageFile());
