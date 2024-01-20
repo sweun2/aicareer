@@ -38,7 +38,7 @@ public class RecruitmentResponseDto {
         //@Schema(description = "요구 경력",allowableValues = {})
         private List<CareerResponseDto.CareerDto> careerDtos;
         //@Schema(description = "모집 시작일")
-        private LocalDateTime recruitmentStartDate; // 모집 시작일
+        private String recruitmentStartDate; // 모집 시작일
         //@Schema(description = "모집 마감")
         private RecruitmentResponseDto.RecruitmentDeadLine recruitmentDeadLine;
 /*
@@ -65,7 +65,7 @@ public class RecruitmentResponseDto {
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
                     .educationDtos(EducationResponseDto.EducationDto.of(List.copyOf(recruitment.getEducationSet())))
                     .careerDtos(CareerResponseDto.CareerDto.of(List.copyOf(recruitment.getCareerSet())))
-                    .recruitmentStartDate(recruitment.getRecruitmentStartDate())
+                    .recruitmentStartDate(LocalDateTimeToString(recruitment.getRecruitmentStartDate()))
                     .recruitmentDeadLine(RecruitmentDeadLine.of(recruitment.getRecruitmentDeadlineType(),LocalDateTimeToString(recruitment.getRecruitmentDeadline())))
                     .uploadDate(recruitment.getUploadDate())
                     .recruitmentAnnouncementLink(recruitment.getRecruitmentAnnouncementLink())
