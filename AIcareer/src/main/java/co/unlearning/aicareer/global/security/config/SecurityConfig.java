@@ -6,6 +6,11 @@ import co.unlearning.aicareer.global.security.jwt.JwtAuthFilter;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.security.oauth2.CustomOAuth2UserService;
 import co.unlearning.aicareer.global.security.oauth2.OAuth2SuccessHandler;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,12 +28,15 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,6 +66,15 @@ public class SecurityConfig implements WebMvcConfigurer {
             return config;
         };
     }
+    private Filter sameSiteFilter() {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+                response.setHeader("Set-Cookie", "SameSite=None; Secure");
+                filterChain.doFilter(request, response);
+            }
+        };
+    }
     @Bean
     public SecurityFilterChain filterChain(final @NotNull HttpSecurity http) throws Exception{
         http.httpBasic(HttpBasicConfigurer::disable)
@@ -81,6 +98,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                             .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))
                             .loginPage("/token/expired");
                 })*/
+                //.addFilterBefore(sameSiteFilter(), CsrfFilter.class)
                 .addFilterBefore(new JwtAuthFilter(tokenService, userService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
