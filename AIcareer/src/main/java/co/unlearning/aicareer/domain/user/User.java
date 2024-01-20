@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.user;
 
+import co.unlearning.aicareer.domain.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,6 +39,6 @@ public class User {
     private LocalDateTime joinDate; //joinDate
     @Column
     private UserRole userRole;
-    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
-    private Set<Recruitment> bookMark = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private Set<Bookmark> bookmarkSet;
 }

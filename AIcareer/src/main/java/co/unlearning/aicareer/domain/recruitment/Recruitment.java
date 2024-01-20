@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.recruitment;
 
 import co.unlearning.aicareer.domain.Image.Image;
+import co.unlearning.aicareer.domain.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.career.Career;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
@@ -61,9 +62,9 @@ public class Recruitment {
     private Integer hits; //조회수
     @Column
     private RecruitmentAddress recruitmentAddress; //지역
-    @ManyToOne
+    @OneToMany(mappedBy = "recruitment")
     @Cascade(CascadeType.REMOVE)
-    private User user; //북마크
+    private Set<Bookmark> bookmarkSet;
     @OneToOne
     @Cascade(CascadeType.ALL)
     private Image mainImage;

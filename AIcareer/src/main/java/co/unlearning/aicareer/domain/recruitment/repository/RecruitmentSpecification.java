@@ -1,6 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment.repository;
 
-import co.unlearning.aicareer.domain.CompanyType.CompanyType;
+import co.unlearning.aicareer.domain.companyType.CompanyType;
 import co.unlearning.aicareer.domain.career.Career;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
@@ -8,14 +8,12 @@ import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.recruitment.RecruitmentAddress;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
-import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class RecruitmentSpecification {

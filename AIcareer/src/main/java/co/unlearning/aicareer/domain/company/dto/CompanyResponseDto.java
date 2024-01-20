@@ -1,6 +1,6 @@
 package co.unlearning.aicareer.domain.company.dto;
 
-import co.unlearning.aicareer.domain.CompanyType.dto.CompanyTypeResponseDto;
+import co.unlearning.aicareer.domain.companyType.dto.CompanyTypeResponseDto;
 import co.unlearning.aicareer.domain.company.Company;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package co.unlearning.aicareer.domain.CompanyType;
+package co.unlearning.aicareer.domain.companyType;
 
 import co.unlearning.aicareer.domain.company.Company;
 import jakarta.persistence.*;

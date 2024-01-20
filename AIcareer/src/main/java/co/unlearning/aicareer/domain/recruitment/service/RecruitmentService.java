@@ -1,6 +1,8 @@
 package co.unlearning.aicareer.domain.recruitment.service;
 
-import co.unlearning.aicareer.domain.CompanyType.CompanyType;
+import co.unlearning.aicareer.domain.bookmark.Bookmark;
+import co.unlearning.aicareer.domain.bookmark.repository.BookmarkRepository;
+import co.unlearning.aicareer.domain.companyType.CompanyType;
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.Image.service.ImageService;
@@ -26,7 +28,6 @@ import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import co.unlearning.aicareer.global.utils.validator.TimeValidator;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,9 +38,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -51,9 +52,9 @@ public class RecruitmentService {
     private final CompanyRepository companyRepository;
     private final CompanyService companyService;
     private final ImageRepository imageRepository;
-    private final ImageService imageService;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final BookmarkRepository bookmarkRepository;
     @Value("${url}")
     private String serverPath;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
@@ -286,21 +287,32 @@ public class RecruitmentService {
     public Recruitment addRecruitmentBookmark(String uid) {
         User user = userService.getLoginUser();
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
-        user.getBookMark().add(recruitment);
-
-        userRepository.save(user);
+        Bookmark bookmark = Bookmark.builder()
+                .user(user)
+                .recruitment(recruitment)
+                .build();
+        Set<Bookmark> bookmarkSet = user.getBookmarkSet();
+        bookmarkSet.add(bookmark);
+        user.setBookmarkSet(bookmarkSet);
+        recruitment.setBookmarkSet(bookmarkSet);
+        bookmarkRepository.save(bookmark);;
         return recruitment;
     }
     public void removeRecruitmentBookMark(String uid) {
         User user = userService.getLoginUser();
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
-        user.getBookMark().remove(recruitment);
-
+        Bookmark bookmark = bookmarkRepository.findByUserAndRecruitment(user,recruitment).orElseThrow(
+                () -> new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR)
+        );
         userRepository.save(user);
     }
     public List<Recruitment> findUserBookMark() {
         User user = userService.getLoginUser();
-        return user.getBookMark().stream().toList();
+        List<Bookmark> bookmarkList = bookmarkRepository.findAllByUser(user);
+        List<Recruitment> recruitmentList = new ArrayList<>();
+        bookmarkList.forEach(
+                bookmark -> {recruitmentList.add(bookmark.getRecruitment());}
+        );
+        return recruitmentList;
     }
-
 }
