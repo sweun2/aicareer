@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.recruitment.controller;
 
 import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
+import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
@@ -135,8 +136,7 @@ public class RecruitmentController {
             description = "정상 응답",
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class)))
-    @PostMapping("/bookmark/{uid}")
-    @DeleteMapping("/{uid}")
+    @PostMapping("/bookmark/post/{uid}")
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
@@ -145,7 +145,14 @@ public class RecruitmentController {
     })
     public ResponseEntity<RecruitmentResponseDto.RecruitmentSimple> postBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
-        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.addRecruitmentBookmark(uid)));
+        Recruitment recruitment = null;
+        try {
+            recruitment= recruitmentService.addRecruitmentBookmark(uid);
+        }catch (Exception e) {
+            log.info("err");
+            log.info(e.getMessage());
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitment));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "채용 공고 북마크된 목록 보기", description = "채용 공고 북마크보기, 로그인 필요")

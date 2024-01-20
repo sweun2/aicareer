@@ -291,11 +291,18 @@ public class RecruitmentService {
                 .user(user)
                 .recruitment(recruitment)
                 .build();
-        Set<Bookmark> bookmarkSet = user.getBookmarkSet();
-        bookmarkSet.add(bookmark);
-        user.setBookmarkSet(bookmarkSet);
-        recruitment.setBookmarkSet(bookmarkSet);
-        bookmarkRepository.save(bookmark);;
+        Set<Bookmark> userBookmarkSet = user.getBookmarkSet();
+        userBookmarkSet.add(bookmark);
+        user.setBookmarkSet(userBookmarkSet);
+
+        Set<Bookmark> recruitBookmarkSet = recruitment.getBookmarkSet();
+        recruitBookmarkSet.add(bookmark);
+        recruitment.setBookmarkSet(recruitBookmarkSet);
+
+        recruitment.setBookmarkSet(recruitBookmarkSet);
+
+        bookmarkRepository.save(bookmark);
+        log.info("add bookmark end");
         return recruitment;
     }
     public void removeRecruitmentBookMark(String uid) {
@@ -308,8 +315,10 @@ public class RecruitmentService {
     }
     public List<Recruitment> findUserBookMark() {
         User user = userService.getLoginUser();
+        log.info("test");
         List<Bookmark> bookmarkList = bookmarkRepository.findAllByUser(user);
         List<Recruitment> recruitmentList = new ArrayList<>();
+        log.info("test");
         bookmarkList.forEach(
                 bookmark -> {recruitmentList.add(bookmark.getRecruitment());}
         );
