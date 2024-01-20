@@ -9,6 +9,7 @@ import co.unlearning.aicareer.global.utils.validator.ImageValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ImageService {
     private final ImageRepository imageRepository;
+    @Value("${url}")
+    private String serverPath;
 
     public Image addOneImage(ImageRequirementDto.ImagePost imagePost) throws IOException {
         ImageValidator.ImageExistValidator(imagePost.getImageFile());
@@ -53,10 +56,9 @@ public class ImageService {
             file.mkdirs();
         }
         multipartFile.transferTo(file);
-
         Image image = Image.builder()
                 .absolutePath(absolutePath)
-                .imageUrl("/api/image/"+imagePath)
+                .imageUrl(serverPath+"/api/image/"+imagePath)
                 .createdDate(LocalDateTime.now())
                 .build();
         return imageRepository.save(image);

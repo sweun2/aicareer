@@ -45,3 +45,4 @@ logging:
           servlet:
             handler:
               HandlerMappingIntrospect=ERROR:
+url: "http://223.130.143.213:8080"

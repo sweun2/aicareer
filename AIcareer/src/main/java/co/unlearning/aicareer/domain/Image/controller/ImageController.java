@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +42,8 @@ import java.util.List;
 public class ImageController {
     private final UserService userService;
     private final ImageService imageService;
+    @Value("${url}")
+    private String serverPath;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "단일 이미지 파일 올리기", description = "딘일 이미지 파일을 저장합니다.")
     @ApiResponse(
@@ -93,8 +96,8 @@ public class ImageController {
     @GetMapping("/{url}")
     public ResponseEntity<Resource> downloadAttach(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
                                                    @PathVariable String url) throws MalformedURLException {
-        Image image = imageService.getImageByUrl("/api/image/"+url);
-        UrlResource resource = new UrlResource("file:" +image.getAbsolutePath() + image.getImageUrl().substring(11));
+        Image image = imageService.getImageByUrl(url);
+        UrlResource resource = new UrlResource("file:" +image.getAbsolutePath() + image.getImageUrl().substring(serverPath.length()+11));
         log.info(resource.toString());
         //한글 파일 이름이나 특수 문자의 경우 깨질 수 있으니 인코딩 한번 해주기
         String encodedUploadFileName = UriUtils.encode(image.getImageUrl(),

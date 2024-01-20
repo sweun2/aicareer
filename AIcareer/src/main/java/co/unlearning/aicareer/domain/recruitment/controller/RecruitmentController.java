@@ -161,8 +161,7 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
     @GetMapping("/bookmark/")
-    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
-                                                                                     @PathVariable("uid") String uid) throws Exception {
+    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findBookmarkRecruitmentInfo() throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.findUserBookMark()));
     }
     @SecurityRequirement(name = "bearerAuth")
