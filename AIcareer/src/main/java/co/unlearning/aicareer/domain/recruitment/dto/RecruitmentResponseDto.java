@@ -86,7 +86,7 @@ public class RecruitmentResponseDto {
         //@Schema(description = "채용 공고 uid")
         private String recruitmentUid;
         //@Schema(description = "메인 이미지 url")
-        private String mainImageUrl;
+        private ImageResponseDto.ImageData mainImageUrl;
         //new table
         //@Schema(description = "회사 정보")
         private CompanyResponseDto.CompanyResponseInfo companyResponseInfo;
@@ -119,7 +119,7 @@ public class RecruitmentResponseDto {
         public static RecruitmentSimple of(Recruitment recruitment) {
             return RecruitmentSimple.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
-                    .mainImageUrl(recruitment.getMainImage().getImageUrl())
+                    .mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
                     .companyResponseInfo(CompanyResponseDto.CompanyResponseInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
