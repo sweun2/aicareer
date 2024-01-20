@@ -97,9 +97,9 @@ public class ImageController {
     public ResponseEntity<Resource> downloadAttach(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
                                                    @PathVariable String url) throws MalformedURLException {
         Image image = imageService.getImageByUrl(url);
-        UrlResource resource = new UrlResource("file:" +image.getAbsolutePath() + image.getImageUrl().substring(serverPath.length()+11));
-        log.info(resource.toString());
+        UrlResource resource = new UrlResource("file:" +image.getAbsolutePath() + image.getImageUrl());
         //한글 파일 이름이나 특수 문자의 경우 깨질 수 있으니 인코딩 한번 해주기
+
         String encodedUploadFileName = UriUtils.encode(image.getImageUrl(),
                 StandardCharsets.UTF_8);
 

@@ -58,7 +58,7 @@ public class ImageService {
         multipartFile.transferTo(file);
         Image image = Image.builder()
                 .absolutePath(absolutePath)
-                .imageUrl(serverPath+"/api/image/"+imagePath)
+                .imageUrl(imagePath)
                 .createdDate(LocalDateTime.now())
                 .build();
         return imageRepository.save(image);
