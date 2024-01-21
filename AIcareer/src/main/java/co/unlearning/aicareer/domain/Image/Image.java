@@ -16,7 +16,7 @@ public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @Column
+    @Column(unique = true)
     private String imageUrl;
     @Column
     private String absolutePath;

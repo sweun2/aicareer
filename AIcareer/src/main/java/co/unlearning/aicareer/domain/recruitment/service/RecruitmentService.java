@@ -3,7 +3,7 @@ package co.unlearning.aicareer.domain.recruitment.service;
 import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.bookmark.repository.BookmarkRepository;
-import co.unlearning.aicareer.domain.companyType.CompanyType;
+import co.unlearning.aicareer.domain.companytype.CompanyType;
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.career.Career;
@@ -20,6 +20,7 @@ import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentRepositor
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentSpecification;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.domain.sitemap.service.SiteMapService;
 import co.unlearning.aicareer.domain.user.User;
 import co.unlearning.aicareer.domain.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.user.service.UserService;
@@ -55,6 +56,7 @@ public class RecruitmentService {
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ImageService imageService;
+    private final SiteMapService siteMapService;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
         recruitment.setHits(recruitment.getHits()+1);
@@ -128,8 +130,10 @@ public class RecruitmentService {
         recruitment.setTitle(recruitmentPost.getTitle());
         recruitment.setContent(recruitmentPost.getContent());
         recruitment.setLastModified(LocalDateTime.now());
-        // Save the updated Recruitment entity
-        return recruitmentRepository.save(recruitment);
+        recruitmentRepository.save(recruitment);
+
+        siteMapService.registerSiteMap(recruitment);
+        return recruitment;
     }
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         //company 등록 안된 경우 예외 처리
@@ -223,7 +227,10 @@ public class RecruitmentService {
         recruitment.setRecruitmentTypeSet(recruitmentTypes);
         recruitment.setEducationSet(educations);
         recruitment.setCareerSet(careers);
-        return recruitmentRepository.save(recruitment);
+        recruitmentRepository.save(recruitment);
+
+        siteMapService.registerSiteMap(recruitment);
+        return recruitment;
     }
 
     public List<Recruitment> getFilteredRecruitment(RecruitmentRequirementDto.Search search, Pageable pageable) {

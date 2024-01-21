@@ -5,6 +5,7 @@ import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.board.Board;
 import co.unlearning.aicareer.domain.board.dto.BoardRequirementDto;
 import co.unlearning.aicareer.domain.board.repository.BoardRepository;
+import co.unlearning.aicareer.domain.sitemap.service.SiteMapService;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
@@ -24,19 +25,24 @@ import java.util.UUID;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final ImageRepository imageRepository;
+    private final SiteMapService siteMapService;
     public Board addBoardPost(BoardRequirementDto.BoardPost boardPost) {
         Image image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
-        return boardRepository.save(Board.builder()
-                        .pageLinkUrl(boardPost.getPageLink())
-                        .bannerImage(image)
-                        .title(boardPost.getTitle())
-                        .uid(UUID.randomUUID().toString())
-                        .content(boardPost.getContent())
-                        .lastModified(LocalDateTime.now())
-                        .isView(true)
-                .build());
+        Board board = Board.builder()
+                .pageLinkUrl(boardPost.getPageLink())
+                .bannerImage(image)
+                .title(boardPost.getTitle())
+                .uid(UUID.randomUUID().toString())
+                .content(boardPost.getContent())
+                .lastModified(LocalDateTime.now())
+                .isView(true)
+                .build();
+        boardRepository.save(board);
+
+        siteMapService.registerSiteMap(board);
+        return board;
     }
     public Board updateBoardPost(String boardUid, BoardRequirementDto.BoardPost boardPost) {
         Board board = boardRepository.findByUid(boardUid).orElseThrow(
@@ -50,8 +56,10 @@ public class BoardService {
         board.setTitle(boardPost.getTitle());
         board.setContent(boardPost.getContent());
         board.setLastModified(LocalDateTime.now());
+        boardRepository.save(board);
 
-        return boardRepository.save(board);
+        siteMapService.registerSiteMap(board);
+        return board;
     }
     public List<Board> getBoardList() {
         return boardRepository.findAllByIsViewIsTrue();

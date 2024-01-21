@@ -1,6 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment.repository;
 
-import co.unlearning.aicareer.domain.companyType.CompanyType;
+import co.unlearning.aicareer.domain.companytype.CompanyType;
 import co.unlearning.aicareer.domain.career.Career;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
