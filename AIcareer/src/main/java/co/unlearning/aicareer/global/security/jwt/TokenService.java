@@ -28,13 +28,14 @@ import java.util.Optional;
 public class TokenService {
 
     private final UserRepository userRepository;
+    @Value("${jwt.secret_key}")
+    private String SECRET_KEY;
     private Key key;
     private final long ACCESS_EXPIRE = 1000 * 60 * 60;             //60분
     private final long REFRESH_EXPIRE = 1000 * 60 * 60 * 24 * 7;   //7일
 
     @PostConstruct
     protected void init(){
-        String SECRET_KEY = "힘을 내라고 말해 줄래 그 눈을 반짝여 날 일으켜 줄래 사람들은 모두 원하지 더 빨리 더 많이 Oh 난 평범한 소년걸";
         key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 

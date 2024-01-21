@@ -54,7 +54,7 @@ public class SiteMapController {
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
     })
-    @PostMapping("/all")
+    @PostMapping("/one-year")
     public ResponseEntity<List<SiteMapResponseDto.SiteMapInfo>> getSiteMapsLastModifiedWithinOneYear() {
         return ResponseEntity.ok(SiteMapResponseDto.SiteMapInfo.of(siteMapService.findSiteMapsLastModifiedWithinOneYear()));
     }

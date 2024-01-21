@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,9 +24,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SiteMapService {
     private final SiteMapRepository siteMapRepository;
-    public static String serverUrl;
     @Value("${url}")
-    public void setServerUrl(String serverUrl) { ImagePathLengthConverter.serverUrl = serverUrl; }
+    public String serverUrl;
 
     public List<SiteMap> findSiteMapsLastModifiedWithinOneYear() {
         LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
