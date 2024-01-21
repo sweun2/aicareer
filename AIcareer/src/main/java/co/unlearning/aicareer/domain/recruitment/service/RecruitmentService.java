@@ -23,6 +23,7 @@ import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
 import co.unlearning.aicareer.domain.user.User;
 import co.unlearning.aicareer.domain.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.user.service.UserService;
+import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
@@ -55,8 +56,6 @@ public class RecruitmentService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
-    @Value("${url}")
-    private String serverPath;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
         recruitment.setHits(recruitment.getHits()+1);
@@ -119,11 +118,10 @@ public class RecruitmentService {
         } else{
             deadLine = LocalDateTime.of(2999,12,12,12,12);
         }
-        int num = (serverPath+"/api/image/").length();
-        log.info(recruitmentPost.getMainImage().substring(num));
-        Image image = imageRepository.findByImageUrl(recruitmentPost.getMainImage().substring(num)).orElseThrow(
+        Image image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(recruitmentPost.getMainImage())).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
+
         //모집 공고 위치
         EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
         RecruitmentAddress recruitmentAddress = recruitmentAddressEnumValidator.validateEnumString(recruitmentPost.getRecruitmentAddress(),RecruitmentAddress.class);

@@ -40,10 +40,7 @@ import java.util.List;
 @RequestMapping("/api/image")
 @RequiredArgsConstructor
 public class ImageController {
-    private final UserService userService;
     private final ImageService imageService;
-    @Value("${url}")
-    private String serverPath;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "단일 이미지 파일 올리기", description = "딘일 이미지 파일을 저장합니다.")
     @ApiResponse(
@@ -123,7 +120,7 @@ public class ImageController {
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
     })
-    @DeleteMapping(value = "/url")
+    @DeleteMapping(value = "/{url}")
     public ResponseEntity<Void> deleteImage(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
                                                  @PathVariable String url) throws IOException {
         imageService.deleteImage(url);
