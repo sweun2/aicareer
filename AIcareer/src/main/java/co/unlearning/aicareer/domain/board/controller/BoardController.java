@@ -43,6 +43,7 @@ public class BoardController {
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
     })
     @PostMapping("/post")
     public ResponseEntity<BoardResponseDto.BoardInfo> postBoardInfo(@RequestBody BoardRequirementDto.BoardPost boardPost) throws Exception {
@@ -77,6 +78,24 @@ public class BoardController {
             @Parameter(name = "uid", description = "보드 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid) {
         return ResponseEntity.ok(BoardResponseDto.BoardInfo.of(boardService.getBoardByUid(uid)));
+    }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "공지 글 수정하기", description = "공지 글 수정하기")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = BoardResponseDto.BoardInfo.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+    })
+    @PutMapping("/{uid}")
+    public ResponseEntity<BoardResponseDto.BoardInfo> putRecruitmentInfo(@RequestBody BoardRequirementDto.BoardPost boardPost,
+                                                                         @Parameter(name = "uid", description = "공지 글 uid", in = ParameterIn.PATH)
+                                                                                     @PathVariable("uid") String uid) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(BoardResponseDto.BoardInfo.of(boardService.updateBoardPost(uid,boardPost)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글 삭제", description = "글 삭제, 보드 uid 필요")
