@@ -4,6 +4,7 @@ import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.company.repository.CompanyRepository;
 import co.unlearning.aicareer.domain.company.dto.CompanyRequirementDto;
 import co.unlearning.aicareer.domain.companyType.CompanyType;
+import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,11 @@ public class CompanyService {
     public Company addNewCompany(CompanyRequirementDto.CompanyInfo companyInfo) throws Exception {
         Optional<Company> companyOptional = companyRepository.findByCompanyName(companyInfo.getCompanyName());
         if(companyOptional.isEmpty()) {
+            EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
+            CompanyType.CompanyTypeName companyTypeName = companyTypeNameEnumValidator.validateEnumString(companyInfo.getCompanyType(), CompanyType.CompanyTypeName.class);
+
             CompanyType companyType = CompanyType.builder()
-                    .companyTypeName(CompanyType.CompanyTypeName.valueOf(companyInfo.getCompanyType()))
+                    .companyTypeName(companyTypeName)
                     .build();
 
             Company company = Company.builder()

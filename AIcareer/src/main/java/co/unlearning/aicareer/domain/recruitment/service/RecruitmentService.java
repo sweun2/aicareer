@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.recruitment.service;
 
+import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.bookmark.repository.BookmarkRepository;
 import co.unlearning.aicareer.domain.companyType.CompanyType;
@@ -53,6 +54,7 @@ public class RecruitmentService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final ImageService imageService;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
         recruitment.setHits(recruitment.getHits()+1);
@@ -66,20 +68,68 @@ public class RecruitmentService {
         );
     }
     public Recruitment updateRecruitmentPost(String uid, RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
-        // 수정 필요
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
-        Image image = recruitment.getMainImage();
-        Image newImage = Image.builder()
-                .createdDate(image.getCreatedDate())
-                .imageUrl(image.getImageUrl())
-                .absolutePath(image.getAbsolutePath())
-                .build();
+        Image image = imageService.getImageByUrl(ImagePathLengthConverter.slicingImagePathLength(recruitmentPost.getMainImage()));
+        Company company = companyService.addNewCompany(
+                CompanyRequirementDto.CompanyInfo.builder()
+                        .companyAddress(recruitmentPost.getCompanyAddress())
+                        .companyName(recruitmentPost.getCompanyName())
+                        .companyType(recruitmentPost.getCompanyType())
+                .build());
+        EnumValidator<RecruitmentDeadlineType> recruitmentDeadlineTypeEnumValidator = new EnumValidator<>();
+        RecruitmentDeadlineType recruitmentDeadlineType = recruitmentDeadlineTypeEnumValidator.validateEnumString(recruitmentPost.getRecruitmentDeadline().getDeadlineType(), RecruitmentDeadlineType.class);
+        EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
+        RecruitmentAddress recruitmentAddress = recruitmentAddressEnumValidator.validateEnumString(recruitmentPost.getRecruitmentAddress(),RecruitmentAddress.class);
+        recruitment.setMainImage(image);
+        recruitment.setCompany(company);
 
-        deleteRecruitmentByUid(uid);
+        Set<RecruitingJob> recruitingJobs = new HashSet<>();
+        for(String strRecruitingJobNameDto : recruitmentPost.getRecruitingJobNames()) {
+            EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
+            recruitingJobs.add(RecruitingJob.builder()
+                    .recruitJobName(recruitingJobNameEnumValidator.validateEnumString(strRecruitingJobNameDto,RecruitingJob.RecruitingJobName.class))
+                    .recruitment(recruitment)
+                    .build());
+        }
+        Set<RecruitmentType> recruitmentTypes = new HashSet<>();
+        for(String strRecruitmentTypeNameDto : recruitmentPost.getRecruitmentTypeNames()) {
+            EnumValidator<RecruitmentType.RecruitmentTypeName> recruitmentTypeNameValidator = new EnumValidator<>();
+            recruitmentTypes.add(RecruitmentType.builder()
+                    .recruitment(recruitment)
+                    .recruitmentTypeName(recruitmentTypeNameValidator.validateEnumString(strRecruitmentTypeNameDto, RecruitmentType.RecruitmentTypeName.class))
+                    .build());
+        }
+        Set<Education> educations = new HashSet<>();
+        for(String strEducationDto : recruitmentPost.getEducations()) {
+            EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
+            educations.add(Education.builder()
+                    .recruitment(recruitment)
+                    .degree(degreeEnumValidator.validateEnumString(strEducationDto, Education.DEGREE.class))
+                    .build());
+        }
+        Set<Career> careers = new HashSet<>();
+        for(String strCareerDto : recruitmentPost.getCareers()) {
+            EnumValidator<Career.AnnualLeave> annualLeaveEnumValidator = new EnumValidator<>();
+            careers.add(Career.builder()
+                    .recruitment(recruitment)
+                    .annualLeave(annualLeaveEnumValidator.validateEnumString(strCareerDto, Career.AnnualLeave.class))
+                    .build());
+        }
+        recruitment.setRecruitingJobSet(recruitingJobs);
+        recruitment.setRecruitmentTypeSet(recruitmentTypes);
+        recruitment.setEducationSet(educations);
+        recruitment.setCareerSet(careers);
 
-        imageRepository.save(newImage);
-
-        return addRecruitmentPost(recruitmentPost);
+        recruitment.setRecruitmentStartDate(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentStartDate()));
+        recruitment.setRecruitmentDeadlineType(recruitmentDeadlineType);
+        recruitment.setRecruitmentDeadline(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentDeadline().getRecruitmentDeadline()));
+        recruitment.setRecruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink());
+        recruitment.setRecruitmentAddress(recruitmentAddress);
+        recruitment.setTitle(recruitmentPost.getTitle());
+        recruitment.setContent(recruitmentPost.getContent());
+        recruitment.setLastModified(LocalDateTime.now());
+        // Save the updated Recruitment entity
+        return recruitmentRepository.save(recruitment);
     }
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         //company 등록 안된 경우 예외 처리
@@ -128,6 +178,7 @@ public class RecruitmentService {
                 .recruitmentDeadlineType(deadlineType)
                 .recruitmentDeadline(deadLine)
                 .uploadDate(LocalDateTime.now())
+                .lastModified(LocalDateTime.now())
                 .recruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink()) //validator 필요
                 .mainImage(image)
                 .content(recruitmentPost.getContent())

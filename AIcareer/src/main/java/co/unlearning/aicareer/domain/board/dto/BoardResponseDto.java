@@ -4,6 +4,7 @@ import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.domain.board.Board;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
+import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +31,8 @@ public class BoardResponseDto {
         private String pageLinkUrl;
         @Schema(description = "업로드 시간")
         private LocalDateTime uploadDate = LocalDateTime.now(); //업로드 날짜
+        @Schema(description = "최종 수정일")
+        private String lastModified; // 최종 변경일
         @Schema(description = "제목")
         private String title; //제목
         @Schema(description = "내용")
@@ -41,6 +44,7 @@ public class BoardResponseDto {
                     .uid(board.getUid())
                     .pageLinkUrl(board.getPageLinkUrl())
                     .uploadDate(board.getUploadDate())
+                    .lastModified(LocalDateTimeStringConverter.LocalDateTimeToString(board.getLastModified()))
                     .title(board.getTitle())
                     .content(board.getContent())
                     .build();

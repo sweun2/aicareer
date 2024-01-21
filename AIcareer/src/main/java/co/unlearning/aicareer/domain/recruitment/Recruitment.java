@@ -68,5 +68,7 @@ public class Recruitment {
     @OneToOne
     @Cascade(CascadeType.ALL)
     private Image mainImage;
+    @Column
+    private LocalDateTime lastModified;
 }
 

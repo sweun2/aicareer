@@ -33,6 +33,8 @@ public class Board {
     @Column
     private LocalDateTime uploadDate = LocalDateTime.now(); //업로드 날짜
     @Column
+    private LocalDateTime lastModified;
+    @Column
     private String title; //제목
     @Column(columnDefinition = "TEXT")
     private String content; //내용
@@ -43,4 +45,5 @@ public class Board {
     private String pageLinkUrl;
     @Column
     private Boolean isView;
+
 }

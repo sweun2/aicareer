@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,8 +34,24 @@ public class BoardService {
                         .title(boardPost.getTitle())
                         .uid(UUID.randomUUID().toString())
                         .content(boardPost.getContent())
+                        .lastModified(LocalDateTime.now())
                         .isView(true)
                 .build());
+    }
+    public Board updateBoardPost(String boardUid, BoardRequirementDto.BoardPost boardPost) {
+        Board board = boardRepository.findByUid(boardUid).orElseThrow(
+                ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+        );
+        Image image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
+                ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+        );
+        board.setPageLinkUrl(boardPost.getPageLink());
+        board.setBannerImage(image);
+        board.setTitle(boardPost.getTitle());
+        board.setContent(boardPost.getContent());
+        board.setLastModified(LocalDateTime.now());
+
+        return boardRepository.save(board);
     }
     public List<Board> getBoardList() {
         return boardRepository.findAllByIsViewIsTrue();

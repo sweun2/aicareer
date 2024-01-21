@@ -45,6 +45,7 @@ public class RecruitmentResponseDto {
         private LocalDateTime recruitmentDeadline; //모집 마감일*/
         //@Schema(description = "업로드 날짜")
         private String uploadDate; //업로드 날짜
+        private String lastModified; // 최종 변경일
         //@Schema(description = "모집 공고 링크")
         private String recruitmentAnnouncementLink; //모집 공고 링크
         //@Schema(description = "조회수")
@@ -68,6 +69,7 @@ public class RecruitmentResponseDto {
                     .recruitmentStartDate(LocalDateTimeToString(recruitment.getRecruitmentStartDate()))
                     .recruitmentDeadLine(RecruitmentDeadLine.of(recruitment.getRecruitmentDeadlineType(),LocalDateTimeToString(recruitment.getRecruitmentDeadline())))
                     .uploadDate(LocalDateTimeToString(recruitment.getUploadDate()))
+                    .lastModified(LocalDateTimeToString(recruitment.getLastModified()))
                     .recruitmentAnnouncementLink(recruitment.getRecruitmentAnnouncementLink())
                     .hits(recruitment.getHits())
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
@@ -109,6 +111,7 @@ public class RecruitmentResponseDto {
         private RecruitmentDeadLine recruitmentDeadLine;
         //@Schema(description = "업로드 날짜")
         private String uploadDate; //업로드 날짜
+        private String lastModified; // 최종 변경일
         //@Schema(description = "지역")
         private RecruitmentAddress recruitmentAddress; //지역
         //@Schema(description = "제목")
@@ -128,6 +131,7 @@ public class RecruitmentResponseDto {
                     .recruitmentStartDate(LocalDateTimeToString(recruitment.getRecruitmentStartDate()))
                     .recruitmentDeadLine(RecruitmentDeadLine.of(recruitment.getRecruitmentDeadlineType(),LocalDateTimeToString(recruitment.getRecruitmentDeadline())))
                     .uploadDate(LocalDateTimeToString(recruitment.getUploadDate()))
+                    .lastModified(LocalDateTimeToString(recruitment.getLastModified()))
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
                     .title(recruitment.getTitle())
                     .hits(recruitment.getHits())
