@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.Image.dto;
 
 import co.unlearning.aicareer.domain.Image.Image;
+import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,7 @@ public class ImageResponseDto {
         private String imageUrl;
         public static ImageData of(Image image) {
             return ImageData.builder()
-                    .imageUrl("http://223.130.143.213:8080"+"/api/image/"+image.getImageUrl())
+                    .imageUrl(ImagePathLengthConverter.extendImagePathLength(image.getImageUrl()))
                     .build();
         }
 

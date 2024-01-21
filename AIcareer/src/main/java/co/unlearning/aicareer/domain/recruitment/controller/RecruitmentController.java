@@ -1,7 +1,5 @@
 package co.unlearning.aicareer.domain.recruitment.controller;
 
-import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
-import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
@@ -61,7 +59,7 @@ public class RecruitmentController {
             content = @Content(
                     schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentInfo.class)))
     @ApiErrorCodeExamples({
-            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
             @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
@@ -104,7 +102,7 @@ public class RecruitmentController {
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
-            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
     })
     @GetMapping("/{uid}")
     public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> findRecruitmentInfo(
@@ -120,7 +118,7 @@ public class RecruitmentController {
     @DeleteMapping("/delete/{uid}")
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
-            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
     })
     public ResponseEntity<Void> removeRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                           @PathVariable("uid") String uid)  {
@@ -139,7 +137,7 @@ public class RecruitmentController {
     @PostMapping("/bookmark/post/{uid}")
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
-            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
@@ -171,7 +169,7 @@ public class RecruitmentController {
             description = "정상 응답")
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
-            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })

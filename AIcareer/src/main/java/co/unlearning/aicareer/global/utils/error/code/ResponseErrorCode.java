@@ -27,8 +27,8 @@ public enum ResponseErrorCode {
     @ExplainError("access-token/refresh-token 정보가 잘못된 경우, 재로그인 필요")
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(),"USER_003","로그인에 실패했습니다."),
 
-    @ExplainError("recruitment uid가 잘못되었을 때 발생하는 에러, uid 확인 필요")
-    RECRUITMENT_UID_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "RECRUITMENT_001", "uid가 잘못 입력되었습니다."),
+    @ExplainError("uid가 잘못되었을 때 발생하는 에러, uid 확인 필요")
+    UID_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "RECRUITMENT_001", "uid가 잘못 입력되었습니다."),
     @ExplainError("정렬 조건이 잘못 입력된 경우 ")
     SORT_CONDITION_BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "RECRUITMENT_002", "sort condition 에러."),
 

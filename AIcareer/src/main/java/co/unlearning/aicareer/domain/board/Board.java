@@ -10,13 +10,19 @@ import co.unlearning.aicareer.domain.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-
+@Entity
+@Getter
+@Builder
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,5 +40,7 @@ public class Board {
     @Cascade(CascadeType.ALL)
     private Image bannerImage;
     @Column
-    private String pageLink;
+    private String pageLinkUrl;
+    @Column
+    private Boolean isView;
 }

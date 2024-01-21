@@ -27,7 +27,7 @@ public class BaseErrorController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED),
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
-            @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),

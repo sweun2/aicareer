@@ -120,7 +120,7 @@ public class ImageController {
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
     })
-    @DeleteMapping(value = "/{url}")
+    @DeleteMapping(value = "/delete/{url}")
     public ResponseEntity<Void> deleteImage(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
                                                  @PathVariable String url) throws IOException {
         imageService.deleteImage(url);

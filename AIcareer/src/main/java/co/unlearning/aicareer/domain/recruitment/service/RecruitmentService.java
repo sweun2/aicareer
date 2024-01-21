@@ -5,7 +5,6 @@ import co.unlearning.aicareer.domain.bookmark.repository.BookmarkRepository;
 import co.unlearning.aicareer.domain.companyType.CompanyType;
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
-import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.career.Career;
 import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.company.repository.CompanyRepository;
@@ -32,7 +31,6 @@ import co.unlearning.aicareer.global.utils.validator.TimeValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,7 +39,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -65,7 +62,7 @@ public class RecruitmentService {
 
     public Recruitment findRecruitmentInfoByUid(String uid) {
         return recruitmentRepository.findByUid(uid).orElseThrow(
-                () -> new BusinessException(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND)
+                () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
     }
     public Recruitment updateRecruitmentPost(String uid, RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
@@ -85,7 +82,6 @@ public class RecruitmentService {
         return addRecruitmentPost(recruitmentPost);
     }
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
-        log.info("add");
         //company 등록 안된 경우 예외 처리
         Optional<Company> companyOptional = companyRepository.findByCompanyName(recruitmentPost.getCompanyName());
         Company companyTemp;
@@ -99,7 +95,6 @@ public class RecruitmentService {
         }else {
             companyTemp = companyOptional.get();
         }
-        log.info("company");
         //모집 시작일
         LocalDateTime startDate;
         if(recruitmentPost.getRecruitmentStartDate()==null) {
@@ -278,7 +273,7 @@ public class RecruitmentService {
     public void deleteRecruitmentByUid (String uid) {
         recruitmentRepository.delete(
                 recruitmentRepository.findByUid(uid).orElseThrow(
-                        ()-> new BusinessException(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND)
+                        ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
                 )
         );
     }
