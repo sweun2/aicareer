@@ -117,7 +117,7 @@ public class RecruitmentController {
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답")
-    @DeleteMapping("/{uid}")
+    @DeleteMapping("/delete/{uid}")
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.RECRUITMENT_UID_NOT_FOUND),
@@ -175,7 +175,7 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
-    @DeleteMapping("/bookmark/{uid}")
+    @DeleteMapping("/bookmark/delete/{uid}")
     public ResponseEntity<Void> removeBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                          @PathVariable("uid") String uid) throws Exception {
         recruitmentService.removeRecruitmentBookMark(uid);

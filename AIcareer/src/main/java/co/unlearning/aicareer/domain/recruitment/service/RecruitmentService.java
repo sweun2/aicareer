@@ -310,6 +310,7 @@ public class RecruitmentService {
         Bookmark bookmark = bookmarkRepository.findByUserAndRecruitment(user,recruitment).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR)
         );
+        bookmarkRepository.delete(bookmark);
         userRepository.save(user);
     }
     public List<Recruitment> findUserBookMark() {
@@ -317,7 +318,7 @@ public class RecruitmentService {
         List<Bookmark> bookmarkList = bookmarkRepository.findAllByUser(user);
         List<Recruitment> recruitmentList = new ArrayList<>();
         bookmarkList.forEach(
-                bookmark -> {recruitmentList.add(bookmark.getRecruitment());}
+                bookmark -> recruitmentList.add(bookmark.getRecruitment())
         );
         return recruitmentList;
     }
