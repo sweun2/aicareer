@@ -77,15 +77,16 @@ public class RecruitmentSpecification {
             return annualLeavePath.in(annualLeaves);
         };
     }
+
     public static Specification<Recruitment> hasRecruitmentAddress(List<RecruitmentAddress> recruitmentAddresses) {
         return (root, query, criteriaBuilder) -> {
             query.distinct(true);
-            return criteriaBuilder.lower(root.get("recruitmentAddress")).in(recruitmentAddresses);
+            return criteriaBuilder.and(root.get("recruitmentAddress").in(recruitmentAddresses));
         };
     }
     public static Specification<Recruitment> isOpenRecruitment() {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThanOrEqualTo(root.get("recruitmentDeadLine"), LocalDateTime.now());
+                criteriaBuilder.greaterThanOrEqualTo(root.get("recruitmentDeadline"), LocalDateTime.now());
     }
 }
     /*

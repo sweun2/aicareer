@@ -49,4 +49,4 @@ logging:
           servlet:
             handler:
               HandlerMappingIntrospect=ERROR:
-url: "aicareer-api.shop"
+url: "unlearingdev.cafe24.com"
