@@ -57,7 +57,7 @@ public class RecruitmentRequirementDto {
     @Builder
     public static class Search {
         @Schema(description = "마감 여부, true 시 마감된 공고가 제외", allowableValues = {"true,false"},requiredMode = Schema.RequiredMode.REQUIRED)
-        private Boolean IsOpen; // 마감 여부
+        private String IsOpen; // 마감 여부
         @Schema(description = "정렬 기준, 인기 순/마감임박 순/업로드 순 ", allowableValues = {"HITS","DEADLINE","UPLOAD"},requiredMode = Schema.RequiredMode.REQUIRED)
         private String sortCondition;
         @Schema(description = "정렬 순서, 내림차 순/오름차 순", allowableValues = {"DESC","ASC"},requiredMode = Schema.RequiredMode.REQUIRED)

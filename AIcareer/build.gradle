@@ -2,6 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.4'
+
+	id 'war' //war
 }
 
 group = 'co.unlearning'
@@ -26,7 +28,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	//runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -41,6 +44,8 @@ dependencies {
 
 	// implementation 'net.nurigo:sdk:4.2.7' // cool sms
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 tasks.named('test') {

@@ -285,9 +285,8 @@ public class RecruitmentService {
             }
         } else recruitmentAddresses.addAll(List.of(RecruitmentAddress.values()));
         log.info("search");
-
         //마감된 공고 처리 true 면 아직 마감 안된 공고
-        if(!search.getIsOpen()) {
+        if(Objects.equals(search.getIsOpen(), "true")) {
             Specification<Recruitment> specification = Specification.where(RecruitmentSpecification.hasRecruitingJob(recruitingJobList))
                     .and(RecruitmentSpecification.hasCompanyType(companyTypeNameList))
                     .and(RecruitmentSpecification.hasRecruitmentType(recruitmentTypeNameList))
@@ -297,7 +296,7 @@ public class RecruitmentService {
                     .and(RecruitmentSpecification.isOpenRecruitment())
                     ;
             return getOrder(search, pageable, specification);
-        }else {
+        }else if (Objects.equals(search.getIsOpen(), "false")){
             Specification<Recruitment> specification = Specification.where(RecruitmentSpecification.hasRecruitingJob(recruitingJobList))
                     .and(RecruitmentSpecification.hasCompanyType(companyTypeNameList))
                     .and(RecruitmentSpecification.hasRecruitmentType(recruitmentTypeNameList))
@@ -305,7 +304,7 @@ public class RecruitmentService {
                     .and(RecruitmentSpecification.hasCareer(annualLeaveList))
                     ;
             return getOrder(search, pageable, specification);
-        }
+        } else throw new BusinessException(ResponseErrorCode.INVALID_ENUM_STRING_INPUT);
     }
     private List<Recruitment> getOrder(RecruitmentRequirementDto.Search search, Pageable pageable, Specification<Recruitment> specification) {
         Sort sort;

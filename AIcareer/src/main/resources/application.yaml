@@ -20,10 +20,10 @@ spring:
     include:
       - "oauth"
   datasource:
-    url: jdbc:mysql://localhost:3306/aicareer
-    username: aicareer
-    password: aicareer
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/unlearingdev
+    username: unlearingdev
+    password: aicareer!
+    driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -49,4 +49,4 @@ logging:
           servlet:
             handler:
               HandlerMappingIntrospect=ERROR:
-url: "http://223.130.143.213:8080"
+url: "aicareer-api.shop"
