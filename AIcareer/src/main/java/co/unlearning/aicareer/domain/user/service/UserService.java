@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -71,18 +72,23 @@ public class UserService {
     public void logout(HttpServletResponse response) {
         User user = getLoginUser();
 
-        Cookie accessToken = new Cookie("accessToken", "");
-        accessToken.setMaxAge(0);
-        accessToken.setHttpOnly(true);
-        accessToken.setPath("/");
-        response.addCookie(accessToken);
+        ResponseCookie accessToken = ResponseCookie.from("accessToken","")
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(24*60*60)
+                .build();
+        response.addHeader("Set-Cookie", accessToken.toString());
 
-        //refresh token -> 쿠키로 전달, access token -> 쿼리 스트링으로 전달
-        Cookie refreshToken = new Cookie("refreshToken", "");
-        refreshToken.setMaxAge(0);
-        refreshToken.setHttpOnly(true);
-        refreshToken.setPath("/");
-        response.addCookie(refreshToken);
+        ResponseCookie refreshToken = ResponseCookie.from("refreshToken","")
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(24*60*60)
+                .build();
+        response.addHeader("Set-Cookie", refreshToken.toString());
 
     }
 }

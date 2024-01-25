@@ -39,6 +39,10 @@ spring:
     path match:
       matching-strategy: ant_path_matcher
 server:
+  port: 443
+  ssl.key-store-type: PKCS12
+  ssl.key-store: classpath:ssl.p12
+  ssl.key-store-password: aicareer!
   error:
     include-message: always
 logging:
@@ -49,4 +53,4 @@ logging:
           servlet:
             handler:
               HandlerMappingIntrospect=ERROR:
-url: "unlearingdev.cafe24.com"
+url: "aicareer-api.shop"

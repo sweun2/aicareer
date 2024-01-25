@@ -46,9 +46,6 @@ public class ImageService {
         String imagePath = originImageName + UUID.randomUUID() + contentType;
         String absolutePath = Paths.get("").toAbsolutePath().toString()+osPath;
 
-        log.info(imagePath);
-        log.info(absolutePath);
-
         File file = new File(absolutePath + imagePath);
         if(!file.exists()) {
             file.mkdirs();

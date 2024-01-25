@@ -57,7 +57,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             User user = userOptional.get();
             userRepository.save(user);
         }
-/*        ResponseCookie accessToken = ResponseCookie.from("accessToken",token.getAccessToken())
+        ResponseCookie accessToken = ResponseCookie.from("accessToken",token.getAccessToken())
                 .path("/")
                 .sameSite("None")
                 .httpOnly(true)
@@ -73,20 +73,20 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .secure(true)
                 .maxAge(24*60*60)
                 .build();
-        response.addHeader("Set-Cookie", refreshToken.toString());*/
+        response.addHeader("Set-Cookie", refreshToken.toString());
 
-        Cookie accessToken = new Cookie("accessToken", token.getAccessToken());
+/*        Cookie accessToken = new Cookie("accessToken", token.getAccessToken());
         accessToken.setMaxAge(1 * 24 * 60 * 60);
         accessToken.setHttpOnly(true);
-        accessToken.setPath("/");
+        accessToken.setPath("https://aicareer.co.kr");
         response.addCookie(accessToken);
 
         //refresh token -> 쿠키로 전달, access token -> 쿼리 스트링으로 전달
         Cookie refreshToken = new Cookie("refreshToken", token.getRefreshToken());
         refreshToken.setMaxAge(7 * 24 * 60 * 60);
         refreshToken.setHttpOnly(true);
-        refreshToken.setPath("/");
-        response.addCookie(refreshToken);
+        refreshToken.setPath("https://aicareer.co.kr");
+        response.addCookie(refreshToken);*/
 
         getRedirectStrategy().sendRedirect(request, response,  UriComponentsBuilder.fromUriString("https://aicareer.co.kr").queryParam("login","true").toUriString());
         //getRedirectStrategy().sendRedirect(request, response,  UriComponentsBuilder.fromUriString("http://localhost:3000").queryParam("login","true").toUriString());
