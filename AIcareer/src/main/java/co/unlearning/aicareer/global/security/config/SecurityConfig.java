@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,6 +39,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,7 +47,7 @@ import static java.util.List.of;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
     private final TokenService tokenService;
     private final UserService userService;
@@ -56,23 +59,19 @@ public class SecurityConfig implements WebMvcConfigurer {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
-            config.setAllowedOriginPatterns(Collections.singletonList("*")); //
+            List<String> origins = new ArrayList<>();
+
+            origins.add("https://aicareer.co.kr");
+            origins.add("https://aicareer-api.shop");
+
+            config.setAllowedOriginPatterns(origins); //
             config.setAllowCredentials(true);
 
 
-            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-            source.registerCorsConfiguration("/**", config);
+            /*UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", config);*/
 
             return config;
-        };
-    }
-    private Filter sameSiteFilter() {
-        return new OncePerRequestFilter() {
-            @Override
-            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-                response.setHeader("Set-Cookie", "SameSite=None; Secure");
-                filterChain.doFilter(request, response);
-            }
         };
     }
     @Bean
