@@ -75,6 +75,7 @@ public class UserService {
         ResponseCookie accessToken = ResponseCookie.from("accessToken","")
                 .path("/")
                 .sameSite("None")
+                .domain("aicareer.co.kr")
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(24*60*60)
@@ -84,11 +85,17 @@ public class UserService {
         ResponseCookie refreshToken = ResponseCookie.from("refreshToken","")
                 .path("/")
                 .sameSite("None")
+                .domain("aicareer.co.kr")
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(24*60*60)
                 .build();
         response.addHeader("Set-Cookie", refreshToken.toString());
 
+    }
+    public void checkAdmin() {
+        User user = getLoginUser();
+        if(user.getUserRole()!=UserRole.ADMIN)
+            throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
     }
 }

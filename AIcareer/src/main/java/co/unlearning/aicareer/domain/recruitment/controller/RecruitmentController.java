@@ -3,6 +3,7 @@ package co.unlearning.aicareer.domain.recruitment.controller;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.recruitment.service.RecruitmentService;
+import co.unlearning.aicareer.domain.user.service.UserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
@@ -31,6 +32,7 @@ import java.util.List;
 @RequestMapping("/api/recruitment")
 public class RecruitmentController {
     private final RecruitmentService recruitmentService;
+    private final UserService userService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글쓰기", description = "채용 공고 글쓰기")
     @ApiResponse(
@@ -44,10 +46,12 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
 
     })
     @PostMapping("/post")
     public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
+        userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -64,11 +68,14 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
+
     })
     @PutMapping("/{uid}")
     public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> putRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost,
                                                                                         @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                         @PathVariable("uid") String uid) throws Exception {
+        userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.updateRecruitmentPost(uid,recruitmentPost)));
     }
     @Operation(summary = "여러 공고 조회", description = "필터링 글 조회, 무관/전체 필터링 시 해당 값을 안 보내야 합니다.")
@@ -118,11 +125,13 @@ public class RecruitmentController {
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
+
     })
     public ResponseEntity<Void> removeRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                           @PathVariable("uid") String uid)  {
+        userService.checkAdmin();
         recruitmentService.deleteRecruitmentByUid(uid);
-
         return ResponseEntity.ok().build();
     }
 

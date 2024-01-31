@@ -3,6 +3,7 @@ package co.unlearning.aicareer.domain.Image.service;
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.dto.ImageRequirementDto;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
+import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.ImageValidator;
@@ -44,7 +45,7 @@ public class ImageService {
         //window 구별
         String osPath = getOsPath();
         String imagePath = originImageName + UUID.randomUUID() + contentType;
-        String absolutePath = Paths.get("").toAbsolutePath().toString()+osPath;
+        String absolutePath = Paths.get("").toAbsolutePath() +osPath;
 
         File file = new File(absolutePath + imagePath);
         if(!file.exists()) {
@@ -74,7 +75,7 @@ public class ImageService {
         Image image = getImageByUrl(url);
         String osPath = getOsPath();
         try {
-            File file = new File(image.getAbsolutePath() + image.getImageUrl().substring(11));
+            File file = new File(image.getAbsolutePath() +  image.getImageUrl());
             file.delete();
         }catch (Exception e) {
             log.info(e.getMessage());

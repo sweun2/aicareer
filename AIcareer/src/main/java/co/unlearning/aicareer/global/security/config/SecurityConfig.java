@@ -35,6 +35,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -48,38 +49,38 @@ import static java.util.List.of;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig implements WebMvcConfigurer {
+public class SecurityConfig {
     private final TokenService tokenService;
     private final UserService userService;
     private final CustomOAuth2UserService oAuth2Service;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
-    CorsConfigurationSource corsConfigurationSource() {
-        return request -> {
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(Collections.singletonList("*"));
-            config.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
-            List<String> origins = new ArrayList<>();
-
-            origins.add("https://aicareer.co.kr");
-            origins.add("https://aicareer-api.shop");
-
-            config.setAllowedOriginPatterns(origins); //
-            config.setAllowCredentials(true);
-
-
-            /*UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-            source.registerCorsConfiguration("/**", config);*/
-
-            return config;
-        };
-    }
     @Bean
-    public SecurityFilterChain filterChain(final @NotNull HttpSecurity http) throws Exception{
-        http.httpBasic(HttpBasicConfigurer::disable)
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        List<String> origins = new ArrayList<>();
+
+        origins.add("https://www.aicareer.co.kr");  // 추가 도메인
+        origins.add("https://aicareer.co.kr");
+
+        config.setAllowedOrigins(origins);
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(final @NotNull HttpSecurity http) throws Exception {
+        http
+                .httpBasic(HttpBasicConfigurer::disable)
                 .csrf(CsrfConfigurer::disable)
-                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors((configurer)->corsConfigurationSource())
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
@@ -89,15 +90,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                     oauth2.loginPage("/token/expired")
                             .successHandler(oAuth2SuccessHandler)
                             .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))
-                            .failureUrl("/login?error=true")
-                    ;
+                            .failureUrl("/login?error=true");
                 })
-                /*.oauth2Login(oauth2 -> {
-                    oauth2.successHandler(oAuth2SuccessHandler)
-                            .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))
-                            .loginPage("/token/expired");
-                })*/
-                //.addFilterBefore(sameSiteFilter(), CsrfFilter.class)
                 .addFilterBefore(new JwtAuthFilter(tokenService, userService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

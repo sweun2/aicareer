@@ -5,6 +5,7 @@ import co.unlearning.aicareer.domain.board.dto.BoardResponseDto;
 import co.unlearning.aicareer.domain.board.service.BoardService;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.recruitment.dto.RecruitmentResponseDto;
+import co.unlearning.aicareer.domain.user.service.UserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
@@ -33,6 +34,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
+    private final UserService userService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글쓰기", description = "배너에 들어갈 글 글쓰기")
     @ApiResponse(
@@ -44,9 +46,11 @@ public class BoardController {
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
     })
     @PostMapping("/post")
     public ResponseEntity<BoardResponseDto.BoardInfo> postBoardInfo(@RequestBody BoardRequirementDto.BoardPost boardPost) throws Exception {
+        userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.CREATED).body(BoardResponseDto.BoardInfo.of(boardService.addBoardPost(boardPost)));
     }
     @Operation(summary = "보드 글 리스트 반환", description = "공지 글 전부 반환")
@@ -90,11 +94,13 @@ public class BoardController {
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
     })
     @PutMapping("/{uid}")
     public ResponseEntity<BoardResponseDto.BoardInfo> putRecruitmentInfo(@RequestBody BoardRequirementDto.BoardPost boardPost,
                                                                          @Parameter(name = "uid", description = "공지 글 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
+        userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.OK).body(BoardResponseDto.BoardInfo.of(boardService.updateBoardPost(uid,boardPost)));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -106,9 +112,11 @@ public class BoardController {
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
     })
     public ResponseEntity<Void> removeBoardInfo(@Parameter(name = "uid", description = "보드 uid", in = ParameterIn.PATH)
                                                       @PathVariable("uid") String uid)  {
+        userService.checkAdmin();
         boardService.removeBoardByUid(uid);
         return ResponseEntity.ok().build();
     }

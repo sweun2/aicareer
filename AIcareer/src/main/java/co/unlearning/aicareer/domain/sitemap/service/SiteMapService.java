@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SiteMapService {
     private final SiteMapRepository siteMapRepository;
-    @Value("${url}")
+    @Value("${back-url}")
     public String serverUrl;
 
     public List<SiteMap> findSiteMapsLastModifiedWithinOneYear() {
@@ -44,8 +44,7 @@ public class SiteMapService {
         LocalDateTime lastModified;
         String urlPrefix;
 
-        if (param instanceof Recruitment) {
-            Recruitment recruitment = (Recruitment) param;
+        if (param instanceof Recruitment recruitment) {
             uid = recruitment.getUid();
             lastModified = recruitment.getLastModified();
             urlPrefix = "/api/recruitment/";

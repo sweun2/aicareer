@@ -40,7 +40,7 @@ public class SiteMapController {
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
     })
-    @PostMapping("/all")
+    @GetMapping("/all")
     public ResponseEntity<List<SiteMapResponseDto.SiteMapInfo>> getAllSiteMapInfo() {
         return ResponseEntity.ok(SiteMapResponseDto.SiteMapInfo.of(siteMapService.findAllSiteMap()));
     }
@@ -54,7 +54,7 @@ public class SiteMapController {
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
     })
-    @PostMapping("/one-year")
+    @GetMapping("/one-year")
     public ResponseEntity<List<SiteMapResponseDto.SiteMapInfo>> getSiteMapsLastModifiedWithinOneYear() {
         return ResponseEntity.ok(SiteMapResponseDto.SiteMapInfo.of(siteMapService.findSiteMapsLastModifiedWithinOneYear()));
     }

@@ -41,6 +41,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ImageController {
     private final ImageService imageService;
+    private final UserService userService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "단일 이미지 파일 올리기", description = "딘일 이미지 파일을 저장합니다.")
     @ApiResponse(
@@ -51,12 +52,14 @@ public class ImageController {
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED),
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
     })
     @PostMapping(value = "/one",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageResponseDto.ImageData> postOneImage(ImageRequirementDto.ImagePost imagePost) throws IOException {
         // 메소드 구현
+        userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addOneImage(imagePost)));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -72,10 +75,12 @@ public class ImageController {
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE),
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED),
     })
     @PostMapping(value = "/all",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<ImageResponseDto.ImageData>> postAllImage(List<ImageRequirementDto.ImagePost> imagePosts) throws IOException {
+        userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addAllImage(imagePosts)));
 
     }
@@ -119,10 +124,12 @@ public class ImageController {
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.NOT_FOUND_IMAGE_FILE),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED),
     })
     @DeleteMapping(value = "/delete/{url}")
     public ResponseEntity<Void> deleteImage(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
                                                  @PathVariable String url) throws IOException {
+        userService.checkAdmin();
         imageService.deleteImage(url);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

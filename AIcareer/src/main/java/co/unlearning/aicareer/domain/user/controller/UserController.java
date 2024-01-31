@@ -83,6 +83,7 @@ public class UserController {
     })
     @PostMapping("/role")
     public ResponseEntity<UserResponseDto.UserInfo> userInfo(UserRequestDto.UserRole userRole) {
+        userService.checkAdmin();
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserRole(userRole)));
     }
     @SecurityRequirement(name = "bearerAuth")

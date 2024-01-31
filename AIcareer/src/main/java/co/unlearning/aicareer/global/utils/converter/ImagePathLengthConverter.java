@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class ImagePathLengthConverter {
     public static String serverUrl;
 
-    @Value("${url}")
+    @Value("${back-url}")
     public void setServerUrl(String serverUrl) {
         ImagePathLengthConverter.serverUrl = serverUrl;
     }
