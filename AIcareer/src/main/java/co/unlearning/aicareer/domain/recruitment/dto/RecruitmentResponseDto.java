@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ public class RecruitmentResponseDto {
         private String recruitmentUid;
         //@Schema(description = "메인 이미지 url")
         private ImageResponseDto.ImageData mainImageUrl;
+        private List<ImageResponseDto.ImageData> subImageUrls;
         //new table
         //@Schema(description = "회사 정보")
         private CompanyResponseDto.CompanyResponseInfo companyResponseInfo;
@@ -61,6 +63,7 @@ public class RecruitmentResponseDto {
             return RecruitmentInfo.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
                     .mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
+                    .subImageUrls(ImageResponseDto.ImageData.of(new ArrayList<>(recruitment.getSubImageSet())))
                     .companyResponseInfo(CompanyResponseDto.CompanyResponseInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))

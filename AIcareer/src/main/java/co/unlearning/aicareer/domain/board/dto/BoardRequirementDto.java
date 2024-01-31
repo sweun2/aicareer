@@ -14,6 +14,8 @@ public class BoardRequirementDto {
     public static class BoardPost {
         @Schema(description = "배너 이미지 url")
         private String bannerImage;
+        @Schema(description = "서브 이미지 url")
+        private List<String> subImage;
         @Schema(description = "페이지 링크 url")
         private String pageLink;
         @Schema(description = "제목")

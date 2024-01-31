@@ -73,14 +73,19 @@ public class ImageService {
     }
     public void deleteImage(String url) {
         Image image = getImageByUrl(url);
+        File file = new File(image.getAbsolutePath()+image.getImageUrl());
         String osPath = getOsPath();
         try {
-            File file = new File(image.getAbsolutePath() +  image.getImageUrl());
-            file.delete();
+            if (file.exists()) {
+                file.delete();
+            }
+
         }catch (Exception e) {
             log.info(e.getMessage());
             throw new BusinessException(ResponseErrorCode.NOT_FOUND_IMAGE_FILE);
         }
+
+
     }
 
     private static String getOsPath() {

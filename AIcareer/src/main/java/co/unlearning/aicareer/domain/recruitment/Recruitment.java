@@ -7,10 +7,8 @@ import co.unlearning.aicareer.domain.company.Company;
 import co.unlearning.aicareer.domain.education.Education;
 import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
-import co.unlearning.aicareer.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -61,6 +59,8 @@ public class Recruitment {
     private Set<Bookmark> bookmarkSet;
     @OneToOne
     private Image mainImage;
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private Set<Image> subImageSet;
     @Column
     private LocalDateTime lastModified;
 }

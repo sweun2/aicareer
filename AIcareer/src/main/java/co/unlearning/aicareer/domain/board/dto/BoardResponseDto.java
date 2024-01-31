@@ -13,6 +13,7 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,8 @@ public class BoardResponseDto {
     public static class BoardInfo {
         @Schema(description = "배너 이미지 url")
         private ImageResponseDto.ImageData bannerImage;
+        @Schema(description = "서브 이미지 url")
+        private List<ImageResponseDto.ImageData> subImages;
         @Schema(description = "글 uid")
         private String uid;
         @Schema(description = "연결 페이지 url")
@@ -41,6 +44,7 @@ public class BoardResponseDto {
         public static BoardInfo of(Board board) {
             return BoardInfo.builder()
                     .bannerImage(ImageResponseDto.ImageData.of( board.getBannerImage()))
+                    .subImages(ImageResponseDto.ImageData.of(new ArrayList<>(board.getSubImageSet())))
                     .uid(board.getUid())
                     .pageLinkUrl(board.getPageLinkUrl())
                     .uploadDate(board.getUploadDate())

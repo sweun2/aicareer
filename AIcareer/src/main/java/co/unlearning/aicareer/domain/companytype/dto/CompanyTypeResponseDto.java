@@ -14,7 +14,7 @@ public class CompanyTypeResponseDto {
     @Getter
     @Setter
     public static class CompanyTypeInfo {
-        @Schema(description = "회사 타입",allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET"})
+        @Schema(description = "회사 타입",allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC", "ETC"})
         private String companyTypeName;
 
         public static CompanyTypeInfo of(CompanyType companyType) {

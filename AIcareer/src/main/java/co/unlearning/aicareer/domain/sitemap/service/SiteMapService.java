@@ -4,14 +4,12 @@ import co.unlearning.aicareer.domain.board.Board;
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.sitemap.SiteMap;
 import co.unlearning.aicareer.domain.sitemap.repository.SiteMapRepository;
-import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,8 +22,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SiteMapService {
     private final SiteMapRepository siteMapRepository;
-    @Value("${back-url}")
-    public String serverUrl;
+    @Value("${front-url}")
+    public String siteUrl;
 
     public List<SiteMap> findSiteMapsLastModifiedWithinOneYear() {
         LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
@@ -47,12 +45,12 @@ public class SiteMapService {
         if (param instanceof Recruitment recruitment) {
             uid = recruitment.getUid();
             lastModified = recruitment.getLastModified();
-            urlPrefix = "/api/recruitment/";
+            urlPrefix = "/recruitment/";
         } else {
             Board board = (Board) param;
             uid = board.getUid();
             lastModified = board.getLastModified();
-            urlPrefix = "/api/board/";
+            urlPrefix = "/board/";
         }
 
         Optional<SiteMap> siteMapOptional = siteMapRepository.findByUid(uid);
@@ -60,7 +58,27 @@ public class SiteMapService {
         SiteMap siteMap = siteMapOptional.orElseGet(SiteMap::new);
         siteMap.setUid(uid);
         siteMap.setLastModified(lastModified);
-        siteMap.setUrl(serverUrl + urlPrefix + uid);
+        siteMap.setUrl(siteUrl + urlPrefix + uid);
         siteMapRepository.save(siteMap);
+    }
+    public void deleteSiteMap(Object param) {
+        if (!(param instanceof Recruitment || param instanceof Board)) {
+            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+
+
+        if (param instanceof Recruitment recruitment) {
+            SiteMap siteMap = siteMapRepository.findByUid(recruitment.getUid()).orElseThrow(
+                    ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+            );
+            siteMapRepository.delete(siteMap);
+        } else {
+            Board board = (Board) param;
+            SiteMap siteMap = siteMapRepository.findByUid(board.getUid()).orElseThrow(
+                    ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+            );
+            siteMapRepository.delete(siteMap);
+        }
     }
 }

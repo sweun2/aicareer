@@ -1,14 +1,6 @@
 package co.unlearning.aicareer.domain.board;
 
 import co.unlearning.aicareer.domain.Image.Image;
-import co.unlearning.aicareer.domain.bookmark.Bookmark;
-import co.unlearning.aicareer.domain.career.Career;
-import co.unlearning.aicareer.domain.company.Company;
-import co.unlearning.aicareer.domain.education.Education;
-import co.unlearning.aicareer.domain.recruitment.RecruitmentAddress;
-import co.unlearning.aicareer.domain.recruitment.RecruitmentDeadlineType;
-import co.unlearning.aicareer.domain.recruitmenttype.RecruitmentType;
-import co.unlearning.aicareer.domain.recrutingjob.RecruitingJob;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Cascade;
@@ -45,5 +37,6 @@ public class Board {
     private String pageLinkUrl;
     @Column
     private Boolean isView;
-
+    @OneToMany(mappedBy = "board",fetch = FetchType.EAGER, cascade = {jakarta.persistence.CascadeType.ALL}, orphanRemoval = true)
+    private Set<Image> subImageSet;
 }

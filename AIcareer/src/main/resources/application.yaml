@@ -54,3 +54,4 @@ logging:
             handler:
               HandlerMappingIntrospect=ERROR:
 back-url: "https://api.aicareer.co.kr"
+front-url: "https://aicareer.co.kr"

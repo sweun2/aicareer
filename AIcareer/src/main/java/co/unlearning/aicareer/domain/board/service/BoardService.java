@@ -2,6 +2,7 @@ package co.unlearning.aicareer.domain.board.service;
 
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
+import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.board.Board;
 import co.unlearning.aicareer.domain.board.dto.BoardRequirementDto;
 import co.unlearning.aicareer.domain.board.repository.BoardRepository;
@@ -15,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -25,11 +28,13 @@ import java.util.UUID;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final ImageRepository imageRepository;
+    private final ImageService imageService;
     private final SiteMapService siteMapService;
     public Board addBoardPost(BoardRequirementDto.BoardPost boardPost) {
         Image image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
+
         Board board = Board.builder()
                 .pageLinkUrl(boardPost.getPageLink())
                 .bannerImage(image)
@@ -39,6 +44,16 @@ public class BoardService {
                 .lastModified(LocalDateTime.now())
                 .isView(true)
                 .build();
+        Set<Image> subImages = new HashSet<>();
+        for(String subImageUrl: boardPost.getSubImage()) {
+            Image subImage =imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
+                    ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+            );
+            subImage.setBoard(board);
+            subImages.add(subImage);
+        }
+
+        board.setSubImageSet(subImages);
         boardRepository.save(board);
 
         siteMapService.registerSiteMap(board);
@@ -51,12 +66,24 @@ public class BoardService {
         Image image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
         );
+        Set<Image> subImages = new HashSet<>();
+        for(String subImageUrl: boardPost.getSubImage()) {
+            Image subImage =imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
+                    ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+            );
+            subImage.setBoard(board);
+            subImages.add(subImage);
+        }
+
+
         board.setPageLinkUrl(boardPost.getPageLink());
         board.setBannerImage(image);
         board.setTitle(boardPost.getTitle());
         board.setContent(boardPost.getContent());
         board.setLastModified(LocalDateTime.now());
         boardRepository.save(board);
+
+
 
         siteMapService.registerSiteMap(board);
         return board;
@@ -70,6 +97,15 @@ public class BoardService {
         );
     }
     public void removeBoardByUid(String uid) {
-        boardRepository.delete(getBoardByUid(uid));
+        Board board = getBoardByUid(uid);
+        imageService.deleteImage(board.getBannerImage().getImageUrl());
+        board.getSubImageSet().forEach(
+                image -> {
+                    imageService.deleteImage(image.getImageUrl());
+                }
+        );
+
+        siteMapService.deleteSiteMap(board);
+        boardRepository.delete(board);
     }
 }

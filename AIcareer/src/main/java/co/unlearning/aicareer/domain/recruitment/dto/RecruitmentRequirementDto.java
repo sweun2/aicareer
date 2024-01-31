@@ -15,6 +15,8 @@ public class RecruitmentRequirementDto {
     public static class RecruitmentPost {
         @Schema(description = "메인 이미지 url")
         private String mainImage;
+        @Schema(description = "서브 이미지 url")
+        private List<String> subImage;
         @Schema(description = "회사 주소")
         private String companyAddress;
         @Schema(description = "회사명")

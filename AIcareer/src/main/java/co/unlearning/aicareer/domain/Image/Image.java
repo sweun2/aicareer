@@ -1,5 +1,7 @@
 package co.unlearning.aicareer.domain.Image;
 
+import co.unlearning.aicareer.domain.board.Board;
+import co.unlearning.aicareer.domain.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,4 +25,8 @@ public class Image {
     @CreationTimestamp
     @Column
     private LocalDateTime createdDate = LocalDateTime.now();
+    @ManyToOne
+    private Recruitment recruitment;
+    @ManyToOne
+    private Board board;
 }
