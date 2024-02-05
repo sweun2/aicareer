@@ -8,6 +8,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,10 +28,10 @@ public class JwtAuthFilter extends GenericFilterBean {
     private final UserService userService;
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
         String token = null;
         if (request instanceof HttpServletRequest request2) {
             Cookie[] cookies = request2.getCookies();
-
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     String cookieName = cookie.getName();
@@ -50,10 +51,13 @@ public class JwtAuthFilter extends GenericFilterBean {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
-        log.info("---filter---");
         chain.doFilter(request, response);
     }
-
+    private boolean isLogoutRequest(ServletRequest request) {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String requestURI = httpRequest.getRequestURI();
+        return requestURI.endsWith("/api/user/logout");
+    }
     public Authentication getAuthentication(User user){
         return new UsernamePasswordAuthenticationToken(user, "",
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));

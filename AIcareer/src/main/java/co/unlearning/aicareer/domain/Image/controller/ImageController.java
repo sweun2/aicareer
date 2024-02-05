@@ -97,9 +97,9 @@ public class ImageController {
     })
     @GetMapping("/{url}")
     public ResponseEntity<Resource> downloadAttach(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
-                                                   @PathVariable String url) throws MalformedURLException {
+                                                   @PathVariable("url") String url) throws MalformedURLException {
         Image image = imageService.getImageByUrl(url);
-        UrlResource resource = new UrlResource("file:" +image.getAbsolutePath() + image.getImageUrl());
+        UrlResource resource = new UrlResource("file:" +image.getAbsolutePath()+ image.getImageUrl());
         //한글 파일 이름이나 특수 문자의 경우 깨질 수 있으니 인코딩 한번 해주기
 
         String encodedUploadFileName = UriUtils.encode(image.getImageUrl(),
@@ -108,7 +108,6 @@ public class ImageController {
         //아래 문자를 ResponseHeader에 넣어줘야 한다. 그래야 링크를 눌렀을 때 다운이 된다.
         //정해진 규칙이다.
         String contentDisposition = "attachment; filename=\"" + encodedUploadFileName + "\"";
-        log.info(contentDisposition);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                 .body(resource);

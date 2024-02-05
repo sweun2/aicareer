@@ -48,10 +48,7 @@ server:
 logging:
   level:
     org:
-      springframework:
-        web:
-          servlet:
-            handler:
-              HandlerMappingIntrospect=ERROR:
+      springframework: DEBUG
+
 back-url: "https://api.aicareer.co.kr"
 front-url: "https://aicareer.co.kr"

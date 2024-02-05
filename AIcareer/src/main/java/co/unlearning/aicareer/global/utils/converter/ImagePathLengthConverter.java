@@ -14,7 +14,7 @@ public class ImagePathLengthConverter {
     public void setServerUrl(String serverUrl) {
         ImagePathLengthConverter.serverUrl = serverUrl;
     }
-    public static String slicingImagePathLength(String imagePath) {
+    public static String slicingImagePathLength( String imagePath) {
         int len = (serverUrl+"/api/image/").length();
         return imagePath.substring(len);
     }

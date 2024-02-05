@@ -70,8 +70,6 @@ public class UserService {
         return user;
     }
     public void logout(HttpServletResponse response) {
-        User user = getLoginUser();
-
         ResponseCookie accessToken = ResponseCookie.from("accessToken","")
                 .path("/")
                 .sameSite("None")

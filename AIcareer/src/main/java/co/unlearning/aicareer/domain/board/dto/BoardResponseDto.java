@@ -42,16 +42,19 @@ public class BoardResponseDto {
         private String content; //내용
 
         public static BoardInfo of(Board board) {
-            return BoardInfo.builder()
-                    .bannerImage(ImageResponseDto.ImageData.of( board.getBannerImage()))
+            BoardInfoBuilder builder =BoardInfo.builder()
                     .subImages(ImageResponseDto.ImageData.of(new ArrayList<>(board.getSubImageSet())))
                     .uid(board.getUid())
                     .pageLinkUrl(board.getPageLinkUrl())
                     .uploadDate(board.getUploadDate())
                     .lastModified(LocalDateTimeStringConverter.LocalDateTimeToString(board.getLastModified()))
                     .title(board.getTitle())
-                    .content(board.getContent())
-                    .build();
+                    .content(board.getContent());
+
+            if (board.getBannerImage() != null) {
+                builder.bannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
+            }
+            return builder.build();
         }
 
         public static List<ImageResponseDto.ImageData> of(List<Image> images) {
@@ -72,11 +75,15 @@ public class BoardResponseDto {
         private String pageLinkUrl;
 
         public static BoardSimple of(Board board) {
-            return BoardSimple.builder()
-                    .bannerImage(ImageResponseDto.ImageData.of( board.getBannerImage()))
+            BoardSimpleBuilder builder =  BoardSimple.builder()
                     .uid(board.getUid())
-                    .pageLinkUrl(board.getPageLinkUrl())
-                    .build();
+                    .pageLinkUrl(board.getPageLinkUrl());
+
+            if (board.getBannerImage() != null) {
+                builder.bannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
+            }
+            return builder.build();
+
         }
 
         public static List<BoardSimple> of(List<Board> boards) {

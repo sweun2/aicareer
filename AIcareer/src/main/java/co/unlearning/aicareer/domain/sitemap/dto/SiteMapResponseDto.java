@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,12 @@ public class SiteMapResponseDto {
         private String url;
         private String lastModified;
         public static SiteMapInfo of(SiteMap siteMap) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedLastModified = siteMap.getLastModified().format(formatter);
+
             return SiteMapInfo.builder()
                     .url(siteMap.getUrl())
-                    .lastModified(LocalDateTimeStringConverter.LocalDateTimeToString(siteMap.getLastModified()))
+                    .lastModified(formattedLastModified)
                     .build();
         }
         public static List<SiteMapInfo> of(List<SiteMap> siteMaps) {

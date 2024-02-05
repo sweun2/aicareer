@@ -40,4 +40,4 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 jwt:
-  secret_key: "힘을 내라고 말해 줄래 그 눈을 반짝여 날 일으켜 줄래 사람들은 모두 원하지 더 빨리 더 많이 Oh 난 평범한 소년걸"
+  secret_key: "안녕하세요. 국내 최초 인공지능 직무 채용 플랫폼 AIcareer입니다. 당신의 AI 커리어를 위한 최신 채용 공고를 매일 업데이트하여 제공합니다. "

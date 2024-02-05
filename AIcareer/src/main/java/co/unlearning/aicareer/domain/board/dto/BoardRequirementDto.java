@@ -1,9 +1,7 @@
 package co.unlearning.aicareer.domain.board.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,6 +9,8 @@ public class BoardRequirementDto {
     @Getter
     @Setter
     @Builder
+    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class BoardPost {
         @Schema(description = "배너 이미지 url")
         private String bannerImage;

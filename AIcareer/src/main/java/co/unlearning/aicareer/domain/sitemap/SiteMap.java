@@ -18,7 +18,7 @@ public class SiteMap {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @Column(unique = true)
+    @Column
     private String uid;
     @Column
     private String url;

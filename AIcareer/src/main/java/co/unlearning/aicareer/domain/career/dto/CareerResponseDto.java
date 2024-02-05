@@ -14,7 +14,7 @@ public class CareerResponseDto {
     @Setter
     @Builder
     public static class CareerDto {
-        @Schema(description = "경력 조건",allowableValues = {"NEW_COMER","JUNIOR","SENIOR","MIDDLE","LEADER"})
+        @Schema(description = "경력 조건",allowableValues = {"NEW_COMER","JUNIOR","SENIOR","MIDDLE","LEADER","IRRELEVANCE"})
         private String career;
         public static CareerDto of(Career career) {
             return CareerDto.builder()

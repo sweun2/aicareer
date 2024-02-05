@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -46,21 +47,28 @@ public class TokenService {
     }
 
     public Token generateToken(String uid, String role){
+        Claims claims = generateClaims(uid, role);
         Date issueDate = new Date(); //토큰 발행 시각
-        return new Token(
-                Jwts.builder()
-                        .setClaims(generateClaims(uid, role))
-                        .setIssuedAt(issueDate)
-                        .setExpiration(new Date(issueDate.getTime() + ACCESS_EXPIRE))
-                        .signWith(key, SignatureAlgorithm.HS256)
-                        .compact(),
-                Jwts.builder()
-                        .setClaims(generateClaims(uid, role))
-                        .setIssuedAt(issueDate)
-                        .setExpiration(new Date(issueDate.getTime() + REFRESH_EXPIRE))
-                        .signWith(key, SignatureAlgorithm.HS256)
-                        .compact()
-        );
+
+        String accessToken = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(issueDate)
+                .setExpiration(new Date(issueDate.getTime() + ACCESS_EXPIRE))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        String refreshToken = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(issueDate)
+                .setExpiration(new Date(issueDate.getTime() + REFRESH_EXPIRE))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        // 디버깅을 위한 출력
+        System.out.println("AccessToken: " + accessToken);
+        System.out.println("RefreshToken: " + refreshToken);
+
+        return new Token(accessToken, refreshToken);
     }
 
     public boolean verifyToken(String token){

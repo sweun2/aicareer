@@ -93,11 +93,13 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST),
     })
     @PostMapping("/search")
-    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findAllRecruitmentInfo(@RequestBody RecruitmentRequirementDto.Search search,
-                                                                                                 @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
-                                                                             @RequestParam("page") Integer page) {
-        PageRequest pageRequest = PageRequest.of(page,6);
-        return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.getFilteredRecruitment(search,pageRequest)));
+    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findAllRecruitmentInfo(
+            @RequestBody RecruitmentRequirementDto.Search search,
+            @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
+            @RequestParam("page") Integer page) {
+            log.info("search con");
+            PageRequest pageRequest = PageRequest.of(page, 6);
+            return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.getFilteredRecruitment(search, pageRequest)));
     }
     @Operation(summary = "단일 글 조회", description = "단일 글 조회, 공고 uid 필요")
     @ApiResponse(

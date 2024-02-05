@@ -33,34 +33,43 @@ public class SiteMapService {
         return siteMapRepository.findAll();
     }
 
-    public void registerSiteMap(Object param) {
-        if (!(param instanceof Recruitment || param instanceof Board)) {
-            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
-        }
+    public void registerRecruitmentSiteMap(Recruitment recruitment) {
+        String uid = recruitment.getUid();
+        LocalDateTime lastModified = recruitment.getLastModified();
+        String urlPrefix = "/recruitment/";
 
-        String uid;
-        LocalDateTime lastModified;
-        String urlPrefix;
+        processSiteMap(uid, lastModified, urlPrefix);
+    }
 
-        if (param instanceof Recruitment recruitment) {
-            uid = recruitment.getUid();
-            lastModified = recruitment.getLastModified();
-            urlPrefix = "/recruitment/";
-        } else {
-            Board board = (Board) param;
-            uid = board.getUid();
-            lastModified = board.getLastModified();
-            urlPrefix = "/board/";
-        }
+    public void registerBoardSiteMap(Board board) {
+        String uid = board.getUid();
+        LocalDateTime lastModified = board.getLastModified();
+        String urlPrefix = "/board/";
 
+        processSiteMap(uid, lastModified, urlPrefix);
+    }
+
+    private void processSiteMap(String uid, LocalDateTime lastModified, String urlPrefix) {
+        log.info("ps");
+        log.info("UID value: {}", uid);
         Optional<SiteMap> siteMapOptional = siteMapRepository.findByUid(uid);
+        log.info("SiteMap Optional: {}", siteMapOptional);
 
-        SiteMap siteMap = siteMapOptional.orElseGet(SiteMap::new);
-        siteMap.setUid(uid);
-        siteMap.setLastModified(lastModified);
-        siteMap.setUrl(siteUrl + urlPrefix + uid);
+        SiteMap siteMap;
+        if(siteMapOptional.isEmpty()) {
+            siteMap = new SiteMap();
+            siteMap.setUid(uid);
+            siteMap.setLastModified(lastModified);
+            siteMap.setUrl(siteUrl + urlPrefix + uid);
+        }else {
+            log.info("ps");
+            siteMap = siteMapOptional.get();
+            log.info("ps");
+            siteMap.setLastModified(lastModified);
+        }
         siteMapRepository.save(siteMap);
     }
+
     public void deleteSiteMap(Object param) {
         if (!(param instanceof Recruitment || param instanceof Board)) {
             throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);

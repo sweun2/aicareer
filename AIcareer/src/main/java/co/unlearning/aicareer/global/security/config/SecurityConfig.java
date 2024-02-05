@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -57,13 +58,18 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setMaxAge(3600L);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         List<String> origins = new ArrayList<>();
 
         origins.add("https://www.aicareer.co.kr");  // 추가 도메인
         origins.add("https://aicareer.co.kr");
+        origins.add("https://api.aicareer.co.kr");
+        origins.add("https://localhost:8080");
+        origins.add("http://localhost:8080");
 
         config.setAllowedOrigins(origins);
         config.setAllowCredentials(true);
@@ -89,10 +95,17 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> {
                     oauth2.loginPage("/token/expired")
                             .successHandler(oAuth2SuccessHandler)
-                            .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service))
-                            .failureUrl("/login?error=true");
+                            .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2Service));
                 })
                 .addFilterBefore(new JwtAuthFilter(tokenService, userService), UsernamePasswordAuthenticationFilter.class);
+        http
+                .logout(logout ->
+                        logout
+                                .logoutUrl("/api/user/logout") // 로그아웃 URL 설정 (기본값은 "/logout")
+                                .logoutSuccessUrl("/api/token/expired") // 로그아웃 성공 시 이동할 URL 설정
+                                .deleteCookies("JSESSIONID", "accessToken") // 로그아웃 시 삭제할 쿠키 설정
+                                .permitAll() // 로그아웃 URL은 모든 사용자에게 허용
+                );
         return http.build();
     }
 }

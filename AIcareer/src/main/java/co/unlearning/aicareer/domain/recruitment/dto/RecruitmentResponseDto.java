@@ -60,9 +60,8 @@ public class RecruitmentResponseDto {
         private String content; //내용
 
         public static RecruitmentInfo of(Recruitment recruitment) {
-            return RecruitmentInfo.builder()
+            RecruitmentInfoBuilder builder =  RecruitmentInfo.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
-                    .mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
                     .subImageUrls(ImageResponseDto.ImageData.of(new ArrayList<>(recruitment.getSubImageSet())))
                     .companyResponseInfo(CompanyResponseDto.CompanyResponseInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
@@ -77,8 +76,12 @@ public class RecruitmentResponseDto {
                     .hits(recruitment.getHits())
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
                     .title(recruitment.getTitle())
-                    .content(recruitment.getContent())
-                    .build();
+                    .content(recruitment.getContent());
+
+            if (recruitment.getMainImage() != null) {
+                builder.mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()));
+            }
+            return builder.build();
         }
         public static List<RecruitmentInfo> of(List<Recruitment> companies) {
             return companies.stream().map(RecruitmentInfo::of).collect(Collectors.toList());
@@ -123,9 +126,8 @@ public class RecruitmentResponseDto {
         private Integer hits; //조회수
 
         public static RecruitmentSimple of(Recruitment recruitment) {
-            return RecruitmentSimple.builder()
+            RecruitmentSimpleBuilder builder = RecruitmentSimple.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
-                    .mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()))
                     .companyResponseInfo(CompanyResponseDto.CompanyResponseInfo.of(recruitment.getCompany()))
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(recruitment.getRecruitingJobSet())))
                     .recruitmentTypeNames(RecruitmentTypeResponseDto.RecruitmentTypeNameDto.of(List.copyOf(recruitment.getRecruitmentTypeSet())))
@@ -137,8 +139,13 @@ public class RecruitmentResponseDto {
                     .lastModified(LocalDateTimeToString(recruitment.getLastModified()))
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
                     .title(recruitment.getTitle())
-                    .hits(recruitment.getHits())
-                    .build();
+                    .hits(recruitment.getHits());
+
+            if (recruitment.getMainImage() != null) {
+                builder.mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()));
+            }
+
+            return builder.build();
         }
         public static List<RecruitmentSimple> of(List<Recruitment> companies) {
             return companies.stream().map(RecruitmentSimple::of).collect(Collectors.toList());

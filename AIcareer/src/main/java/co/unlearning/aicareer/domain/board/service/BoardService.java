@@ -31,9 +31,12 @@ public class BoardService {
     private final ImageService imageService;
     private final SiteMapService siteMapService;
     public Board addBoardPost(BoardRequirementDto.BoardPost boardPost) {
-        Image image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
-                ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
-        );
+        Image image = null;
+        if(boardPost.getBannerImage()!=null) {
+            image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
+                    () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+            );
+        }
 
         Board board = Board.builder()
                 .pageLinkUrl(boardPost.getPageLink())
@@ -44,35 +47,44 @@ public class BoardService {
                 .lastModified(LocalDateTime.now())
                 .isView(true)
                 .build();
-        Set<Image> subImages = new HashSet<>();
-        for(String subImageUrl: boardPost.getSubImage()) {
-            Image subImage =imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
-                    ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
-            );
-            subImage.setBoard(board);
-            subImages.add(subImage);
-        }
 
-        board.setSubImageSet(subImages);
+        image.setBoard(board);
+        if(!boardPost.getSubImage().isEmpty()) {
+            Set<Image> subImages = new HashSet<>();
+            for (String subImageUrl : boardPost.getSubImage()) {
+                Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
+                        () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+                );
+                subImage.setBoard(board);
+                subImages.add(subImage);
+            }
+            board.setSubImageSet(subImages);
+        }
         boardRepository.save(board);
 
-        siteMapService.registerSiteMap(board);
+        siteMapService.registerBoardSiteMap(board);
         return board;
     }
     public Board updateBoardPost(String boardUid, BoardRequirementDto.BoardPost boardPost) {
         Board board = boardRepository.findByUid(boardUid).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
-        Image image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
-                ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
-        );
-        Set<Image> subImages = new HashSet<>();
-        for(String subImageUrl: boardPost.getSubImage()) {
-            Image subImage =imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
-                    ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+        Image image = null;
+        if(boardPost.getBannerImage()!=null) {
+            image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
+                    () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
-            subImage.setBoard(board);
-            subImages.add(subImage);
+        }
+        if(!boardPost.getSubImage().isEmpty()) {
+            Set<Image> subImages = new HashSet<>();
+            for (String subImageUrl : boardPost.getSubImage()) {
+                Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
+                        () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+                );
+                subImage.setBoard(board);
+                subImages.add(subImage);
+            }
+            board.setSubImageSet(subImages);
         }
 
 
@@ -81,11 +93,9 @@ public class BoardService {
         board.setTitle(boardPost.getTitle());
         board.setContent(boardPost.getContent());
         board.setLastModified(LocalDateTime.now());
+
         boardRepository.save(board);
-
-
-
-        siteMapService.registerSiteMap(board);
+        siteMapService.registerBoardSiteMap(board);
         return board;
     }
     public List<Board> getBoardList() {

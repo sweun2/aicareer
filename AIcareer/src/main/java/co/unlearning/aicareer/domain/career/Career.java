@@ -15,7 +15,7 @@ import org.hibernate.annotations.CascadeType;
 @AllArgsConstructor
 public class Career {
     public enum AnnualLeave{
-        NEW_COMER,JUNIOR,SENIOR,MIDDLE,LEADER
+        NEW_COMER,JUNIOR,SENIOR,MIDDLE,LEADER, IRRELEVANCE
     }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

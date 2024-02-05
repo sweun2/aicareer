@@ -57,7 +57,7 @@ public class Recruitment {
     private RecruitmentAddress recruitmentAddress; //지역
     @OneToMany(mappedBy = "recruitment")
     private Set<Bookmark> bookmarkSet;
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.ALL})
     private Image mainImage;
     @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private Set<Image> subImageSet;

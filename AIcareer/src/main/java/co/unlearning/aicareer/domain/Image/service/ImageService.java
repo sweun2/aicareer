@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +47,10 @@ public class ImageService {
         //window 구별
         String osPath = getOsPath();
         String imagePath = originImageName + UUID.randomUUID() + contentType;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        String formattedDate = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(formatter)+'/';
+
         String absolutePath = Paths.get("").toAbsolutePath() +osPath;
 
         File file = new File(absolutePath + imagePath);
