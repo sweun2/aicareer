@@ -56,7 +56,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         } else {
             User user = userOptional.get();
         }
-        ResponseCookie accessToken = ResponseCookie.from("accessToken",token.getAccessToken())
+        ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
                 .path("/")
                 .sameSite("None")
                 .domain("aicareer.co.kr")
@@ -66,7 +66,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build();
         response.addHeader("Set-Cookie", accessToken.toString());
 
-        ResponseCookie refreshToken = ResponseCookie.from("refreshToken",token.getRefreshToken())
+        ResponseCookie refreshToken = ResponseCookie.from("_rT",token.getRefreshToken())
                 .path("/")
                 .sameSite("None")
                 .domain("aicareer.co.kr")

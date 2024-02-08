@@ -32,7 +32,7 @@ public class TokenService {
     @Value("${jwt.secret_key}")
     private String SECRET_KEY;
     private Key key;
-    private final long ACCESS_EXPIRE = 1000 * 60 * 60;             //60분
+    private final long ACCESS_EXPIRE = 1000 * 60 * 60* 24;             //1일
     private final long REFRESH_EXPIRE = 1000 * 60 * 60 * 24 * 7;   //7일
 
     @PostConstruct
@@ -86,7 +86,8 @@ public class TokenService {
 
     @Transactional
     public Token refresh(HttpServletRequest request){
-        String accessToken = request.getHeader("access-token");
+        String accessToken = getAccessTokenFromCookie(request)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "access token이 없습니다."));
         String refreshToken = getRefreshTokenFromCookie(request)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "refresh token이 없습니다."));
 
@@ -104,14 +105,24 @@ public class TokenService {
         Cookie[] cookies = request.getCookies();
         if(cookies != null){
             for(Cookie cookie : cookies){
-                if(cookie.getName().equals("refresh-token")){
+                if(cookie.getName().equals("_rT")){
                     return Optional.of(cookie.getValue());
                 }
             }
         }
         return Optional.empty();
     }
-
+    public Optional<String> getAccessTokenFromCookie(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if(cookie.getName().equals("_aT")){
+                    return Optional.of(cookie.getValue());
+                }
+            }
+        }
+        return Optional.empty();
+    }
     public String getUid(String token){
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
     }

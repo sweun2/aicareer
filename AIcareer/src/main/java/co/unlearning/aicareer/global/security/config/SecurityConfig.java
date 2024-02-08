@@ -103,7 +103,7 @@ public class SecurityConfig {
                         logout
                                 .logoutUrl("/api/user/logout") // 로그아웃 URL 설정 (기본값은 "/logout")
                                 .logoutSuccessUrl("/api/token/expired") // 로그아웃 성공 시 이동할 URL 설정
-                                .deleteCookies("JSESSIONID", "accessToken") // 로그아웃 시 삭제할 쿠키 설정
+                                .deleteCookies("JSESSIONID", "_aT") // 로그아웃 시 삭제할 쿠키 설정
                                 .permitAll() // 로그아웃 URL은 모든 사용자에게 허용
                 );
         return http.build();

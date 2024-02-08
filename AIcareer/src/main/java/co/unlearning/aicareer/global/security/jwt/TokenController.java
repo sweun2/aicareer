@@ -34,7 +34,7 @@ public class TokenController {
     public ResponseEntity<String> refreshAuth(HttpServletRequest request) {
         Token newToken = tokenService.refresh(request);
 
-        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newToken.getAccessToken())
+        ResponseCookie accessTokenCookie = ResponseCookie.from("_aT", newToken.getAccessToken())
                 .maxAge(24 * 60 * 60)
                 .path("/")
                 .httpOnly(true)
@@ -48,7 +48,18 @@ public class TokenController {
     @GetMapping("/token/expired")
     public ResponseEntity<String> logout() {
         HttpHeaders headers = new HttpHeaders();
-        ResponseCookie accessToken = ResponseCookie.from("accessToken","")
+        ResponseCookie accessToken = ResponseCookie.from("_aT","")
+                .path("/")
+                .sameSite("None")
+                .domain("aicareer.co.kr")
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(24*60*60)
+                .build();
+
+        headers.set("Set-Cookie", accessToken.toString());
+
+        ResponseCookie refreshToken = ResponseCookie.from("_rT","")
                 .path("/")
                 .sameSite("None")
                 .domain("aicareer.co.kr")

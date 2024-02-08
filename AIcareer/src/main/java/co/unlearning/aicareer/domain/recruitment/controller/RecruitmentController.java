@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -50,7 +51,7 @@ public class RecruitmentController {
 
     })
     @PostMapping("/post")
-    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> postRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> postRecruitmentInfo(@Valid @RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(recruitmentPost)));
     }
@@ -72,7 +73,7 @@ public class RecruitmentController {
 
     })
     @PutMapping("/{uid}")
-    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> putRecruitmentInfo(@RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost,
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> putRecruitmentInfo(@Valid @RequestBody RecruitmentRequirementDto.RecruitmentPost recruitmentPost,
                                                                                         @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
                                                                                         @PathVariable("uid") String uid) throws Exception {
         userService.checkAdmin();

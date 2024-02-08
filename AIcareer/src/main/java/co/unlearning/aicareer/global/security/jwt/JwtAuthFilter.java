@@ -36,7 +36,7 @@ public class JwtAuthFilter extends GenericFilterBean {
                 for (Cookie cookie : cookies) {
                     String cookieName = cookie.getName();
                     String cookieValue = cookie.getValue();
-                    if(Objects.equals(cookieName, "accessToken")) {
+                    if(Objects.equals(cookieName, "_aT")) {
                         token = cookieValue;
                     }
                 }

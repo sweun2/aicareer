@@ -84,7 +84,8 @@ public class BoardService {
                 subImage.setBoard(board);
                 subImages.add(subImage);
             }
-            board.setSubImageSet(subImages);
+            board.getSubImageSet().clear();
+            board.getSubImageSet().addAll(subImages);
         }
 
 

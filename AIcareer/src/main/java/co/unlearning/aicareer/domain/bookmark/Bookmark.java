@@ -15,6 +15,9 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "Bookmark", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"recruitment_id", "user_id"})
+})
 public class Bookmark {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

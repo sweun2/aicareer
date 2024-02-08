@@ -19,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -95,5 +97,8 @@ public class UserService {
         User user = getLoginUser();
         if(user.getUserRole()!=UserRole.ADMIN)
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
+    }
+    public List<User> getAllUser() {
+        return userRepository.findAll();
     }
 }

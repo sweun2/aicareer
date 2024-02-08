@@ -32,6 +32,10 @@ public enum ResponseErrorCode {
     @ExplainError("정렬 조건이 잘못 입력된 경우 ")
     SORT_CONDITION_BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "RECRUITMENT_002", "sort condition 에러."),
 
+    @ExplainError("북마크가 이미 추가되었습니다.")
+    BOOKMARK_ALREADY_EXIST(HttpStatus.BAD_REQUEST.value(), "BOOKMARK_001", "북마크가 이미 추가된 상태입니다."),
+
+
     @ExplainError("서버에 저장된 파일 위치와 입력한 파일 위치가 일치하지 않습니다.  '/home/app/img/test-image.jpg' 형식으로 입력해야 합니다. ")
     INVALID_IMAGE_URL(HttpStatus.BAD_REQUEST.value(), "IMAGE_001","잘못된 image url 입력 값입니다."),
     @ExplainError("파일을 읽을 수 없습니다. 올바른 이미지 파일인지 확인해 주세요. ")

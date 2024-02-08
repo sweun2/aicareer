@@ -50,11 +50,7 @@ public class SiteMapService {
     }
 
     private void processSiteMap(String uid, LocalDateTime lastModified, String urlPrefix) {
-        log.info("ps");
-        log.info("UID value: {}", uid);
         Optional<SiteMap> siteMapOptional = siteMapRepository.findByUid(uid);
-        log.info("SiteMap Optional: {}", siteMapOptional);
-
         SiteMap siteMap;
         if(siteMapOptional.isEmpty()) {
             siteMap = new SiteMap();
@@ -62,9 +58,7 @@ public class SiteMapService {
             siteMap.setLastModified(lastModified);
             siteMap.setUrl(siteUrl + urlPrefix + uid);
         }else {
-            log.info("ps");
             siteMap = siteMapOptional.get();
-            log.info("ps");
             siteMap.setLastModified(lastModified);
         }
         siteMapRepository.save(siteMap);

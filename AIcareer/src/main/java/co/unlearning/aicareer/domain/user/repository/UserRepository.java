@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.user.repository;
 
 import co.unlearning.aicareer.domain.user.User;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByRecommender(String recommender);
     Optional<User> findByEmail(String email);
+    List<User> findAll();
 }

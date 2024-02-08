@@ -30,6 +30,8 @@ import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import co.unlearning.aicareer.global.utils.validator.TimeValidator;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +59,7 @@ public class RecruitmentService {
     private final BookmarkRepository bookmarkRepository;
     private final ImageService imageService;
     private final SiteMapService siteMapService;
+    private final EntityManager entityManager;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
         recruitment.setHits(recruitment.getHits()+1);
@@ -70,107 +73,101 @@ public class RecruitmentService {
         );
     }
     public Recruitment updateRecruitmentPost(String uid, RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
-        log.info("update");
-        try {
-            Recruitment recruitment = findRecruitmentInfoByUid(uid);
-            Company company = companyService.addNewCompany(
-                    CompanyRequirementDto.CompanyInfo.builder()
-                            .companyAddress(recruitmentPost.getCompanyAddress())
-                            .companyName(recruitmentPost.getCompanyName())
-                            .companyType(recruitmentPost.getCompanyType())
-                            .build());
-            EnumValidator<RecruitmentDeadlineType> recruitmentDeadlineTypeEnumValidator = new EnumValidator<>();
-            RecruitmentDeadlineType recruitmentDeadlineType = recruitmentDeadlineTypeEnumValidator.validateEnumString(recruitmentPost.getRecruitmentDeadline().getDeadlineType(), RecruitmentDeadlineType.class);
-            EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
-            RecruitmentAddress recruitmentAddress = recruitmentAddressEnumValidator.validateEnumString(recruitmentPost.getRecruitmentAddress(), RecruitmentAddress.class);
-
-            Image mainImage = null;
-            if(recruitmentPost.getMainImage()!= null) {
-                mainImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(recruitmentPost.getMainImage())).orElseThrow(
-                        ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
-                );
-            }
-            recruitment.setMainImage(mainImage);
-            recruitment.setCompany(company);
-
-            Set<Image> subImages = new HashSet<>();
-            for (String subImageUrl : recruitmentPost.getSubImage()) {
-                Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
-                        () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
-                );
-                subImage.setRecruitment(recruitment);
-                subImages.add(subImage);
-            }
-
-            Set<RecruitingJob> recruitingJobs = new HashSet<>();
-            for (String strRecruitingJobNameDto : recruitmentPost.getRecruitingJobNames()) {
-                EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
-                recruitingJobs.add(RecruitingJob.builder()
-                        .recruitJobName(recruitingJobNameEnumValidator.validateEnumString(strRecruitingJobNameDto, RecruitingJob.RecruitingJobName.class))
-                        .recruitment(recruitment)
+        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        Company company = companyService.addNewCompany(
+                CompanyRequirementDto.CompanyInfo.builder()
+                        .companyAddress(recruitmentPost.getCompanyAddress())
+                        .companyName(recruitmentPost.getCompanyName())
+                        .companyType(recruitmentPost.getCompanyType())
                         .build());
-            }
-            Set<RecruitmentType> recruitmentTypes = new HashSet<>();
-            for (String strRecruitmentTypeNameDto : recruitmentPost.getRecruitmentTypeNames()) {
-                EnumValidator<RecruitmentType.RecruitmentTypeName> recruitmentTypeNameValidator = new EnumValidator<>();
-                recruitmentTypes.add(RecruitmentType.builder()
-                        .recruitment(recruitment)
-                        .recruitmentTypeName(recruitmentTypeNameValidator.validateEnumString(strRecruitmentTypeNameDto, RecruitmentType.RecruitmentTypeName.class))
-                        .build());
-            }
-            Set<Education> educations = new HashSet<>();
-            for (String strEducationDto : recruitmentPost.getEducations()) {
-                EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
-                educations.add(Education.builder()
-                        .recruitment(recruitment)
-                        .degree(degreeEnumValidator.validateEnumString(strEducationDto, Education.DEGREE.class))
-                        .build());
-            }
-            Set<Career> careers = new HashSet<>();
-            for (String strCareerDto : recruitmentPost.getCareers()) {
-                EnumValidator<Career.AnnualLeave> annualLeaveEnumValidator = new EnumValidator<>();
-                careers.add(Career.builder()
-                        .recruitment(recruitment)
-                        .annualLeave(annualLeaveEnumValidator.validateEnumString(strCareerDto, Career.AnnualLeave.class))
-                        .build());
-            }
-            recruitment.getRecruitingJobSet().clear();
-            recruitment.getRecruitingJobSet().addAll(recruitingJobs);
+        EnumValidator<RecruitmentDeadlineType> recruitmentDeadlineTypeEnumValidator = new EnumValidator<>();
+        RecruitmentDeadlineType recruitmentDeadlineType = recruitmentDeadlineTypeEnumValidator.validateEnumString(recruitmentPost.getRecruitmentDeadline().getDeadlineType(), RecruitmentDeadlineType.class);
+        EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
+        RecruitmentAddress recruitmentAddress = recruitmentAddressEnumValidator.validateEnumString(recruitmentPost.getRecruitmentAddress(), RecruitmentAddress.class);
 
-            recruitment.getRecruitingJobSet().clear();
-            recruitment.getRecruitingJobSet().addAll(recruitingJobs);
+        Image mainImage = null;
+        if(recruitmentPost.getMainImage()!= null) {
+            mainImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(recruitmentPost.getMainImage())).orElseThrow(
+                    ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+            );
+        }
+        recruitment.setMainImage(mainImage);
+        recruitment.setCompany(company);
 
-            recruitment.getRecruitmentTypeSet().clear();
-            recruitment.getRecruitmentTypeSet().addAll(recruitmentTypes);
+        Set<Image> subImages = new HashSet<>();
+        for (String subImageUrl : recruitmentPost.getSubImage()) {
+            Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
+                    () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+            );
+            subImage.setRecruitment(recruitment);
+            subImages.add(subImage);
+        }
 
-            recruitment.getEducationSet().clear();
-            recruitment.getEducationSet().addAll(educations);
+        Set<RecruitingJob> recruitingJobs = new HashSet<>();
+        for (String strRecruitingJobNameDto : recruitmentPost.getRecruitingJobNames()) {
+            EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
+            recruitingJobs.add(RecruitingJob.builder()
+                    .recruitJobName(recruitingJobNameEnumValidator.validateEnumString(strRecruitingJobNameDto, RecruitingJob.RecruitingJobName.class))
+                    .recruitment(recruitment)
+                    .build());
+        }
+        Set<RecruitmentType> recruitmentTypes = new HashSet<>();
+        for (String strRecruitmentTypeNameDto : recruitmentPost.getRecruitmentTypeNames()) {
+            EnumValidator<RecruitmentType.RecruitmentTypeName> recruitmentTypeNameValidator = new EnumValidator<>();
+            recruitmentTypes.add(RecruitmentType.builder()
+                    .recruitment(recruitment)
+                    .recruitmentTypeName(recruitmentTypeNameValidator.validateEnumString(strRecruitmentTypeNameDto, RecruitmentType.RecruitmentTypeName.class))
+                    .build());
+        }
+        Set<Education> educations = new HashSet<>();
+        for (String strEducationDto : recruitmentPost.getEducations()) {
+            EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
+            educations.add(Education.builder()
+                    .recruitment(recruitment)
+                    .degree(degreeEnumValidator.validateEnumString(strEducationDto, Education.DEGREE.class))
+                    .build());
+        }
+        Set<Career> careers = new HashSet<>();
+        for (String strCareerDto : recruitmentPost.getCareers()) {
+            EnumValidator<Career.AnnualLeave> annualLeaveEnumValidator = new EnumValidator<>();
+            careers.add(Career.builder()
+                    .recruitment(recruitment)
+                    .annualLeave(annualLeaveEnumValidator.validateEnumString(strCareerDto, Career.AnnualLeave.class))
+                    .build());
+        }
+        recruitment.getRecruitingJobSet().clear();
+        recruitment.getRecruitingJobSet().addAll(recruitingJobs);
 
-            recruitment.getCareerSet().clear();
-            recruitment.getCareerSet().addAll(careers);
+        recruitment.getRecruitmentTypeSet().clear();
+        recruitment.getRecruitmentTypeSet().addAll(recruitmentTypes);
 
-            recruitment.getSubImageSet().clear();
-            recruitment.getSubImageSet().addAll(subImages);
+        recruitment.getEducationSet().clear();
+        recruitment.getEducationSet().addAll(educations);
 
-            recruitment.setRecruitmentStartDate(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentStartDate()));
-            recruitment.setRecruitmentDeadlineType(recruitmentDeadlineType);
+        recruitment.getCareerSet().clear();
+        recruitment.getCareerSet().addAll(careers);
+
+        recruitment.getSubImageSet().clear();
+        recruitment.getSubImageSet().addAll(subImages);
+
+        recruitment.setRecruitmentStartDate(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentStartDate()));
+        recruitment.setRecruitmentDeadlineType(recruitmentDeadlineType);
+        if(recruitmentDeadlineType.equals(RecruitmentDeadlineType.DUE_DATE)) {
             recruitment.setRecruitmentDeadline(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentDeadline().getRecruitmentDeadline()));
-            recruitment.setRecruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink());
-            recruitment.setRecruitmentAddress(recruitmentAddress);
-            recruitment.setTitle(recruitmentPost.getTitle());
-            recruitment.setContent(recruitmentPost.getContent());
-            recruitment.setLastModified(LocalDateTime.now());
-
-            recruitmentRepository.save(recruitment);
-
-            siteMapService.registerRecruitmentSiteMap(recruitment);
-            log.info("test");
-            return recruitment;
+        }else {
+            recruitment.setRecruitmentDeadline((LocalDateTime.of(2999,12,12,12,12)));
         }
-        catch (Exception e) {
-            log.info(e.getMessage());
-        }
-        return new Recruitment();
+        recruitment.setRecruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink());
+        recruitment.setRecruitmentAddress(recruitmentAddress);
+        recruitment.setTitle(recruitmentPost.getTitle());
+        recruitment.setContent(recruitmentPost.getContent());
+        recruitment.setLastModified(LocalDateTime.now());
+
+        recruitmentRepository.save(recruitment);
+
+        siteMapService.registerRecruitmentSiteMap(recruitment);
+        log.info("test");
+        return recruitment;
     }
     public Recruitment addRecruitmentPost(RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
         //company 등록 안된 경우 예외 처리
@@ -249,20 +246,35 @@ public class RecruitmentService {
                     .build());
         }
         Set<Education> educations = new HashSet<>();
-        for(String strEducationDto : recruitmentPost.getEducations()) {
-            EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
+        if(recruitmentPost.getEducations().isEmpty()) {
             educations.add(Education.builder()
                     .recruitment(recruitment)
-                    .degree(degreeEnumValidator.validateEnumString(strEducationDto, Education.DEGREE.class))
+                    .degree(Education.DEGREE.IRRELEVANCE)
                     .build());
+        }else {
+            for(String strEducationDto : recruitmentPost.getEducations()) {
+                EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
+                educations.add(Education.builder()
+                        .recruitment(recruitment)
+                        .degree(degreeEnumValidator.validateEnumString(strEducationDto, Education.DEGREE.class))
+                        .build());
+            }
         }
+
         Set<Career> careers = new HashSet<>();
-        for(String strCareerDto : recruitmentPost.getCareers()) {
-            EnumValidator<Career.AnnualLeave> annualLeaveEnumValidator = new EnumValidator<>();
+        if(recruitmentPost.getCareers().isEmpty()) {
             careers.add(Career.builder()
                     .recruitment(recruitment)
-                    .annualLeave(annualLeaveEnumValidator.validateEnumString(strCareerDto, Career.AnnualLeave.class))
+                    .annualLeave(Career.AnnualLeave.IRRELEVANCE)
                     .build());
+        }else{
+            for(String strCareerDto : recruitmentPost.getCareers()) {
+                EnumValidator<Career.AnnualLeave> annualLeaveEnumValidator = new EnumValidator<>();
+                careers.add(Career.builder()
+                        .recruitment(recruitment)
+                        .annualLeave(annualLeaveEnumValidator.validateEnumString(strCareerDto, Career.AnnualLeave.class))
+                        .build());
+            }
         }
         Set<Image> subImages = new HashSet<>();
         for(String subImageUrl: recruitmentPost.getSubImage()) {
@@ -394,19 +406,16 @@ public class RecruitmentService {
     public Recruitment addRecruitmentBookmark(String uid) {
         User user = userService.getLoginUser();
         Recruitment recruitment = findRecruitmentInfoByUid(uid);
+
+        if(bookmarkRepository.findByUserAndRecruitment(user,recruitment).isPresent()) {
+            throw new BusinessException(ResponseErrorCode.BOOKMARK_ALREADY_EXIST);
+        }
         Bookmark bookmark = Bookmark.builder()
                 .user(user)
                 .recruitment(recruitment)
                 .build();
-        Set<Bookmark> userBookmarkSet = user.getBookmarkSet();
-        userBookmarkSet.add(bookmark);
-        user.setBookmarkSet(userBookmarkSet);
-
-        Set<Bookmark> recruitBookmarkSet = recruitment.getBookmarkSet();
-        recruitBookmarkSet.add(bookmark);
-        recruitment.setBookmarkSet(recruitBookmarkSet);
-
-        recruitment.setBookmarkSet(recruitBookmarkSet);
+        user.getBookmarkSet().add(bookmark);
+        recruitment.getBookmarkSet().add(bookmark);
 
         bookmarkRepository.save(bookmark);
         return recruitment;
