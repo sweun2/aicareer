@@ -79,7 +79,7 @@ public class RecruitmentController {
         userService.checkAdmin();
         return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.updateRecruitmentPost(uid,recruitmentPost)));
     }
-    @Operation(summary = "여러 공고 조회", description = "필터링 글 조회, 무관/전체 필터링 시 해당 값을 안 보내야 합니다.")
+    @Operation(summary = "여러 공고 필터링 조회", description = "필터링 글 조회, 무관/전체 필터링 시 해당 값을 안 보내야 합니다.")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
@@ -93,15 +93,33 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST),
     })
-    @PostMapping("/search")
-    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findAllRecruitmentInfo(
+    @PostMapping("/filter")
+    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> filterAllRecruitmentSimple(
             @RequestBody RecruitmentRequirementDto.Search search,
             @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
             @RequestParam("page") Integer page) {
-            log.info("search con");
             PageRequest pageRequest = PageRequest.of(page, 6);
             return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.getFilteredRecruitment(search, pageRequest)));
     }
+    @Operation(summary = "회사/제목 순 검색", description = "회사/제목 순 검색")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentSimple.class))))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+    })
+    @PostMapping("/search/{keyword}")
+    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> searchAllRecruitmentSimple(
+            @Parameter(name = "keyword", description = "검색어", in = ParameterIn.PATH)
+            @PathVariable("keyword") String keyword,
+            @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
+            @RequestParam("page") Integer page) {
+        PageRequest pageRequest = PageRequest.of(page, 6);
+        return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.getSearchRecruitment(keyword, pageRequest)));
+    }
+
     @Operation(summary = "단일 글 조회", description = "단일 글 조회, 공고 uid 필요")
     @ApiResponse(
             responseCode = "200",

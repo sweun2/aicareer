@@ -35,6 +35,7 @@ import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -297,7 +298,6 @@ public class RecruitmentService {
     }
 
     public List<Recruitment> getFilteredRecruitment(RecruitmentRequirementDto.Search search, Pageable pageable) {
-        log.info("search");
         List<RecruitingJob.RecruitingJobName> recruitingJobList = new ArrayList<>();
         List<CompanyType.CompanyTypeName> companyTypeNameList = new ArrayList<>();
         List<RecruitmentType.RecruitmentTypeName> recruitmentTypeNameList = new ArrayList<>();
@@ -437,5 +437,8 @@ public class RecruitmentService {
                 bookmark -> recruitmentList.add(bookmark.getRecruitment())
         );
         return recruitmentList;
+    }
+    public List<Recruitment> getSearchRecruitment(String search, Pageable pageable) {
+        return recruitmentRepository.findRecruitmentsByCompanyNameAndTitle(search,pageable).stream().toList();
     }
 }

@@ -64,4 +64,3 @@ public class Recruitment {
     @Column
     private LocalDateTime lastModified;
 }
-
