@@ -13,4 +13,5 @@ import java.util.Set;
 @Repository
 public interface ImageRepository extends JpaRepository<Image,Integer> {
     Optional<Image> findByImageUrl(String imageUrl);
+    List<Image> findAllByRecruitmentIsNullAndBoardIsNull();
 }

@@ -370,25 +370,43 @@ public class RecruitmentService {
     }
     private List<Recruitment> getOrder(RecruitmentRequirementDto.Search search, Pageable pageable, Specification<Recruitment> specification) {
         Sort sort;
-        String sortAttribute = switch (search.getSortCondition()) {
-            case "HITS" -> "hits";
-            case "DEADLINE" -> "recruitmentDeadline"; // or use the correct attribute name
-            case "UPLOAD" -> "uploadDate";
-            default -> throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
-        };
 
-        if (Objects.equals(search.getOrderBy(), "DESC")) {
-            sort = Sort.by(sortAttribute).descending();
-        } else if (Objects.equals(search.getOrderBy(), "ASC")) {
-            sort = Sort.by(Sort.Direction.ASC, sortAttribute);
-        } else {
-            throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
+        switch (search.getSortCondition()) {
+            case "HITS":
+                sort = Sort.by("hits");
+                break;
+            case "DEADLINE":
+                sort = Sort.by("recruitmentDeadline");
+                break;
+            case "UPLOAD":
+                sort = Sort.by("uploadDate");
+                break;
+            default:
+                throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
+        }
+
+        if (!search.getSortCondition().equals("DEADLINE")) {
+            if (search.getOrderBy().equals("DESC")) {
+                sort = sort.descending();
+            } else if (search.getOrderBy().equals("ASC")) {
+                sort = sort.ascending();
+            } else {
+                throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
+            }
+        } else { //Deadline은 상시채용의 마감일이 2999년인 관계로 반대로 asceding 처리
+            if (search.getOrderBy().equals("ASC")) {
+                sort = Sort.by("recruitmentDeadline").descending();
+            } else if (search.getOrderBy().equals("DESC")) {
+                sort = Sort.by("recruitmentDeadline").ascending();
+            } else {
+                throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
+            }
         }
 
         PageRequest pageableWithSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-
         return recruitmentRepository.findAll(specification, pageableWithSort).stream().toList();
     }
+
     public void deleteRecruitmentByUid (String uid) {
         Recruitment recruitment = recruitmentRepository.findByUid(uid).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)

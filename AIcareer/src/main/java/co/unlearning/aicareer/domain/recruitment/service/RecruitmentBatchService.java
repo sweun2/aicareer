@@ -1,8 +1,11 @@
 package co.unlearning.aicareer.domain.recruitment.service;
 
-import co.unlearning.aicareer.domain.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.Image.Image;
+import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
+import co.unlearning.aicareer.domain.Image.service.ImageService;
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -18,10 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RecruitmentBatchService {
     private final RecruitmentService recruitmentService;
     private final RecruitmentRepository recruitmentRepository;
+    private final ImageRepository imageRepository;
+    private final ImageService imageService;
     public void printList() {
         getUrlNot2xxRecruitment().forEach(
                 (str) -> {
@@ -45,8 +51,6 @@ public class RecruitmentBatchService {
 
         return urlNot2xx;
     }
-
-
     public static Mono<Map<String, Integer>> getResponseStatusCode(String url) {
         String userAgent = "Mozilla/5.0 Firefox/26.0"; // 사용하고자 하는 User-Agent 값
         HttpClient client = HttpClient.create()
@@ -62,5 +66,14 @@ public class RecruitmentBatchService {
         return webClient.get()
                 .uri(url)
                 .exchangeToMono(response -> Mono.just(Map.of(url, response.statusCode().value())));
+    }
+    public void deleteLegacyImage() {
+        List<Image> imageList = imageRepository.findAllByRecruitmentIsNullAndBoardIsNull();
+        imageList.forEach(
+                image -> {
+                    log.info(image.getImageUrl());
+                    imageService.deleteImage(image.getImageUrl());
+                }
+        );
     }
 }

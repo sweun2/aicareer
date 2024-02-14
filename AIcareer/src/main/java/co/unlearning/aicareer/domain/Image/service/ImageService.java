@@ -85,13 +85,11 @@ public class ImageService {
             if (file.exists()) {
                 file.delete();
             }
-
         }catch (Exception e) {
             log.info(e.getMessage());
             throw new BusinessException(ResponseErrorCode.NOT_FOUND_IMAGE_FILE);
         }
-
-
+        imageRepository.delete(image);
     }
 
     private static String getOsPath() {

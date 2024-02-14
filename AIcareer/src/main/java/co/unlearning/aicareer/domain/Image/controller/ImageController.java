@@ -4,6 +4,7 @@ import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.dto.ImageRequirementDto;
 import co.unlearning.aicareer.domain.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.domain.Image.service.ImageService;
+import co.unlearning.aicareer.domain.recruitment.service.RecruitmentBatchService;
 import co.unlearning.aicareer.domain.user.service.UserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
@@ -42,6 +43,7 @@ import java.util.List;
 public class ImageController {
     private final ImageService imageService;
     private final UserService userService;
+    private final RecruitmentBatchService recruitmentBatchService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "단일 이미지 파일 올리기", description = "딘일 이미지 파일을 저장합니다.")
     @ApiResponse(
@@ -131,5 +133,9 @@ public class ImageController {
         userService.checkAdmin();
         imageService.deleteImage(url);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    @GetMapping("/delete/legacy")
+    public void deleteLegacy() {
+        recruitmentBatchService.deleteLegacyImage();
     }
 }
