@@ -30,12 +30,9 @@ import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
 import co.unlearning.aicareer.global.utils.validator.TimeValidator;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -60,21 +57,20 @@ public class RecruitmentService {
     private final BookmarkRepository bookmarkRepository;
     private final ImageService imageService;
     private final SiteMapService siteMapService;
-    private final EntityManager entityManager;
     public Recruitment getOneRecruitmentPostWithUpdateHits(String uid) {
-        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        Recruitment recruitment = findRecruitmentByUid(uid);
         recruitment.setHits(recruitment.getHits()+1);
 
         return recruitment;
     }
 
-    public Recruitment findRecruitmentInfoByUid(String uid) {
+    public Recruitment findRecruitmentByUid(String uid) {
         return recruitmentRepository.findByUid(uid).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
     }
     public Recruitment updateRecruitmentPost(String uid, RecruitmentRequirementDto.RecruitmentPost recruitmentPost) throws Exception {
-        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        Recruitment recruitment = findRecruitmentByUid(uid);
         Company company = companyService.addNewCompany(
                 CompanyRequirementDto.CompanyInfo.builder()
                         .companyAddress(recruitmentPost.getCompanyAddress())
@@ -153,9 +149,13 @@ public class RecruitmentService {
 
         recruitment.setRecruitmentStartDate(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentStartDate()));
         recruitment.setRecruitmentDeadlineType(recruitmentDeadlineType);
+
         if(recruitmentDeadlineType.equals(RecruitmentDeadlineType.DUE_DATE)) {
             recruitment.setRecruitmentDeadline(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentDeadline().getRecruitmentDeadline()));
-        }else {
+        } else if (recruitmentDeadlineType.equals(RecruitmentDeadlineType.EXPIRED)) {
+            recruitment.setRecruitmentDeadline(LocalDateTime.now());
+        }
+        else {
             recruitment.setRecruitmentDeadline((LocalDateTime.of(2999,12,12,12,12)));
         }
         recruitment.setRecruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink());
@@ -369,21 +369,12 @@ public class RecruitmentService {
         }
     }
     private List<Recruitment> getOrder(RecruitmentRequirementDto.Search search, Pageable pageable, Specification<Recruitment> specification) {
-        Sort sort;
-
-        switch (search.getSortCondition()) {
-            case "HITS":
-                sort = Sort.by("hits");
-                break;
-            case "DEADLINE":
-                sort = Sort.by("recruitmentDeadline");
-                break;
-            case "UPLOAD":
-                sort = Sort.by("uploadDate");
-                break;
-            default:
-                throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
-        }
+        Sort sort = switch (search.getSortCondition()) {
+            case "HITS" -> Sort.by("hits");
+            case "DEADLINE" -> Sort.by("recruitmentDeadline");
+            case "UPLOAD" -> Sort.by("uploadDate");
+            default -> throw new BusinessException(ResponseErrorCode.SORT_CONDITION_BAD_REQUEST);
+        };
 
         if (!search.getSortCondition().equals("DEADLINE")) {
             if (search.getOrderBy().equals("DESC")) {
@@ -413,9 +404,7 @@ public class RecruitmentService {
         );
         imageService.deleteImage(recruitment.getMainImage().getImageUrl());
         recruitment.getSubImageSet().forEach(
-                image -> {
-                    imageService.deleteImage(image.getImageUrl());
-                }
+                image -> imageService.deleteImage(image.getImageUrl())
         );
 
         siteMapService.deleteSiteMap(recruitment);
@@ -423,7 +412,7 @@ public class RecruitmentService {
     }
     public Recruitment addRecruitmentBookmark(String uid) {
         User user = userService.getLoginUser();
-        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        Recruitment recruitment = findRecruitmentByUid(uid);
 
         if(bookmarkRepository.findByUserAndRecruitment(user,recruitment).isPresent()) {
             throw new BusinessException(ResponseErrorCode.BOOKMARK_ALREADY_EXIST);
@@ -440,7 +429,7 @@ public class RecruitmentService {
     }
     public void removeRecruitmentBookMark(String uid) {
         User user = userService.getLoginUser();
-        Recruitment recruitment = findRecruitmentInfoByUid(uid);
+        Recruitment recruitment = findRecruitmentByUid(uid);
         Bookmark bookmark = bookmarkRepository.findByUserAndRecruitment(user,recruitment).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR)
         );

@@ -7,6 +7,9 @@ import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.ImageValidator;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +33,10 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class ImageService {
+    private final AmazonS3 amazonS3;
     private final ImageRepository imageRepository;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     public Image addOneImage(ImageRequirementDto.ImagePost imagePost) throws IOException {
         ImageValidator.ImageExistValidator(imagePost.getImageFile());
@@ -98,5 +104,13 @@ public class ImageService {
         }else {
             return "/image/";
         }
+    }
+
+
+    public Image addS3Image(ImageRequirementDto.ImagePost imagePost) throws IOException {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(imagePost.getImageFile().getInputStream().available());
+        amazonS3.putObject(bucket,imagePost.getOriginImageName(),imagePost.getImageFile().getInputStream(),objectMetadata);
+        return new Image();
     }
 }

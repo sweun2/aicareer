@@ -1,0 +1,11 @@
+cloud:
+  aws:
+    s3:
+      bucket: "aicareer-image-bucket"
+    stack:
+      auto: false
+    region:
+      static: ap-northeast-2
+    credentials:
+      access-key: AKIASVF2G33F36JTKG5J
+      secret-key: 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

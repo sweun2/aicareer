@@ -14,7 +14,7 @@ import org.hibernate.annotations.CascadeType;
 @AllArgsConstructor
 public class CompanyType {
     public enum CompanyTypeName {
-        STARTUP, MAJOR, UNICORN, MIDDLE_MARKET, PUBLIC, ETC
+        STARTUP, MAJOR, UNICORN, MIDDLE_MARKET, PUBLIC, FOREIGN, ETC
     }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

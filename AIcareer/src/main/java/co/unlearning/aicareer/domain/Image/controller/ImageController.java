@@ -138,4 +138,9 @@ public class ImageController {
     public void deleteLegacy() {
         recruitmentBatchService.deleteLegacyImage();
     }
+    @PostMapping(value = "/s3",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImageResponseDto.ImageData> postS3Image(ImageRequirementDto.ImagePost imagePost) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ImageResponseDto.ImageData.of(imageService.addS3Image(imagePost)));
+    }
 }

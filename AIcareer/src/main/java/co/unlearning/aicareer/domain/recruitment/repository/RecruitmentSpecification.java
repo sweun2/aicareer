@@ -89,11 +89,3 @@ public class RecruitmentSpecification {
                 criteriaBuilder.greaterThanOrEqualTo(root.get("recruitmentDeadline"), LocalDateTime.now());
     }
 }
-    /*
-    @Schema(description = "정렬 기준, 인기 순/마감임박 순/업로드 순 ", allowableValues = {"HITS","DEADLINE","UPLOAD"})
-    private String sortCondition;
-    @Schema(description = "정렬 순서, 내림차 순/오름차 순", allowableValues = {"DESC","ASC"})
-    private String orderBy;
-    @Schema(description = "제목")
-    private String title; //title
-    */

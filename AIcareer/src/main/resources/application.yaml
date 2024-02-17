@@ -6,6 +6,7 @@ spring:
   profiles:
     include:
       - "oauth"
+      - "aws"
 
 ---
 spring:

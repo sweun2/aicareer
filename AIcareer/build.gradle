@@ -44,10 +44,11 @@ dependencies {
 
 	// implementation 'net.nurigo:sdk:4.2.7' // cool sms
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
 	runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
 	//비동기
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	//aws
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {
