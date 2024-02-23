@@ -1,7 +1,7 @@
 package co.unlearning.aicareer.global.security.config;
 
 
-import co.unlearning.aicareer.domain.user.service.UserService;
+import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.global.security.jwt.JwtAuthFilter;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.security.oauth2.CustomOAuth2UserService;
