@@ -20,8 +20,6 @@ public class Image {
     private Integer id;
     @Column(unique = true)
     private String imageUrl;
-    @Column
-    private String absolutePath;
     @CreationTimestamp
     @Column
     private LocalDateTime createdDate = LocalDateTime.now();

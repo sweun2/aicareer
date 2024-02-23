@@ -53,8 +53,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             .userRole(UserRole.USER)
                             .joinDate(LocalDateTime.now())
                     .build());
-        } else {
-            User user = userOptional.get();
         }
         ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
                 .path("/")
@@ -75,8 +73,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .maxAge(24*60*60)
                 .build();
         response.addHeader("Set-Cookie", refreshToken.toString());
-
-        getRedirectStrategy().sendRedirect(request, response,  UriComponentsBuilder.fromUriString("https://aicareer.co.kr").queryParam("login","true").toUriString());
+        getRedirectStrategy().sendRedirect(request, response, UriComponentsBuilder.fromUriString("https://aicareer.co.kr").queryParam("login", "true").toUriString());
     }
 
     private String makeRedirectUrl(String path, String token) {

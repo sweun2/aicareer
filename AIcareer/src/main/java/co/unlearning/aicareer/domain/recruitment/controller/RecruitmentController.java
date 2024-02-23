@@ -135,6 +135,7 @@ public class RecruitmentController {
     public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> findRecruitmentInfo(
             @Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid) {
+        log.info("get one rec");
         return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.getOneRecruitmentPostWithUpdateHits(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")

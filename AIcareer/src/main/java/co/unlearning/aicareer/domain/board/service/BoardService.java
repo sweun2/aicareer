@@ -48,6 +48,7 @@ public class BoardService {
                 .isView(true)
                 .build();
 
+        assert image != null;
         image.setBoard(board);
         if(!boardPost.getSubImage().isEmpty()) {
             Set<Image> subImages = new HashSet<>();
@@ -111,9 +112,7 @@ public class BoardService {
         Board board = getBoardByUid(uid);
         imageService.deleteImage(board.getBannerImage().getImageUrl());
         board.getSubImageSet().forEach(
-                image -> {
-                    imageService.deleteImage(image.getImageUrl());
-                }
+                image -> imageService.deleteImage(image.getImageUrl())
         );
 
         siteMapService.deleteSiteMap(board);

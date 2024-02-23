@@ -286,6 +286,9 @@ public class RecruitmentService {
             subImages.add(subImage);
         }
 
+        assert mainImage != null;
+        mainImage.setRecruitment(recruitment);
+
         recruitment.setRecruitingJobSet(recruitingJobs);
         recruitment.setRecruitmentTypeSet(recruitmentTypes);
         recruitment.setEducationSet(educations);

@@ -31,7 +31,7 @@ public class OpenApiConfig {
     public OpenAPI openAPI() {
         SecurityScheme securityScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
-                .in(SecurityScheme.In.HEADER).name("accessToken");
+                .in(SecurityScheme.In.COOKIE).name("_aT");
 
         Info info = new Info().title("AI career API").version("1.0.0")
                 .description("에이아이커리어 api server 입니다.")

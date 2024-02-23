@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.recruitment.repository;
 
 import co.unlearning.aicareer.domain.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.recruitment.RecruitmentDeadlineType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,5 +24,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment,Integer
 
     @Query("SELECT r FROM Recruitment r JOIN Company c on r.company = c WHERE c.companyName LIKE %:search% OR r.title LIKE %:search% ORDER BY c.companyName, r.title")
     Page<Recruitment> findRecruitmentsByCompanyNameAndTitle(@Param("search") String search, Pageable pageable);
+
+    List<Recruitment> findAllByRecruitmentDeadlineTypeIsNot(RecruitmentDeadlineType recruitmentDeadlineType);
+
+    List<Recruitment> findAllByRecruitmentDeadlineTypeAndRecruitmentDeadlineIsBefore(RecruitmentDeadlineType recruitmentDeadlineType, LocalDateTime deadline);
 }
 

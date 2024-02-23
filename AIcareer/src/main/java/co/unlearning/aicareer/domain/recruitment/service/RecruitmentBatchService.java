@@ -3,12 +3,16 @@ package co.unlearning.aicareer.domain.recruitment.service;
 import co.unlearning.aicareer.domain.Image.Image;
 import co.unlearning.aicareer.domain.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.Image.service.ImageService;
+import co.unlearning.aicareer.domain.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.recruitment.repository.RecruitmentRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -16,9 +20,11 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.RecursiveAction;
 
 @Service
 @Slf4j
@@ -34,6 +40,9 @@ public class RecruitmentBatchService {
                     System.out.println("url:"+str);
                 }
         );
+    }
+    public void getAllRecruitmentURLNot2xx() {
+        List<Recruitment> recruitmentList = recruitmentRepository.findAllByRecruitmentDeadlineTypeIsNot(RecruitmentDeadlineType.EXPIRED);
     }
 
     public List<String> getUrlNot2xxRecruitment() {
@@ -66,14 +75,5 @@ public class RecruitmentBatchService {
         return webClient.get()
                 .uri(url)
                 .exchangeToMono(response -> Mono.just(Map.of(url, response.statusCode().value())));
-    }
-    public void deleteLegacyImage() {
-        List<Image> imageList = imageRepository.findAllByRecruitmentIsNullAndBoardIsNull();
-        imageList.forEach(
-                image -> {
-                    log.info(image.getImageUrl());
-                    imageService.deleteImage(image.getImageUrl());
-                }
-        );
     }
 }
