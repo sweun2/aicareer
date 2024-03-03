@@ -6,6 +6,7 @@ import co.unlearning.aicareer.domain.job.company.Company;
 import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentAddress;
+import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.job.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
 import jakarta.persistence.criteria.*;
@@ -77,6 +78,12 @@ public class RecruitmentSpecification {
             return annualLeavePath.in(annualLeaves);
         };
     }
+    public static Specification<Recruitment> hasDeadlineType(List<RecruitmentDeadlineType> deadlineTypes) {
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+            return criteriaBuilder.and(root.get("recruitmentDeadlineType").in(deadlineTypes));
+        };
+    }
 
     public static Specification<Recruitment> hasRecruitmentAddress(List<RecruitmentAddress> recruitmentAddresses) {
         return (root, query, criteriaBuilder) -> {
@@ -87,5 +94,8 @@ public class RecruitmentSpecification {
     public static Specification<Recruitment> isOpenRecruitment() {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.greaterThanOrEqualTo(root.get("recruitmentDeadline"), LocalDateTime.now());
+    }
+    public static Specification<Recruitment> notInDeadlineTypes(List<RecruitmentDeadlineType> deadlineTypes) {
+        return (root, query, builder) -> builder.not(root.get("recruitmentDeadlineType").in(deadlineTypes));
     }
 }

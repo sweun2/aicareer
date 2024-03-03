@@ -1,11 +1,11 @@
-package co.unlearning.aicareer.domain.blog.board.dto;
+package co.unlearning.aicareer.domain.job.board.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
 
-public class BlogBoardRequirementDto {
+public class JobBoardRequirementDto {
     @Getter
     @Setter
     @Builder

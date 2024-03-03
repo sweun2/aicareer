@@ -7,6 +7,7 @@ spring:
     include:
       - "oauth"
       - "aws"
+      - "email"
 
 ---
 spring:
@@ -15,8 +16,8 @@ spring:
 ---
 spring:
   profiles:
-    active: dev
+    active: prod
 ---
 spring:
   profiles:
-    active: prod
+    active: dev

@@ -88,6 +88,7 @@ public class RecruitmentService {
                     ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
+
         recruitment.setMainImage(mainImage);
         recruitment.setCompany(company);
 
@@ -307,6 +308,7 @@ public class RecruitmentService {
         List<Education.DEGREE> dgreeList = new ArrayList<>();
         List<Career.AnnualLeave> annualLeaveList = new ArrayList<>();
         List<RecruitmentAddress> recruitmentAddresses = new ArrayList<>();
+        List<RecruitmentDeadlineType> recruitmentDeadlineTypeList = new ArrayList<>();
 
         if (!search.getRecruitingJobNames().isEmpty()) {
             EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobEnumValidator = new EnumValidator<>();
@@ -350,6 +352,13 @@ public class RecruitmentService {
                 recruitmentAddresses.add(recruitmentAddress);
             }
         } else recruitmentAddresses.addAll(List.of(RecruitmentAddress.values()));
+        if(!search.getRecruitmentDeadlineType().isEmpty()) {
+            EnumValidator<RecruitmentDeadlineType> recruitmentDeadlineTypeEnumValidator = new EnumValidator<>();
+            for (String recruitmentDeadlineTypeStr : search.getRecruitmentDeadlineType()) {
+                RecruitmentDeadlineType recruitmentDeadlineType = recruitmentDeadlineTypeEnumValidator.validateEnumString(recruitmentDeadlineTypeStr, RecruitmentDeadlineType.class);
+                recruitmentDeadlineTypeList.add(recruitmentDeadlineType);
+            }
+        } else recruitmentDeadlineTypeList.addAll(List.of(RecruitmentDeadlineType.values()));
         //마감된 공고 처리 true 면 아직 마감 안된 공고
         if(Objects.equals(search.getIsOpen(), "true")) {
             Specification<Recruitment> specification = Specification.where(RecruitmentSpecification.hasRecruitingJob(recruitingJobList))
@@ -358,6 +367,7 @@ public class RecruitmentService {
                     .and(RecruitmentSpecification.hasEducation(dgreeList))
                     .and(RecruitmentSpecification.hasCareer(annualLeaveList))
                     .and(RecruitmentSpecification.hasRecruitmentAddress(recruitmentAddresses))
+                    .and(RecruitmentSpecification.hasDeadlineType(recruitmentDeadlineTypeList))
                     .and(RecruitmentSpecification.isOpenRecruitment())
                     ;
             return getOrder(search, pageable, specification);
@@ -367,6 +377,7 @@ public class RecruitmentService {
                     .and(RecruitmentSpecification.hasRecruitmentType(recruitmentTypeNameList))
                     .and(RecruitmentSpecification.hasEducation(dgreeList))
                     .and(RecruitmentSpecification.hasRecruitmentAddress(recruitmentAddresses))
+                    .and(RecruitmentSpecification.hasDeadlineType(recruitmentDeadlineTypeList))
                     .and(RecruitmentSpecification.hasCareer(annualLeaveList));
             return getOrder(search, pageable, specification);
         }
@@ -450,5 +461,8 @@ public class RecruitmentService {
     }
     public List<Recruitment> getSearchRecruitment(String search, Pageable pageable) {
         return recruitmentRepository.findRecruitmentsByCompanyNameAndTitle(search,pageable).stream().toList();
+    }
+    public List<Recruitment> findAllNotInRecruitmentDeadlineTypes(List<RecruitmentDeadlineType> recruitmentDeadlineTypes) {
+        return recruitmentRepository.findAll(RecruitmentSpecification.notInDeadlineTypes(recruitmentDeadlineTypes));
     }
 }

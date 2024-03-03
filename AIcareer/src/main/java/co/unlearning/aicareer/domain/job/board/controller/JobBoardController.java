@@ -1,8 +1,8 @@
-package co.unlearning.aicareer.domain.job.jobboard.controller;
+package co.unlearning.aicareer.domain.job.board.controller;
 
-import co.unlearning.aicareer.domain.job.jobboard.dto.JobBoardRequirementDto;
-import co.unlearning.aicareer.domain.job.jobboard.dto.JobBoardResponseDto;
-import co.unlearning.aicareer.domain.job.jobboard.service.JobBoardService;
+import co.unlearning.aicareer.domain.job.board.dto.JobBoardRequirementDto;
+import co.unlearning.aicareer.domain.job.board.dto.JobBoardResponseDto;
+import co.unlearning.aicareer.domain.job.board.service.BoardService;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
@@ -25,12 +25,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@Tag(name = "jobBoard", description = "공지/배너 api")
+@Tag(name = "board", description = "공지/배너 api")
 @RestController
-@RequestMapping("/api/job/board")
+@RequestMapping("/api/board")
 @RequiredArgsConstructor
 public class JobBoardController {
-    private final JobBoardService jobBoardService;
+    private final BoardService boardService;
     private final UserService userService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글쓰기", description = "배너에 들어갈 글 글쓰기")
@@ -48,7 +48,7 @@ public class JobBoardController {
     @PostMapping("/post")
     public ResponseEntity<JobBoardResponseDto.BoardInfo> postBoardInfo(@RequestBody JobBoardRequirementDto.BoardPost boardPost) throws Exception {
         userService.checkAdmin();
-        return ResponseEntity.status(HttpStatus.CREATED).body(JobBoardResponseDto.BoardInfo.of(jobBoardService.addBoardPost(boardPost)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(JobBoardResponseDto.BoardInfo.of(boardService.addBoardPost(boardPost)));
     }
     @Operation(summary = "보드 글 리스트 반환", description = "공지 글 전부 반환")
     @ApiResponse(
@@ -61,7 +61,7 @@ public class JobBoardController {
     })
     @PostMapping("/search")
     public ResponseEntity<List<JobBoardResponseDto.BoardSimple>> findAllBoardInfo() {
-        return ResponseEntity.ok(JobBoardResponseDto.BoardSimple.of(jobBoardService.getBoardList()));
+        return ResponseEntity.ok(JobBoardResponseDto.BoardSimple.of(boardService.getBoardList()));
     }
     @Operation(summary = "단일 글 조회", description = "단일 보드 글 조회, uid 필요")
     @ApiResponse(
@@ -78,7 +78,7 @@ public class JobBoardController {
     public ResponseEntity<JobBoardResponseDto.BoardInfo> findBoardInfo(
             @Parameter(name = "uid", description = "보드 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(JobBoardResponseDto.BoardInfo.of(jobBoardService.getBoardByUid(uid)));
+        return ResponseEntity.ok(JobBoardResponseDto.BoardInfo.of(boardService.getBoardByUid(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "공지 글 수정하기", description = "공지 글 수정하기")
@@ -98,7 +98,7 @@ public class JobBoardController {
                                                                             @Parameter(name = "uid", description = "공지 글 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
         userService.checkAdmin();
-        return ResponseEntity.status(HttpStatus.OK).body(JobBoardResponseDto.BoardInfo.of(jobBoardService.updateBoardPost(uid,boardPost)));
+        return ResponseEntity.status(HttpStatus.OK).body(JobBoardResponseDto.BoardInfo.of(boardService.updateBoardPost(uid,boardPost)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글 삭제", description = "글 삭제, 보드 uid 필요")
@@ -114,7 +114,7 @@ public class JobBoardController {
     public ResponseEntity<Void> removeBoardInfo(@Parameter(name = "uid", description = "보드 uid", in = ParameterIn.PATH)
                                                       @PathVariable("uid") String uid)  {
         userService.checkAdmin();
-        jobBoardService.removeBoardByUid(uid);
+        boardService.removeBoardByUid(uid);
         return ResponseEntity.ok().build();
     }
 }

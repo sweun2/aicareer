@@ -1,9 +1,8 @@
 package co.unlearning.aicareer.domain.common.sitemap.service;
 
-import co.unlearning.aicareer.domain.blog.board.BlogBoard;
 import co.unlearning.aicareer.domain.common.sitemap.SiteMap;
 import co.unlearning.aicareer.domain.common.sitemap.repository.SiteMapRepository;
-import co.unlearning.aicareer.domain.job.jobboard.JobBoard;
+import co.unlearning.aicareer.domain.job.board.Board;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
@@ -42,20 +41,20 @@ public class SiteMapService {
         processSiteMap(uid, lastModified, urlPrefix);
     }
 
-    public void registerJobBoardSiteMap(JobBoard jobBoard) {
-        String uid = jobBoard.getUid();
-        LocalDateTime lastModified = jobBoard.getLastModified();
+    public void registerJobBoardSiteMap(Board board) {
+        String uid = board.getUid();
+        LocalDateTime lastModified = board.getLastModified();
         String urlPrefix = "/job/board/";
 
         processSiteMap(uid, lastModified, urlPrefix);
     }
-    public void registerBlogBoardSiteMap(BlogBoard blogBoard) {
+/*    public void registerBlogBoardSiteMap(BlogBoard blogBoard) {
         String uid = blogBoard.getUid();
         LocalDateTime lastModified = blogBoard.getLastModified();
         String urlPrefix = "/blog/board/";
 
         processSiteMap(uid, lastModified, urlPrefix);
-    }
+    }*/
 
     private void processSiteMap(String uid, LocalDateTime lastModified, String urlPrefix) {
         Optional<SiteMap> siteMapOptional = siteMapRepository.findByUid(uid);
@@ -73,7 +72,7 @@ public class SiteMapService {
     }
 
     public void deleteSiteMap(Object param) {
-        if (!(param instanceof Recruitment || param instanceof JobBoard)) {
+        if (!(param instanceof Recruitment || param instanceof Board)) {
             throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
         }
 
@@ -85,8 +84,8 @@ public class SiteMapService {
             );
             siteMapRepository.delete(siteMap);
         } else {
-            JobBoard jobBoard = (JobBoard) param;
-            SiteMap siteMap = siteMapRepository.findByUid(jobBoard.getUid()).orElseThrow(
+            Board board = (Board) param;
+            SiteMap siteMap = siteMapRepository.findByUid(board.getUid()).orElseThrow(
                     ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
             );
             siteMapRepository.delete(siteMap);

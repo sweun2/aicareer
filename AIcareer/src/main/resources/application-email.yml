@@ -1,0 +1,13 @@
+spring:
+  mail:
+    host: smtp.gmail.com # 1
+    port: 587 # 2
+    username: "unlearningdev"
+    password: "iahqrcpwzusjnuob"
+    properties:
+      mail:
+        smtp:
+          auth: true # 5
+          timeout: 5000 # 6
+          starttls:
+            enable: true # 7

@@ -1,8 +1,8 @@
-package co.unlearning.aicareer.domain.blog.board.service;
+package co.unlearning.aicareer.domain.job.board.service;
 
-import co.unlearning.aicareer.domain.blog.board.BlogBoard;
-import co.unlearning.aicareer.domain.blog.board.dto.BlogBoardRequirementDto;
-import co.unlearning.aicareer.domain.blog.board.repository.BlogBoardRepository;
+import co.unlearning.aicareer.domain.job.board.Board;
+import co.unlearning.aicareer.domain.job.board.dto.JobBoardRequirementDto;
+import co.unlearning.aicareer.domain.job.board.repository.JobBoardRepository;
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
@@ -25,12 +25,12 @@ import java.util.UUID;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class BlogBoardService {
-    private final BlogBoardRepository blogBoardRepository;
+public class BoardService {
+    private final JobBoardRepository jobBoardRepository;
     private final ImageRepository imageRepository;
     private final ImageService imageService;
     private final SiteMapService siteMapService;
-    public BlogBoard addBoardPost(BlogBoardRequirementDto.BoardPost boardPost) {
+    public Board addBoardPost(JobBoardRequirementDto.BoardPost boardPost) {
         Image image = null;
         if(boardPost.getBannerImage()!=null) {
             image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
@@ -38,7 +38,7 @@ public class BlogBoardService {
             );
         }
 
-        BlogBoard blogBoard = BlogBoard.builder()
+        Board board = Board.builder()
                 .pageLinkUrl(boardPost.getPageLink())
                 .bannerImage(image)
                 .title(boardPost.getTitle())
@@ -49,25 +49,25 @@ public class BlogBoardService {
                 .build();
 
         assert image != null;
-        image.setBlogBoard(blogBoard);
+        image.setBoard(board);
         if(!boardPost.getSubImage().isEmpty()) {
             Set<Image> subImages = new HashSet<>();
             for (String subImageUrl : boardPost.getSubImage()) {
                 Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
                         () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
                 );
-                subImage.setBlogBoard(blogBoard);
+                subImage.setBoard(board);
                 subImages.add(subImage);
             }
-            blogBoard.setSubImageSet(subImages);
+            board.setSubImageSet(subImages);
         }
-        blogBoardRepository.save(blogBoard);
+        jobBoardRepository.save(board);
 
-        siteMapService.registerBlogBoardSiteMap(blogBoard);
-        return blogBoard;
+        siteMapService.registerJobBoardSiteMap(board);
+        return board;
     }
-    public BlogBoard updateBoardPost(String boardUid, BlogBoardRequirementDto.BoardPost boardPost) {
-        BlogBoard blogBoard = blogBoardRepository.findByUid(boardUid).orElseThrow(
+    public Board updateBoardPost(String boardUid, JobBoardRequirementDto.BoardPost boardPost) {
+        Board board = jobBoardRepository.findByUid(boardUid).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
         Image image = null;
@@ -82,40 +82,40 @@ public class BlogBoardService {
                 Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
                         () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
                 );
-                subImage.setBlogBoard(blogBoard);
+                subImage.setBoard(board);
                 subImages.add(subImage);
             }
-            blogBoard.getSubImageSet().clear();
-            blogBoard.getSubImageSet().addAll(subImages);
+            board.getSubImageSet().clear();
+            board.getSubImageSet().addAll(subImages);
         }
 
 
-        blogBoard.setPageLinkUrl(boardPost.getPageLink());
-        blogBoard.setBannerImage(image);
-        blogBoard.setTitle(boardPost.getTitle());
-        blogBoard.setContent(boardPost.getContent());
-        blogBoard.setLastModified(LocalDateTime.now());
+        board.setPageLinkUrl(boardPost.getPageLink());
+        board.setBannerImage(image);
+        board.setTitle(boardPost.getTitle());
+        board.setContent(boardPost.getContent());
+        board.setLastModified(LocalDateTime.now());
 
-        blogBoardRepository.save(blogBoard);
-        siteMapService.registerBlogBoardSiteMap(blogBoard);
-        return blogBoard;
+        jobBoardRepository.save(board);
+        siteMapService.registerJobBoardSiteMap(board);
+        return board;
     }
-    public List<BlogBoard> getBoardList() {
-        return blogBoardRepository.findAllByIsViewIsTrue();
+    public List<Board> getBoardList() {
+        return jobBoardRepository.findAllByIsViewIsTrue();
     }
-    public BlogBoard getBoardByUid(String uid) {
-        return blogBoardRepository.findByUid(uid).orElseThrow(
+    public Board getBoardByUid(String uid) {
+        return jobBoardRepository.findByUid(uid).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
     }
     public void removeBoardByUid(String uid) {
-        BlogBoard blogBoard = getBoardByUid(uid);
-        imageService.deleteImage(blogBoard.getBannerImage().getImageUrl());
-        blogBoard.getSubImageSet().forEach(
+        Board board = getBoardByUid(uid);
+        imageService.deleteImage(board.getBannerImage().getImageUrl());
+        board.getSubImageSet().forEach(
                 image -> imageService.deleteImage(image.getImageUrl())
         );
 
-        siteMapService.deleteSiteMap(blogBoard);
-        blogBoardRepository.delete(blogBoard);
+        siteMapService.deleteSiteMap(board);
+        jobBoardRepository.delete(board);
     }
 }

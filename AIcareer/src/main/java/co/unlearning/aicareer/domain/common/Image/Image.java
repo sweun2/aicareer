@@ -1,7 +1,6 @@
 package co.unlearning.aicareer.domain.common.Image;
 
-import co.unlearning.aicareer.domain.blog.board.BlogBoard;
-import co.unlearning.aicareer.domain.job.jobboard.JobBoard;
+import co.unlearning.aicareer.domain.job.board.Board;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +26,5 @@ public class Image {
     @ManyToOne
     private Recruitment recruitment;
     @ManyToOne
-    private JobBoard jobBoard;
-    @ManyToOne
-    private BlogBoard blogBoard;
+    private Board board;
 }

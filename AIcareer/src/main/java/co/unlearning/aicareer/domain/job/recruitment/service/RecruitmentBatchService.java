@@ -3,6 +3,7 @@ package co.unlearning.aicareer.domain.job.recruitment.service;
 import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.job.recruitment.RecruitmentBatch;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +28,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RecruitmentBatchService {
     private final RecruitmentService recruitmentService;
-    private final RecruitmentRepository recruitmentRepository;
-    private final ImageRepository imageRepository;
-    private final ImageService imageService;
     public void printList() {
         getUrlNot2xxRecruitment().forEach(
                 (str) -> {
@@ -36,15 +35,17 @@ public class RecruitmentBatchService {
                 }
         );
     }
-    public void getAllRecruitmentURLNot2xx() {
-        List<Recruitment> recruitmentList = recruitmentRepository.findAllByRecruitmentDeadlineTypeIsNot(RecruitmentDeadlineType.EXPIRED);
-    }
+/*    public void getAllRecruitmentURLNot2xx() {
+        List<Recruitment> urlNot2xx = getUrlNot2xxRecruitment();
+        if()
+    }*/
 
-    public List<String> getUrlNot2xxRecruitment() {
-        List<String> urlNot2xx = new ArrayList<>();
+    public List<Recruitment> getUrlNot2xxRecruitment() {
+        List<Recruitment> urlNot2xx = new ArrayList<>();
+        List<Recruitment> recruitmentList = recruitmentService.findAllNotInRecruitmentDeadlineTypes(Arrays.asList(RecruitmentDeadlineType.DUE_DATE, RecruitmentDeadlineType.EXPIRED));
 
-        Flux<Map<String, Integer>> flux = Flux.range(0, 10)
-                .flatMap(i -> getResponseStatusCode("http://localhost:8080/" + i));
+        Flux<Map<Recruitment, Integer>> flux = Flux.fromIterable(recruitmentList)
+                .flatMap(this::getResponseStatusCodeFromRecruitment);
 
         // 응답 코드가 2xx가 아닌 경우를 필터링하여 urlNot2xx 리스트에 추가
         flux.filter(map -> !HttpStatus.valueOf(map.entrySet().iterator().next().getValue()).is2xxSuccessful())
@@ -55,7 +56,7 @@ public class RecruitmentBatchService {
 
         return urlNot2xx;
     }
-    public static Mono<Map<String, Integer>> getResponseStatusCode(String url) {
+    public Mono<Map<Recruitment, Integer>> getResponseStatusCodeFromRecruitment(Recruitment recruitment) {
         String userAgent = "Mozilla/5.0 Firefox/26.0"; // 사용하고자 하는 User-Agent 값
         HttpClient client = HttpClient.create()
                 .responseTimeout(Duration.ofSeconds(10));
@@ -65,10 +66,9 @@ public class RecruitmentBatchService {
                 .clientConnector(new ReactorClientHttpConnector(client))
                 .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
                 .build();
-
         // 비동기로 응답 받기
         return webClient.get()
-                .uri(url)
-                .exchangeToMono(response -> Mono.just(Map.of(url, response.statusCode().value())));
+                .uri(recruitment.getRecruitmentAnnouncementLink())
+                .exchangeToMono(response -> Mono.just(Map.of(recruitment, response.statusCode().value())));
     }
 }

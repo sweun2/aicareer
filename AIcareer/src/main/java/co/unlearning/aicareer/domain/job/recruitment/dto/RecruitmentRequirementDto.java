@@ -25,7 +25,7 @@ public class RecruitmentRequirementDto {
         private String companyName;
         @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC","FOREIGN","ETC"})
         private String companyType;
-        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC"})
+        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PRODUCT_MANAGER","PRODUCT_OWNER"})
         @NotNull
         private List<String> recruitingJobNames;
         @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
@@ -55,7 +55,7 @@ public class RecruitmentRequirementDto {
     @RequiredArgsConstructor
     @AllArgsConstructor
     public static class RecruitmentDeadLine {
-        @Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE"})
+        @Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE","EXPIRED"})
         private String deadlineType;
         @Schema(description = "모집 마감일/ deadlineType이 DUE_DATE인 경우에만 입력, 모집 마감일 일자/시간 사이 빈칸 필요", allowableValues = {"yyyy-MM-dd HH:mm","2024-01-02 13:45"})
         private String recruitmentDeadline; //모집 마감일
@@ -75,7 +75,7 @@ public class RecruitmentRequirementDto {
         private String orderBy;
         @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC", "ETC"})
         private List<String> companyTypes;
-        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC"})
+        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PRODUCT_MANAGER","PRODUCT_OWNER"})
         private List<String> recruitingJobNames;
         @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
         private List<String> recruitmentTypeNames;
@@ -85,6 +85,9 @@ public class RecruitmentRequirementDto {
         private List<String> careers;
         @Schema(description = "모집 지역",allowableValues = {"SEOUL", "GANGNAM","MAPO","GURO_GARSAN_GAME","BUNDANG_PANGYO","ETC"})
         private List<String> recruitmentAddress; //지역
+        @Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE", "EXPIRED"})
+        private List<String> recruitmentDeadlineType; //마감 타입
+
     }
 
 

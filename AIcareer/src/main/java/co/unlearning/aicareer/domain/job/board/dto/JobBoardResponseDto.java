@@ -1,6 +1,6 @@
-package co.unlearning.aicareer.domain.job.jobboard.dto;
+package co.unlearning.aicareer.domain.job.board.dto;
 
-import co.unlearning.aicareer.domain.job.jobboard.JobBoard;
+import co.unlearning.aicareer.domain.job.board.Board;
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
@@ -36,18 +36,18 @@ public class JobBoardResponseDto {
         @Schema(description = "내용")
         private String content; //내용
 
-        public static BoardInfo of(JobBoard jobBoard) {
+        public static BoardInfo of(Board board) {
             BoardInfoBuilder builder =BoardInfo.builder()
-                    .subImages(ImageResponseDto.ImageData.of(new ArrayList<>(jobBoard.getSubImageSet())))
-                    .uid(jobBoard.getUid())
-                    .pageLinkUrl(jobBoard.getPageLinkUrl())
-                    .uploadDate(jobBoard.getUploadDate())
-                    .lastModified(LocalDateTimeStringConverter.LocalDateTimeToString(jobBoard.getLastModified()))
-                    .title(jobBoard.getTitle())
-                    .content(jobBoard.getContent());
+                    .subImages(ImageResponseDto.ImageData.of(new ArrayList<>(board.getSubImageSet())))
+                    .uid(board.getUid())
+                    .pageLinkUrl(board.getPageLinkUrl())
+                    .uploadDate(board.getUploadDate())
+                    .lastModified(LocalDateTimeStringConverter.LocalDateTimeToString(board.getLastModified()))
+                    .title(board.getTitle())
+                    .content(board.getContent());
 
-            if (jobBoard.getBannerImage() != null) {
-                builder.bannerImage(ImageResponseDto.ImageData.of(jobBoard.getBannerImage()));
+            if (board.getBannerImage() != null) {
+                builder.bannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
             }
             return builder.build();
         }
@@ -69,20 +69,20 @@ public class JobBoardResponseDto {
         @Schema(description = "연결 페이지 url")
         private String pageLinkUrl;
 
-        public static BoardSimple of(JobBoard jobBoard) {
+        public static BoardSimple of(Board board) {
             BoardSimpleBuilder builder =  BoardSimple.builder()
-                    .uid(jobBoard.getUid())
-                    .pageLinkUrl(jobBoard.getPageLinkUrl());
+                    .uid(board.getUid())
+                    .pageLinkUrl(board.getPageLinkUrl());
 
-            if (jobBoard.getBannerImage() != null) {
-                builder.bannerImage(ImageResponseDto.ImageData.of(jobBoard.getBannerImage()));
+            if (board.getBannerImage() != null) {
+                builder.bannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
             }
             return builder.build();
 
         }
 
-        public static List<BoardSimple> of(List<JobBoard> jobBoards) {
-            return jobBoards.stream().map(BoardSimple::of).collect(Collectors.toList());
+        public static List<BoardSimple> of(List<Board> boards) {
+            return boards.stream().map(BoardSimple::of).collect(Collectors.toList());
         }
     }
 }

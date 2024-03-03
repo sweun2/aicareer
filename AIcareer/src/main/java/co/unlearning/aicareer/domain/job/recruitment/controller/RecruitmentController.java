@@ -30,7 +30,7 @@ import java.util.List;
 @Slf4j
 @Tag(name = "recruitment", description = "체용 공고 api")
 @RequiredArgsConstructor
-@RequestMapping("/api/job/recruitment")
+@RequestMapping("/api/recruitment")
 public class RecruitmentController {
     private final RecruitmentService recruitmentService;
     private final UserService userService;

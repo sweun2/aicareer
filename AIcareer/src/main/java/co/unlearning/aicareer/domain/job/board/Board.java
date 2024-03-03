@@ -1,4 +1,4 @@
-package co.unlearning.aicareer.domain.job.jobboard;
+package co.unlearning.aicareer.domain.job.board;
 
 import co.unlearning.aicareer.domain.common.Image.Image;
 import jakarta.persistence.*;
@@ -15,7 +15,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class JobBoard {
+public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;

@@ -15,7 +15,9 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -27,6 +29,8 @@ import static java.util.stream.Collectors.groupingBy;
 
 @Component
 public class OpenApiConfig {
+    @Value("${back-url}")
+    private String serverUrl;
     @Bean
     public OpenAPI openAPI() {
         SecurityScheme securityScheme = new SecurityScheme()
@@ -37,9 +41,12 @@ public class OpenApiConfig {
                 .description("에이아이커리어 api server 입니다.")
                 //.termsOfService("http://swagger.io/terms/")
                 .contact(new Contact().name("sweun2").url("https://github.com/sweun2").email("sweun3@gmail.com"));
+        Server server = new Server();
+        server.setUrl(serverUrl);
 
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
+                .servers(List.of(server))
                 .info(info);
     }
     @Bean

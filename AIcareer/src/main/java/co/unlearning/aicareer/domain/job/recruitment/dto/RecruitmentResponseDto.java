@@ -7,7 +7,6 @@ import co.unlearning.aicareer.domain.job.education.dto.EducationResponseDto;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentAddress;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
-import co.unlearning.aicareer.jobpost.domain.recruitment.*;
 import co.unlearning.aicareer.domain.job.recruitmenttype.dto.RecruitmentTypeResponseDto;
 import co.unlearning.aicareer.domain.job.recrutingjob.dto.RecruitingJobResponseDto;
 import lombok.Builder;

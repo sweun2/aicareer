@@ -15,6 +15,7 @@ import org.hibernate.annotations.CascadeType;
 public class RecruitingJob {
     public enum RecruitingJobName {
         MACHINE_LEARNING_ENGINEER, DATA_SCIENTIST,DATA_ANALYST,DATA_ENGINEER,NLP,RESEARCH,COMPUTER_VISION, GENERATIVE_AI,ETC
+        ,PRODUCT_MANAGER ,PRODUCT_OWNER
     }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

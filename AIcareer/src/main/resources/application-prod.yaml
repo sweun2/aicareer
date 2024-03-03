@@ -43,4 +43,4 @@ logging:
     org:
       springframework: ERROR
 back-url: "https://api.aicareer.co.kr"
-front-url: "https://www.aicareer.co.kr"
+front-url: "https://alpha.aicareer.co.kr"

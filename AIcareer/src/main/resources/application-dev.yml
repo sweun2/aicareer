@@ -43,4 +43,4 @@ logging:
     org:
       springframework: DEBUG
 back-url: "https://dev.aicareer.co.kr"
-front-url: "https://www.aicareer.co.kr"
+front-url: "https://alpha.aicareer.co.kr"
