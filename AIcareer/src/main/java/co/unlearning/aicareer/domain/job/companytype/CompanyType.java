@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.job.companytype;
 
+import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.job.company.Company;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,4 +25,7 @@ public class CompanyType {
     private Company company;
     @Column
     private CompanyTypeName companyTypeName;
+    @ManyToOne
+    @Cascade(CascadeType.PERSIST)
+    private UserInterest userInterest;
 }

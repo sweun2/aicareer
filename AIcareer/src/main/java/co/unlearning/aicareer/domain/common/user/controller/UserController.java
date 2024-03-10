@@ -16,10 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -122,5 +119,65 @@ public class UserController {
     @GetMapping("/all")
     public ResponseEntity<List<UserResponseDto.UserSimple>> findAllUser() {
         return ResponseEntity.ok(UserResponseDto.UserSimple.of(userService.getAllUser()));
+    }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "유저 약관/개인정보 제공 동의", description = "약관 및 개인정보 제공 동의")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            useReturnTypeSchema = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UserResponseDto.UserInfo.class)
+            ))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+    })
+    @PutMapping("/user-terms")
+    public ResponseEntity<UserResponseDto.UserInfo> updateUserTerms(UserRequestDto.UserTermsInfo userTermsInfo) {
+        return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserTerms(userTermsInfo)));
+    }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "유저 관심사 수정", description = "유저 관심사 수정")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            useReturnTypeSchema = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UserResponseDto.UserInfo.class)
+            ))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+    })
+    @PutMapping("/user-interest")
+    public ResponseEntity<UserResponseDto.UserInterestInfo> updateUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
+        return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.updateUserInterest(userInterestInfo)));
+    }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "유저 관심사 설정", description = "유저 관심사 설정")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            useReturnTypeSchema = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UserResponseDto.UserInfo.class)
+            ))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+    })
+    @PostMapping("/user-interest")
+    public ResponseEntity<UserResponseDto.UserInterestInfo> postUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
+        return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.postUserInterest(userInterestInfo)));
     }
 }

@@ -1,13 +1,15 @@
 spring:
   mail:
-    host: smtp.gmail.com # 1
-    port: 587 # 2
+    host: smtp.gmail.com
+    port: 465
     username: "unlearningdev"
-    password: "iahqrcpwzusjnuob"
+    password: "ptyewutlmxbhrpqm"
     properties:
       mail:
+        debug: true
         smtp:
-          auth: true # 5
-          timeout: 5000 # 6
+          auth: true
           starttls:
-            enable: true # 7
+            enable: true
+            require: true
+    protocol: smtps

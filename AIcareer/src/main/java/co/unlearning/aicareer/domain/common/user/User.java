@@ -3,6 +3,7 @@ package co.unlearning.aicareer.domain.common.user;
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -35,4 +36,13 @@ public class User {
     private UserRole userRole;
     @OneToMany(mappedBy = "user")
     private Set<Bookmark> bookmarkSet;
+
+    @ColumnDefault("0")
+    private Boolean isMarketing;
+    @ColumnDefault("0")
+    private Boolean isAgreeTerms;
+    @ColumnDefault("0")
+    private Boolean isInterest;
+    @OneToOne
+    private UserInterest userInterest;
 }

@@ -45,7 +45,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                             .nickname(UUID.randomUUID().toString())
                             .password("none")
                             .recommender("none")
-                            .userRole(UserRole.USER)
+                            .userRole(UserRole.GUEST)
+                            .isMarketing(false)
+                            .isAgreeTerms(false)
                             .joinDate(LocalDateTime.now())
                     .build());
         }

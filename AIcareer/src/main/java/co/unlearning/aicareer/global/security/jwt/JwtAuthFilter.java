@@ -2,6 +2,8 @@ package co.unlearning.aicareer.global.security.jwt;
 
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
+import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -14,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
@@ -27,7 +30,22 @@ public class JwtAuthFilter extends GenericFilterBean {
     private final UserService userService;
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        String token = getTokenFromCookie(request);
+        if(token != null) {
+            if (tokenService.verifyToken(token)) {
+                String email = tokenService.getUid(token);
+                User user = userService.getUserByEmail(email);
+                Authentication auth = getAuthentication(user);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                if(!user.getIsAgreeTerms()) {
+                    throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
+                }
+            }
+        }
+        chain.doFilter(request, response);
+    }
 
+    private static String getTokenFromCookie(ServletRequest request) {
         String token = null;
         if (request instanceof HttpServletRequest request2) {
             Cookie[] cookies = request2.getCookies();
@@ -41,21 +59,7 @@ public class JwtAuthFilter extends GenericFilterBean {
                 }
             }
         }
-        if(token != null) {
-            if (tokenService.verifyToken(token)) {
-                String email = tokenService.getUid(token);
-                User user = userService.getUserByEmail(email);
-                log.info(user.getEmail());
-                Authentication auth = getAuthentication(user);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            }
-        }
-        chain.doFilter(request, response);
-    }
-    private boolean isLogoutRequest(ServletRequest request) {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String requestURI = httpRequest.getRequestURI();
-        return requestURI.endsWith("/api/user/logout");
+        return token;
     }
     public Authentication getAuthentication(User user){
         return new UsernamePasswordAuthenticationToken(user, "",

@@ -48,6 +48,9 @@ public class SecurityConfig {
         origins.add("https://aicareer.co.kr");
         origins.add("https://alpha.aicareer.co.kr");
         origins.add("https://api.aicareer.co.kr");
+
+        origins.add("https://dev.aicareer.co.kr");
+
         origins.add("https://localhost:8080");
         origins.add("http://localhost:8080");
 
@@ -70,6 +73,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                                .requestMatchers("/api/recruitment/bookmark/post/**").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> {

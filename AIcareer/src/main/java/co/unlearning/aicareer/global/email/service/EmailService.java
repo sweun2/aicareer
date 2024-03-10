@@ -1,31 +1,43 @@
 package co.unlearning.aicareer.global.email.service;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
+
+import java.io.UnsupportedEncodingException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
-    final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-
+    private final JavaMailSender javaMailSender;
+/*    public void sendMail(){
+        javaMailSender.send(mimeMessage -> {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
+            messageHelper.setFrom("unlearningdev@gmail.com");
+            messageHelper.setTo("sweun3@gmail.com");
+            messageHelper.setSubject("Email subject");
+            messageHelper.setText("<p>Email body</p>", true);
+        });
+    }*/
     public void sendMail() {
-
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo("sweun3@gmail.com"); // 메일 수신자
-            mimeMessageHelper.setSubject("test"); // 메일 제목
-            mimeMessageHelper.setText("test",true);
-            javaMailSender.send(mimeMessage);
-
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setTo("sweun3@gmail.com");
+            msg.setSubject("test email");
+            msg.setText("test");
+            javaMailSender.send(msg);
+        }
+        catch (Exception e) {
+            log.info(e.getMessage());
         }
     }
 }

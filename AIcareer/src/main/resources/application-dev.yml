@@ -41,6 +41,6 @@ server:
 logging:
   level:
     org:
-      springframework: DEBUG
+      springframework: TRACE
 back-url: "https://dev.aicareer.co.kr"
 front-url: "https://alpha.aicareer.co.kr"

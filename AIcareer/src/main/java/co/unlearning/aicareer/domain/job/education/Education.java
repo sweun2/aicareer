@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.job.education;
 
+import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,4 +26,8 @@ public class Education {
     private Recruitment recruitment;
     @Column
     private DEGREE degree;
+    @ManyToOne
+    @Cascade(CascadeType.PERSIST)
+    private UserInterest userInterest;
+
 }

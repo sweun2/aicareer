@@ -31,5 +31,9 @@ spring:
   mvc:
     path match:
       matching-strategy: ant_path_matcher
+logging:
+  level:
+    org:
+      springframework: TRACE
 back-url: "http://localhost:8080"
 front-url: "https://www.aicareer.co.kr"
