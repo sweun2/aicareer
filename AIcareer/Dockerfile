@@ -1,5 +1,5 @@
 FROM openjdk:17
-ARG EXPLODED_DIR=build/libs/exploded
-COPY ${EXPLODED_DIR} /app
-WORKDIR /app
-ENTRYPOINT ["java", "-jar", "AIcareer-ROOT.jar"]
+ARG JAR_FILE=build/libs/AIcareer-ROOT-plain.war
+COPY ${JAR_FILE} app.war
+
+ENTRYPOINT ["java","-jar","/app.war"]

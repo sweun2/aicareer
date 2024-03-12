@@ -21,7 +21,6 @@ import reactor.netty.http.client.HttpClient;
 @SpringBootTest
 class AIcareerApplicationTests {
 
-
 	@Test
 	void LocalDateTime테스트() {
 		String testTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
