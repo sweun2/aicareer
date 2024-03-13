@@ -68,6 +68,7 @@ public class ImageService {
         Image image = Image.builder()
                 .imageUrl(imagePath)
                 .createdDate(LocalDateTime.now())
+                .isRelated(false)
                 .build();
         return imageRepository.save(image);
     }

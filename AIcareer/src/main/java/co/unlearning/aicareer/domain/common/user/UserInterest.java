@@ -29,4 +29,6 @@ public class UserInterest {
     private Boolean isMetropolitanArea;
     @OneToOne
     private User user;
+    @Column
+    private String receiveEmail;
 }

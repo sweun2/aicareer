@@ -37,6 +37,7 @@ public class BoardService {
                     () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
+        image.setIsRelated(true);
 
         Board board = Board.builder()
                 .pageLinkUrl(boardPost.getPageLink())
@@ -48,7 +49,6 @@ public class BoardService {
                 .isView(true)
                 .build();
 
-        assert image != null;
         image.setBoard(board);
         if(!boardPost.getSubImage().isEmpty()) {
             Set<Image> subImages = new HashSet<>();
@@ -56,6 +56,7 @@ public class BoardService {
                 Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
                         () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
                 );
+                subImage.setIsRelated(true);
                 subImage.setBoard(board);
                 subImages.add(subImage);
             }

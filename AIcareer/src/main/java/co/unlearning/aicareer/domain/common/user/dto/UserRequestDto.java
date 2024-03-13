@@ -42,10 +42,14 @@ public class UserRequestDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserTermsInfo {
-        @Schema(description = "마케팅 동의여부")
+        @Schema(description = "마케팅 동의 여부")
         private Boolean isMarketing;
-        @Schema(description = "개인정보 처리 동의여부")
-        private Boolean isAgreeTerms;
+        @Schema(description = "이용 약관 동의 여부")
+        private Boolean isAgreeUseTerms;
+        @Schema(description = "개인정보 처리 동의 여부")
+        private Boolean isAgreePrivacyTerms;
+        @Schema(description = "정보성 알람 동의 여부")
+        private Boolean isInformationTerms;
     }
 
     @Builder

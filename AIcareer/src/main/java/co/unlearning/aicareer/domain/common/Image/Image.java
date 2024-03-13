@@ -27,4 +27,6 @@ public class Image {
     private Recruitment recruitment;
     @ManyToOne
     private Board board;
+    @Column
+    private Boolean isRelated;
 }

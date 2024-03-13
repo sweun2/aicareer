@@ -3,10 +3,12 @@ package co.unlearning.aicareer.domain.common.user.service;
 
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserInterest;
+import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.common.user.repository.UserInterestRepository;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.common.user.UserRole;
+import co.unlearning.aicareer.domain.common.user.repository.UserTermsRepository;
 import co.unlearning.aicareer.domain.job.companytype.CompanyType;
 import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
@@ -18,11 +20,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +40,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final UserInterestRepository userInterestRepository;
+    private final UserTermsRepository userTermsRepository;
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.USER_NOT_FOUND)
@@ -110,14 +115,57 @@ public class UserService {
     }
     public User updateUserTerms(UserRequestDto.UserTermsInfo userTermsInfo) {
         User user = getLoginUser();
-        user.setIsAgreeTerms(userTermsInfo.getIsAgreeTerms());
-        user.setIsMarketing(userTermsInfo.getIsMarketing());
-
+        if(user.getIsAgreePrivacyTerms()==null) {
+            UserTerms isAgreePrivacyTerms = UserTerms.builder()
+                    .isAgree(userTermsInfo.getIsAgreePrivacyTerms())
+                    .user(user)
+                    .agreeDate(LocalDateTime.now())
+                    .build();
+            userTermsRepository.save(isAgreePrivacyTerms);
+            user.setIsAgreePrivacyTerms(isAgreePrivacyTerms);
+        }
+        if(user.getIsAgreeUseTerms()==null) {
+            UserTerms isAgreeUseTerms = UserTerms.builder()
+                    .isAgree(userTermsInfo.getIsAgreeUseTerms())
+                    .user(user)
+                    .agreeDate(LocalDateTime.now())
+                    .build();
+            userTermsRepository.save(isAgreeUseTerms);
+            user.setIsAgreeUseTerms(isAgreeUseTerms);
+        }
+        if(user.getIsMarketing()==null) {
+            UserTerms isMarketing = UserTerms.builder()
+                    .isAgree(userTermsInfo.getIsMarketing())
+                    .user(user)
+                    .agreeDate(LocalDateTime.now())
+                    .build();
+            userTermsRepository.save(isMarketing);
+            user.setIsMarketing(isMarketing);
+        } else {
+            user.getIsMarketing().setIsAgree(userTermsInfo.getIsMarketing());
+            user.getIsMarketing().setAgreeDate(LocalDateTime.now());
+        }
+        if(user.getIsInformationTerms()==null) {
+            UserTerms isInformationTerms = UserTerms.builder()
+                    .isAgree(userTermsInfo.getIsInformationTerms())
+                    .user(user)
+                    .agreeDate(LocalDateTime.now())
+                    .build();
+            userTermsRepository.save(isInformationTerms);
+            user.setIsMarketing(isInformationTerms);
+        } else {
+            user.getIsInformationTerms().setIsAgree(userTermsInfo.getIsMarketing());
+            user.getIsInformationTerms().setAgreeDate(LocalDateTime.now());
+        }
         return userRepository.save(user);
     }
     public UserInterest updateUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
         User user = getLoginUser();
-        UserInterest userInterest = user.getUserInterest();
+        if(user.getIsInterest()) {
+            userInterestRepository.delete(user.getUserInterest());
+        }
+        UserInterest userInterest = new UserInterest();
+        user.setIsInterest(true);
 
         Set<CompanyType> companyTypeSet = new HashSet<>();
         EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
@@ -153,47 +201,14 @@ public class UserService {
         userInterest.setRecruitingJobSet(recruitingJobSet);
 
         userInterest.setIsMetropolitanArea(userInterestInfo.getIsMetropolitanArea());
-        return userInterestRepository.save(userInterest);
-    }
-    public UserInterest postUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
-        User user = getLoginUser();
-        if(user.getIsInterest()) {
-            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
-        }
-
-        user.setIsInterest(true);
-        UserInterest userInterest = new UserInterest();
-
-        Set<CompanyType> companyTypeSet = new HashSet<>();
-        EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
-        for (String companyTypeNameStr : userInterestInfo.getCompanyTypes()) {
-            companyTypeSet.add(CompanyType.builder()
-                    .userInterest(userInterest)
-                    .companyTypeName(companyTypeNameEnumValidator.validateEnumString(companyTypeNameStr, CompanyType.CompanyTypeName.class))
-                    .build());
-        }
-        Set<RecruitingJob> recruitingJobSet = new HashSet<>();
-        EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
-        for (String recruitingJobNameStr : userInterestInfo.getRecruitingJobNames()) {
-            recruitingJobSet.add(RecruitingJob.builder()
-                    .userInterest(userInterest)
-                    .recruitJobName(recruitingJobNameEnumValidator.validateEnumString(recruitingJobNameStr, RecruitingJob.RecruitingJobName.class))
-                    .build());
-        }
-        Set<Education> educationSet = new HashSet<>();
-        EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
-        for (String degreeStr : userInterestInfo.getEducations()) {
-            educationSet.add(Education.builder()
-                    .userInterest(userInterest)
-                    .degree(degreeEnumValidator.validateEnumString(degreeStr, Education.DEGREE.class))
-                    .build());
-        }
-        userInterest.setEducationSet(educationSet);
-        userInterest.setCompanyTypeSet(companyTypeSet);
-        userInterest.setRecruitingJobSet(recruitingJobSet);
-        userInterest.setIsMetropolitanArea(userInterestInfo.getIsMetropolitanArea());
         userInterest.setUser(user);
         userRepository.save(user);
         return userInterestRepository.save(userInterest);
+    }
+    public UserInterest getUserInterest() {
+        User user = getLoginUser();
+       if(user.getUserInterest()==null)
+           throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
+       return user.getUserInterest();
     }
 }

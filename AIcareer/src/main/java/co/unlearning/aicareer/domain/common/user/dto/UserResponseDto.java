@@ -3,9 +3,11 @@ package co.unlearning.aicareer.domain.common.user.dto;
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.common.user.UserRole;
+import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.job.companytype.CompanyType;
 import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,8 +48,11 @@ public class UserResponseDto {
         private String email;
         private String joinDate;
         private UserRole userRole;
-        private Boolean isMarketing;
-        private Boolean isAgreeTerms;
+        private UserTermsInfo isMarketing;
+        private UserTermsInfo isInformationTerms;
+        private UserTermsInfo isAgreeUseTerms;
+        private UserTermsInfo isAgreePrivacyTerms;
+
         private Boolean isInterest;
         public static UserInfo of(User user) {
             return UserInfo.builder()
@@ -56,8 +61,10 @@ public class UserResponseDto {
                     .email(user.getEmail())
                     .joinDate(String.valueOf(user.getJoinDate()))
                     .userRole(user.getUserRole())
-                    .isMarketing(user.getIsMarketing())
-                    .isAgreeTerms(user.getIsAgreeTerms())
+                    .isMarketing(UserTermsInfo.of(user.getIsMarketing()))
+                    .isInformationTerms(UserTermsInfo.of(user.getIsInformationTerms()))
+                    .isAgreeUseTerms(UserTermsInfo.of(user.getIsAgreeUseTerms()))
+                    .isAgreePrivacyTerms(UserTermsInfo.of(user.getIsAgreePrivacyTerms()))
                     .isInterest(user.getIsInterest())
                     .build();
         }
@@ -89,6 +96,21 @@ public class UserResponseDto {
 
         public static List<UserInterestInfo> of(List<UserInterest> userInterests) {
             return userInterests.stream().map(UserInterestInfo::of).collect(Collectors.toList());
+        }
+    }
+    @Builder
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserTermsInfo {
+        private Boolean isAgree;
+        private String agreeDate;
+        private static  UserTermsInfo of(UserTerms userTerms) {
+            return UserTermsInfo.builder()
+                    .agreeDate(LocalDateTimeStringConverter.LocalDateTimeToString(userTerms.getAgreeDate()))
+                    .isAgree(userTerms.getIsAgree())
+                    .build();
         }
     }
 }

@@ -88,6 +88,7 @@ public class RecruitmentService {
                     ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
+        mainImage.setIsRelated(true);
 
         recruitment.setMainImage(mainImage);
         recruitment.setCompany(company);
@@ -97,6 +98,7 @@ public class RecruitmentService {
             Image subImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
                     () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
+            subImage.setIsRelated(true);
             subImage.setRecruitment(recruitment);
             subImages.add(subImage);
         }
@@ -209,7 +211,7 @@ public class RecruitmentService {
                     ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
-
+        mainImage.setIsRelated(true);
 
         //모집 공고 위치
         EnumValidator<RecruitmentAddress> recruitmentAddressEnumValidator = new EnumValidator<>();
@@ -283,6 +285,7 @@ public class RecruitmentService {
             Image subImage =imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(subImageUrl)).orElseThrow(
                     ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
+            subImage.setIsRelated(true);
             subImage.setRecruitment(recruitment);
             subImages.add(subImage);
         }

@@ -174,7 +174,7 @@ public class UserController {
         return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.updateUserInterest(userInterestInfo)));
     }
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "유저 관심사 설정", description = "유저 관심사 설정")
+    @Operation(summary = "유저 관심사 가져오기", description = "유저 관심사 가져오기")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
@@ -189,9 +189,9 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
-    @PostMapping("/user-interest")
-    public ResponseEntity<UserResponseDto.UserInterestInfo> postUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
-        return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.postUserInterest(userInterestInfo)));
+    @GetMapping("/user-interest")
+    public ResponseEntity<UserResponseDto.UserInterestInfo> getUserInterest() {
+        return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.getUserInterest()));
     }
     @ResponseBody
     @GetMapping("/kakao")

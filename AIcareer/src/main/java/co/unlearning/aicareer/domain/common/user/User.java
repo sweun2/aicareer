@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.common.user;
 
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -37,12 +38,16 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<Bookmark> bookmarkSet;
 
-    @ColumnDefault("0")
-    private Boolean isMarketing;
-    @ColumnDefault("0")
-    private Boolean isAgreeTerms;
-    @ColumnDefault("0")
-    private Boolean isInterest;
     @OneToOne
     private UserInterest userInterest;
+    @Column
+    private Boolean isInterest;
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
+    private UserTerms isMarketing;
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
+    private UserTerms isInformationTerms;
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
+    private UserTerms isAgreeUseTerms;
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
+    private UserTerms isAgreePrivacyTerms;
 }
