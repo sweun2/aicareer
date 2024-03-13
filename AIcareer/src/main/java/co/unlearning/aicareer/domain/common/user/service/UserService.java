@@ -20,7 +20,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -145,7 +144,7 @@ public class UserService {
             user.getIsMarketing().setIsAgree(userTermsInfo.getIsMarketing());
             user.getIsMarketing().setAgreeDate(LocalDateTime.now());
         }
-        if(user.getIsInformationTerms()==null) {
+        if(user.getIsAgreeInformationTerms()==null) {
             UserTerms isInformationTerms = UserTerms.builder()
                     .isAgree(userTermsInfo.getIsInformationTerms())
                     .user(user)
@@ -154,8 +153,8 @@ public class UserService {
             userTermsRepository.save(isInformationTerms);
             user.setIsMarketing(isInformationTerms);
         } else {
-            user.getIsInformationTerms().setIsAgree(userTermsInfo.getIsMarketing());
-            user.getIsInformationTerms().setAgreeDate(LocalDateTime.now());
+            user.getIsAgreeInformationTerms().setIsAgree(userTermsInfo.getIsMarketing());
+            user.getIsAgreeInformationTerms().setAgreeDate(LocalDateTime.now());
         }
         return userRepository.save(user);
     }

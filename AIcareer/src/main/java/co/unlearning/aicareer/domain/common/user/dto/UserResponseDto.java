@@ -8,7 +8,6 @@ import co.unlearning.aicareer.domain.job.companytype.CompanyType;
 import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
@@ -62,7 +61,7 @@ public class UserResponseDto {
                     .joinDate(String.valueOf(user.getJoinDate()))
                     .userRole(user.getUserRole())
                     .isMarketing(UserTermsInfo.of(user.getIsMarketing()))
-                    .isInformationTerms(UserTermsInfo.of(user.getIsInformationTerms()))
+                    .isInformationTerms(UserTermsInfo.of(user.getIsAgreeInformationTerms()))
                     .isAgreeUseTerms(UserTermsInfo.of(user.getIsAgreeUseTerms()))
                     .isAgreePrivacyTerms(UserTermsInfo.of(user.getIsAgreePrivacyTerms()))
                     .isInterest(user.getIsInterest())

@@ -1,10 +1,8 @@
 package co.unlearning.aicareer.domain.common.user;
 
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -45,7 +43,7 @@ public class User {
     @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
     private UserTerms isMarketing;
     @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
-    private UserTerms isInformationTerms;
+    private UserTerms isAgreeInformationTerms;
     @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
     private UserTerms isAgreeUseTerms;
     @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)

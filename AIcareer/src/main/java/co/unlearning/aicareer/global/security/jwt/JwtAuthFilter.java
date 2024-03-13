@@ -37,9 +37,6 @@ public class JwtAuthFilter extends GenericFilterBean {
                 User user = userService.getUserByEmail(email);
                 Authentication auth = getAuthentication(user);
                 SecurityContextHolder.getContext().setAuthentication(auth);
-                if(!user.getIsAgreeTerms()) {
-                    throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
-                }
             }
         }
         chain.doFilter(request, response);

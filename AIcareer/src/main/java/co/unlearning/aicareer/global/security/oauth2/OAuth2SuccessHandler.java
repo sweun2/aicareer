@@ -2,7 +2,9 @@ package co.unlearning.aicareer.global.security.oauth2;
 
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserRole;
+import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
+import co.unlearning.aicareer.domain.common.user.repository.UserTermsRepository;
 import co.unlearning.aicareer.global.security.jwt.Token;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
 import jakarta.servlet.ServletException;
@@ -26,6 +28,7 @@ import java.util.UUID;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenService tokenService;
+    private final UserTermsRepository userTermsRepository;
     private final UserRepository userRepository;
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -39,17 +42,33 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String url;
         //최초 로그인 시 회원가입
         if(userOptional.isEmpty()){
-            userRepository.save(User.builder()
+            UserTerms isMarketing = UserTerms.builder().isAgree(false).build();
+            UserTerms isAgreeUseTerms = UserTerms.builder().isAgree(false).build();
+            UserTerms isAgreePrivacyTerms = UserTerms.builder().isAgree(false).build();
+            UserTerms isAgreeInformationTerms = UserTerms.builder().isAgree(false).build();
+            User user = User.builder()
                     .email(email)
                     .name(oAuth2User.getAttribute("name"))
-                            .nickname(UUID.randomUUID().toString())
-                            .password("none")
-                            .recommender("none")
-                            .userRole(UserRole.GUEST)
-                            .isMarketing(false)
-                            .isAgreeTerms(false)
-                            .joinDate(LocalDateTime.now())
-                    .build());
+                    .nickname(UUID.randomUUID().toString())
+                    .password("none")
+                    .recommender("none")
+                    .userRole(UserRole.GUEST)
+                    .isMarketing(isMarketing)
+                    .isAgreePrivacyTerms(isAgreePrivacyTerms)
+                    .isAgreeUseTerms(isAgreeUseTerms)
+                    .isAgreeInformationTerms(isAgreeInformationTerms)
+                    .joinDate(LocalDateTime.now())
+                    .build();
+            userRepository.save(user);
+
+            isAgreeUseTerms.setUser(user);
+            isMarketing.setUser(user);
+            isAgreePrivacyTerms.setUser(user);
+            isAgreeInformationTerms.setUser(user);
+            userTermsRepository.save(isMarketing);
+            userTermsRepository.save(isAgreeUseTerms);
+            userTermsRepository.save(isAgreePrivacyTerms);
+            userTermsRepository.save(isAgreeInformationTerms);
         }
         ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
                 .path("/")
