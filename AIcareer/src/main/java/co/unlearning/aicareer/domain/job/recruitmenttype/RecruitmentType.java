@@ -17,7 +17,7 @@ public class RecruitmentType {
         INTERN ,FULL_TIME,CONTRACT,INDUSTRIAL_TECHNICAL,PROFESSIONAL_RESEARCH
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

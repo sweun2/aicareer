@@ -17,7 +17,7 @@ import java.util.Set;
 @Setter
 public class Company {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @Column
     private String uid;

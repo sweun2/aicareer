@@ -15,13 +15,11 @@ import java.time.LocalDateTime;
 @Entity
 public class UserTerms {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @ColumnDefault("0")
     private Boolean isAgree;
     @CreationTimestamp
     @Column
     private LocalDateTime agreeDate; //동의 시점
-    @OneToOne
-    private User user;
 }

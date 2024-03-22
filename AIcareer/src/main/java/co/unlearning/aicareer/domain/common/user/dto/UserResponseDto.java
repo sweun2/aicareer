@@ -5,8 +5,12 @@ import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.job.companytype.CompanyType;
+import co.unlearning.aicareer.domain.job.companytype.dto.CompanyTypeResponseDto;
 import co.unlearning.aicareer.domain.job.education.Education;
+import co.unlearning.aicareer.domain.job.education.dto.EducationResponseDto;
+import co.unlearning.aicareer.domain.job.recruitmenttype.dto.RecruitmentTypeResponseDto;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.domain.job.recrutingjob.dto.RecruitingJobResponseDto;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import lombok.*;
 
@@ -51,7 +55,6 @@ public class UserResponseDto {
         private UserTermsInfo isInformationTerms;
         private UserTermsInfo isAgreeUseTerms;
         private UserTermsInfo isAgreePrivacyTerms;
-
         private Boolean isInterest;
         public static UserInfo of(User user) {
             return UserInfo.builder()
@@ -78,17 +81,15 @@ public class UserResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserInterestInfo {
-        private UserSimple userSimple;
-        private Set<Education> educationSet;
-        private Set<RecruitingJob> recruitingJobSet;
-        private Set<CompanyType> companyTypeSet;
+        private List<EducationResponseDto.EducationDto> educationDtos;
+        private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
+        private List<CompanyTypeResponseDto.CompanyTypeInfo> companyTypeInfos;
         private Boolean isMetropolitanArea;
         public static UserInterestInfo of(UserInterest userInterest) {
             return UserInterestInfo.builder()
-                    .userSimple(UserSimple.of(userInterest.getUser()))
-                    .educationSet(userInterest.getEducationSet())
-                    .recruitingJobSet(userInterest.getRecruitingJobSet())
-                    .companyTypeSet(userInterest.getCompanyTypeSet())
+                    .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(userInterest.getRecruitingJobSet())))
+                    .educationDtos(EducationResponseDto.EducationDto.of(List.copyOf(userInterest.getEducationSet())))
+                    .companyTypeInfos(CompanyTypeResponseDto.CompanyTypeInfo.of(List.copyOf(userInterest.getCompanyTypeSet())))
                     .isMetropolitanArea(userInterest.getIsMetropolitanArea())
                     .build();
         }

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -30,6 +31,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final TokenService tokenService;
     private final UserTermsRepository userTermsRepository;
     private final UserRepository userRepository;
+    @Value("${front-url}")
+    private String frontURL;
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -42,10 +45,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String url;
         //최초 로그인 시 회원가입
         if(userOptional.isEmpty()){
-            UserTerms isMarketing = UserTerms.builder().isAgree(false).build();
-            UserTerms isAgreeUseTerms = UserTerms.builder().isAgree(false).build();
-            UserTerms isAgreePrivacyTerms = UserTerms.builder().isAgree(false).build();
-            UserTerms isAgreeInformationTerms = UserTerms.builder().isAgree(false).build();
             User user = User.builder()
                     .email(email)
                     .name(oAuth2User.getAttribute("name"))
@@ -53,27 +52,26 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .password("none")
                     .recommender("none")
                     .userRole(UserRole.GUEST)
-                    .isMarketing(isMarketing)
-                    .isAgreePrivacyTerms(isAgreePrivacyTerms)
-                    .isAgreeUseTerms(isAgreeUseTerms)
-                    .isAgreeInformationTerms(isAgreeInformationTerms)
                     .joinDate(LocalDateTime.now())
                     .build();
             userRepository.save(user);
+            if(user.getIsMarketing()==null || user.getIsAgreeUseTerms()==null || user.getIsAgreePrivacyTerms()==null || user.getIsAgreeInformationTerms()==null) {
+                UserTerms isMarketing = UserTerms.builder().isAgree(false).build();
+                UserTerms isAgreeUseTerms = UserTerms.builder().isAgree(true).build();
+                UserTerms isAgreePrivacyTerms = UserTerms.builder().isAgree(true).build();
+                UserTerms isAgreeInformationTerms = UserTerms.builder().isAgree(false).build();
 
-            isAgreeUseTerms.setUser(user);
-            isMarketing.setUser(user);
-            isAgreePrivacyTerms.setUser(user);
-            isAgreeInformationTerms.setUser(user);
-            userTermsRepository.save(isMarketing);
-            userTermsRepository.save(isAgreeUseTerms);
-            userTermsRepository.save(isAgreePrivacyTerms);
-            userTermsRepository.save(isAgreeInformationTerms);
+                user.setIsMarketing(isMarketing);
+                user.setIsAgreeUseTerms(isAgreeUseTerms);
+                user.setIsAgreeInformationTerms(isAgreeInformationTerms);
+                user.setIsAgreePrivacyTerms(isAgreePrivacyTerms);
+                userRepository.save(user);
+            }
         }
         ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
                 .path("/")
                 .sameSite("None")
-                .domain("aicareer.co.kr")
+                .domain(".aicareer.co.kr")
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(24*60*60)
@@ -83,13 +81,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         ResponseCookie refreshToken = ResponseCookie.from("_rT",token.getRefreshToken())
                 .path("/")
                 .sameSite("None")
-                .domain("aicareer.co.kr")
+                .domain(".aicareer.co.kr")
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(24*60*60)
                 .build();
         response.addHeader("Set-Cookie", refreshToken.toString());
-        getRedirectStrategy().sendRedirect(request, response, UriComponentsBuilder.fromUriString("https://aicareer.co.kr").queryParam("login", "true").toUriString());
+        getRedirectStrategy().sendRedirect(request, response, UriComponentsBuilder.fromUriString(frontURL).queryParam("login", "true").toUriString());
     }
 
     private String makeRedirectUrl(String path, String token) {

@@ -88,6 +88,7 @@ public class RecruitmentService {
                     ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
+        assert mainImage != null;
         mainImage.setIsRelated(true);
 
         recruitment.setMainImage(mainImage);
@@ -211,6 +212,7 @@ public class RecruitmentService {
                     ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
+        assert mainImage != null;
         mainImage.setIsRelated(true);
 
         //모집 공고 위치
@@ -290,7 +292,6 @@ public class RecruitmentService {
             subImages.add(subImage);
         }
 
-        assert mainImage != null;
         mainImage.setRecruitment(recruitment);
 
         recruitment.setRecruitingJobSet(recruitingJobs);

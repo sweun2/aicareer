@@ -3,16 +3,13 @@ package co.unlearning.aicareer.domain.common.user.service;
 
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserInterest;
-import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.common.user.repository.UserInterestRepository;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.common.user.UserRole;
-import co.unlearning.aicareer.domain.common.user.repository.UserTermsRepository;
 import co.unlearning.aicareer.domain.job.companytype.CompanyType;
 import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
-import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
@@ -37,9 +34,8 @@ import java.util.Set;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
-    private final TokenService tokenService;
     private final UserInterestRepository userInterestRepository;
-    private final UserTermsRepository userTermsRepository;
+
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.USER_NOT_FOUND)
@@ -86,7 +82,7 @@ public class UserService {
         ResponseCookie accessToken = ResponseCookie.from("accessToken","")
                 .path("/")
                 .sameSite("None")
-                .domain("aicareer.co.kr")
+                .domain(".aicareer.co.kr")
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(24*60*60)
@@ -96,7 +92,7 @@ public class UserService {
         ResponseCookie refreshToken = ResponseCookie.from("refreshToken","")
                 .path("/")
                 .sameSite("None")
-                .domain("aicareer.co.kr")
+                .domain(".aicareer.co.kr")
                 .httpOnly(true)
                 .secure(true)
                 .maxAge(24*60*60)
@@ -114,95 +110,104 @@ public class UserService {
     }
     public User updateUserTerms(UserRequestDto.UserTermsInfo userTermsInfo) {
         User user = getLoginUser();
-        if(user.getIsAgreePrivacyTerms()==null) {
-            UserTerms isAgreePrivacyTerms = UserTerms.builder()
-                    .isAgree(userTermsInfo.getIsAgreePrivacyTerms())
-                    .user(user)
-                    .agreeDate(LocalDateTime.now())
-                    .build();
-            userTermsRepository.save(isAgreePrivacyTerms);
-            user.setIsAgreePrivacyTerms(isAgreePrivacyTerms);
-        }
-        if(user.getIsAgreeUseTerms()==null) {
-            UserTerms isAgreeUseTerms = UserTerms.builder()
-                    .isAgree(userTermsInfo.getIsAgreeUseTerms())
-                    .user(user)
-                    .agreeDate(LocalDateTime.now())
-                    .build();
-            userTermsRepository.save(isAgreeUseTerms);
-            user.setIsAgreeUseTerms(isAgreeUseTerms);
-        }
-        if(user.getIsMarketing()==null) {
-            UserTerms isMarketing = UserTerms.builder()
-                    .isAgree(userTermsInfo.getIsMarketing())
-                    .user(user)
-                    .agreeDate(LocalDateTime.now())
-                    .build();
-            userTermsRepository.save(isMarketing);
-            user.setIsMarketing(isMarketing);
-        } else {
+        log.info(String.valueOf(userTermsInfo.getIsInformationTerms()));
+        log.info(String.valueOf(userTermsInfo.getIsMarketing()));
+
+        if(userTermsInfo.getIsMarketing()!=null) {
             user.getIsMarketing().setIsAgree(userTermsInfo.getIsMarketing());
             user.getIsMarketing().setAgreeDate(LocalDateTime.now());
         }
-        if(user.getIsAgreeInformationTerms()==null) {
-            UserTerms isInformationTerms = UserTerms.builder()
-                    .isAgree(userTermsInfo.getIsInformationTerms())
-                    .user(user)
-                    .agreeDate(LocalDateTime.now())
-                    .build();
-            userTermsRepository.save(isInformationTerms);
-            user.setIsMarketing(isInformationTerms);
-        } else {
-            user.getIsAgreeInformationTerms().setIsAgree(userTermsInfo.getIsMarketing());
+        if(userTermsInfo.getIsInformationTerms()!=null) {
+            user.getIsAgreeInformationTerms().setIsAgree(userTermsInfo.getIsInformationTerms());
             user.getIsAgreeInformationTerms().setAgreeDate(LocalDateTime.now());
         }
+
         return userRepository.save(user);
     }
     public UserInterest updateUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
         User user = getLoginUser();
-        if(user.getIsInterest()) {
-            userInterestRepository.delete(user.getUserInterest());
-        }
-        UserInterest userInterest = new UserInterest();
-        user.setIsInterest(true);
+        if (user.getUserInterest() != null) {
+            UserInterest userInterest = user.getUserInterest();
+            userInterest.getRecruitingJobSet().clear();
+            userInterest.getCompanyTypeSet().clear();
+            userInterest.getEducationSet().clear();
 
-        Set<CompanyType> companyTypeSet = new HashSet<>();
-        EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
-        for (String companyTypeNameStr : userInterestInfo.getCompanyTypes()) {
-            companyTypeSet.add(CompanyType.builder()
-                    .userInterest(userInterest)
-                    .companyTypeName(companyTypeNameEnumValidator.validateEnumString(companyTypeNameStr, CompanyType.CompanyTypeName.class))
-                    .build());
-        }
-        Set<RecruitingJob> recruitingJobSet = new HashSet<>();
-        EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
-        for (String recruitingJobNameStr : userInterestInfo.getRecruitingJobNames()) {
-            recruitingJobSet.add(RecruitingJob.builder()
-                    .userInterest(userInterest)
-                    .recruitJobName(recruitingJobNameEnumValidator.validateEnumString(recruitingJobNameStr, RecruitingJob.RecruitingJobName.class))
-                    .build());
-        }
-        Set<Education> educationSet = new HashSet<>();
-        EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
-        for (String degreeStr : userInterestInfo.getEducations()) {
-            educationSet.add(Education.builder()
-                    .userInterest(userInterest)
-                    .degree(degreeEnumValidator.validateEnumString(degreeStr, Education.DEGREE.class))
-                    .build());
-        }
-        userInterest.getEducationSet().clear();
-        userInterest.setEducationSet(educationSet);
+            EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
+            userInterestInfo.getCompanyTypes().forEach(companyTypeNameStr -> {
+                CompanyType.CompanyTypeName companyTypeName = companyTypeNameEnumValidator.validateEnumString(companyTypeNameStr, CompanyType.CompanyTypeName.class);
+                userInterest.getCompanyTypeSet().add(CompanyType.builder()
+                        .userInterest(userInterest)
+                        .companyTypeName(companyTypeName)
+                        .build());
+            });
+            EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
+            userInterestInfo.getRecruitingJobNames().forEach(recruitingJobNameStr -> {
+                RecruitingJob.RecruitingJobName recruitingJobName = recruitingJobNameEnumValidator.validateEnumString(recruitingJobNameStr, RecruitingJob.RecruitingJobName.class);
+                userInterest.getRecruitingJobSet().add(RecruitingJob.builder()
+                        .userInterest(userInterest)
+                        .recruitJobName(recruitingJobName)
+                        .build());
+            });
+            EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
+            userInterestInfo.getEducations().forEach(degreeStr -> {
+                Education.DEGREE degree = degreeEnumValidator.validateEnumString(degreeStr, Education.DEGREE.class);
+                userInterest.getEducationSet().add(Education.builder()
+                        .userInterest(userInterest)
+                        .degree(degree)
+                        .build());
+            });
+            userInterest.setIsMetropolitanArea(userInterestInfo.getIsMetropolitanArea());
+            userInterest.setReceiveEmail(userInterestInfo.getReceivedEmail());
+            user.setUserInterest(userInterest);
 
-        userInterest.getCompanyTypeSet().clear();
-        userInterest.setCompanyTypeSet(companyTypeSet);
+            userInterestRepository.save(userInterest);
+            return userInterest;
+        } else {
+            UserInterest userInterest = new UserInterest();
 
-        userInterest.getRecruitingJobSet().clear();
-        userInterest.setRecruitingJobSet(recruitingJobSet);
+            Set<CompanyType> companyTypeSet = new HashSet<>();
+            EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
+            for (String companyTypeNameStr : userInterestInfo.getCompanyTypes()) {
+                CompanyType.CompanyTypeName companyTypeName = companyTypeNameEnumValidator.validateEnumString(companyTypeNameStr, CompanyType.CompanyTypeName.class);
+                companyTypeSet.add(CompanyType.builder()
+                        .companyTypeName(companyTypeName)
+                        .build());
+            }
+            Set<RecruitingJob> recruitingJobSet = new HashSet<>();
+            EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
+            for (String recruitingJobNameStr : userInterestInfo.getRecruitingJobNames()) {
+                RecruitingJob.RecruitingJobName recruitingJobName = recruitingJobNameEnumValidator.validateEnumString(recruitingJobNameStr, RecruitingJob.RecruitingJobName.class);
+                recruitingJobSet.add(RecruitingJob.builder()
+                        .userInterest(userInterest)
+                        .recruitJobName(recruitingJobName)
+                        .build());
+            }
+            Set<Education> educationSet = new HashSet<>();
+            EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
+            for (String degreeStr : userInterestInfo.getEducations()) {
+                Education.DEGREE degree = degreeEnumValidator.validateEnumString(degreeStr, Education.DEGREE.class);
+                educationSet.add(Education.builder()
+                        .userInterest(userInterest)
+                        .degree(degree)
+                        .build());
+            }
 
-        userInterest.setIsMetropolitanArea(userInterestInfo.getIsMetropolitanArea());
-        userInterest.setUser(user);
-        userRepository.save(user);
-        return userInterestRepository.save(userInterest);
+            userInterest.setEducationSet(educationSet);
+            userInterest.setCompanyTypeSet(companyTypeSet);
+            userInterest.setRecruitingJobSet(recruitingJobSet);
+            userInterest.setIsMetropolitanArea(userInterestInfo.getIsMetropolitanArea());
+            userInterest.setReceiveEmail(userInterestInfo.getReceivedEmail());
+            userInterestRepository.save(userInterest);
+
+            user.setUserInterest(userInterest);
+            user.setIsInterest(true);
+            userRepository.save(user);
+            return userInterest;
+        }
+    }
+    public User setUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
+        updateUserInterest(userInterestInfo);
+        return getLoginUser();
     }
     public UserInterest getUserInterest() {
         User user = getLoginUser();

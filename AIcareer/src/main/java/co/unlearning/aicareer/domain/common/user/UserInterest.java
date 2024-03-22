@@ -17,18 +17,16 @@ import java.util.Set;
 @Entity
 public class UserInterest {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @OneToMany(mappedBy = "userInterest",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
     private Set<Education> educationSet;
     @OneToMany(mappedBy = "userInterest",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
     private Set<RecruitingJob> recruitingJobSet;
-    @OneToMany(mappedBy = "userInterest",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
+    @OneToMany(mappedBy = "userInterest",fetch = FetchType.LAZY, cascade = {CascadeType.ALL},orphanRemoval = true)
     private Set<CompanyType> companyTypeSet;
     @Column
     private Boolean isMetropolitanArea;
-    @OneToOne
-    private User user;
     @Column
     private String receiveEmail;
 }

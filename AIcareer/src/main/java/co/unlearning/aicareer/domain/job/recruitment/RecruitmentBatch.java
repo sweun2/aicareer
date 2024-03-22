@@ -13,7 +13,7 @@ import org.hibernate.annotations.CascadeType;
 @AllArgsConstructor
 public class RecruitmentBatch {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @OneToOne
     @Cascade(CascadeType.PERSIST)

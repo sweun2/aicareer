@@ -44,10 +44,6 @@ public class UserRequestDto {
     public static class UserTermsInfo {
         @Schema(description = "마케팅 동의 여부")
         private Boolean isMarketing;
-        @Schema(description = "이용 약관 동의 여부")
-        private Boolean isAgreeUseTerms;
-        @Schema(description = "개인정보 처리 동의 여부")
-        private Boolean isAgreePrivacyTerms;
         @Schema(description = "정보성 알람 동의 여부")
         private Boolean isInformationTerms;
     }
@@ -66,5 +62,7 @@ public class UserRequestDto {
         private List<String> educations;
         @Schema(description = "수도권 여부",allowableValues = {"true,false"})
         private Boolean isMetropolitanArea;
+        @Schema(description = "알람 받을 이메일")
+        private String receivedEmail;
     }
 }

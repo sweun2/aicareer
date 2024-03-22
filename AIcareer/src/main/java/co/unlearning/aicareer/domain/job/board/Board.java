@@ -17,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class Board {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @Column(unique = true)
     private String uid;

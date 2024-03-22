@@ -19,7 +19,7 @@ public class Education {
         IRRELEVANCE, HIGH_SCHOOL, BACHELOR, MASTER, DOCTOR
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

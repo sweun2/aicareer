@@ -19,7 +19,7 @@ public class RecruitingJob {
         ,PRODUCT_MANAGER ,PRODUCT_OWNER
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

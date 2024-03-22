@@ -22,7 +22,7 @@ import java.util.Set;
 @Setter
 public class Recruitment {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @Column(unique = true)
     private String uid; // 채용 공고 uid

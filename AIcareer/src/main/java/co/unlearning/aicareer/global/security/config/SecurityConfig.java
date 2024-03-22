@@ -73,7 +73,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                                .requestMatchers("/api/recruitment/bookmark/post/**").authenticated()
+                                .requestMatchers("/api/recruitment/bookmark/post/**","/api/user/info").authenticated()
                                 .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> {

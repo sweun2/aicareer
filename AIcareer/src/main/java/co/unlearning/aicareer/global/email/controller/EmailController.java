@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailController {
     private final EmailService emailService;
     @GetMapping("/")
-    public ResponseEntity<Void> sendEmail(){
+    public ResponseEntity<String> sendEmail(){
         log.info("test");
         emailService.sendMail();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("test");
     }
 }

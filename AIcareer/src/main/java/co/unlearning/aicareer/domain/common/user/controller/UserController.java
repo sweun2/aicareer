@@ -1,14 +1,14 @@
 package co.unlearning.aicareer.domain.common.user.controller;
 
+import co.unlearning.aicareer.domain.common.user.User;
+import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
+import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.shaded.gson.JsonObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,8 +29,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -40,6 +40,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserRepository userRepository;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저의 기본 정보 가져오기", description = "현재 로그인된 유저의 기본 정보를 가져옵니다.")
     @ApiResponse(
@@ -75,7 +76,6 @@ public class UserController {
     })
     @GetMapping("/info")
     public ResponseEntity<UserResponseDto.UserInfo> findUserInfo() {
-        log.info("/info");
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.getLoginUser()));
     }
 
@@ -149,12 +149,12 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
-    @PutMapping("/user-terms")
-    public ResponseEntity<UserResponseDto.UserInfo> updateUserTerms(UserRequestDto.UserTermsInfo userTermsInfo) {
+    @PatchMapping("/user-terms")
+    public ResponseEntity<UserResponseDto.UserInfo> updateUserTerms(@RequestBody UserRequestDto.UserTermsInfo userTermsInfo) {
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserTerms(userTermsInfo)));
     }
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "유저 관심사 수정", description = "유저 관심사 수정")
+    @Operation(summary = "유저 관심사 생성", description = "유저 관심사 수정")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
@@ -169,9 +169,9 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
-    @PutMapping("/user-interest")
-    public ResponseEntity<UserResponseDto.UserInterestInfo> updateUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
-        return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.updateUserInterest(userInterestInfo)));
+    @PostMapping("/user-interest")
+    public ResponseEntity<UserResponseDto.UserInfo> postUserInterest(@RequestBody UserRequestDto.UserInterestInfo userInterestInfo) {
+        return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.setUserInterest(userInterestInfo)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저 관심사 가져오기", description = "유저 관심사 가져오기")
@@ -181,7 +181,7 @@ public class UserController {
             useReturnTypeSchema = true,
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = UserResponseDto.UserInfo.class)
+                    schema = @Schema(implementation = UserResponseDto.UserInterestInfo.class)
             ))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
@@ -193,95 +193,37 @@ public class UserController {
     public ResponseEntity<UserResponseDto.UserInterestInfo> getUserInterest() {
         return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.getUserInterest()));
     }
-    @ResponseBody
-    @GetMapping("/kakao")
-    public ResponseEntity<String> kakaoCallback(@RequestParam String code) throws Exception {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Content-type","application/x-www-form-urlencoded;chartset=utf-8");
-        MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
-        String REST_API_KEY = "567a3bba3ec24bb1cabaadaab32a2325";
-        String REDIRECT_URI = "http://localhost:8080/api/user/kakao";
-        params.add("grant_type","authorization_code");
-        params.add("client_id",REST_API_KEY);
-        params.add("redirect_uri",REDIRECT_URI);
-        params.add("code",code);
+    @GetMapping("/make")
+    public void addDefaultUserTermsToAllUsers() {
+            List<User> users = userRepository.findAll(); // 모든 User를 조회합니다.
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String,String>> kakaoToken = new HttpEntity<>(params,httpHeaders);
+            for (User user : users) {
+                // 각 UserTerms 유형에 대해 기본값을 설정합니다.
+                UserTerms marketingTerms = new UserTerms();
+                marketingTerms.setIsAgree(false);
+                marketingTerms.setAgreeDate(LocalDateTime.now());
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://kauth.kakao.com/oauth/token",
-                HttpMethod.POST,
-                kakaoToken,
-                String.class
-        );
-        JSONObject object = new JSONObject(response.getBody());
+                UserTerms informationTerms = new UserTerms();
+                informationTerms.setIsAgree(false);
+                informationTerms.setAgreeDate(LocalDateTime.now());
 
-        String accessToken = object.get("access_token").toString();
-        log.info("at:{}",accessToken);
-        sendKakaoMessage(accessToken);
+                UserTerms useTerms = new UserTerms();
+                useTerms.setIsAgree(true);
+                useTerms.setAgreeDate(LocalDateTime.now());
 
-        return ResponseEntity.ok(response.getBody());
+                UserTerms privacyTerms = new UserTerms();
+                privacyTerms.setIsAgree(true);
+                privacyTerms.setAgreeDate(LocalDateTime.now());
+
+                // 각 UserTerms 인스턴스를 User에 설정합니다.
+                user.setIsMarketing(marketingTerms);
+                user.setIsAgreeInformationTerms(informationTerms);
+                user.setIsAgreeUseTerms(useTerms);
+                user.setIsAgreePrivacyTerms(privacyTerms);
+                user.setIsInterest(false);
+                // 변경사항을 데이터베이스에 저장합니다.
+                userRepository.save(user);
+            }
     }
-    public void sendKakaoMessage(String accessToken) {
-        // RestTemplate에 FormHttpMessageConverter와 StringHttpMessageConverter 추가
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new FormHttpMessageConverter());
-        restTemplate.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
-        // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.add("Authorization", "Bearer " + accessToken);
-
-        String shortenUrl = shortenUrlFromNaver();
-        // JSON 문자열 직접 구성
-        String templateObjectJson = "{\"object_type\":\"text\",\"text\":\""+ shortenUrl +"\",\"link\":{\"web_url\":\"https://developers.kakao.com\",\"mobile_web_url\":\"https://developers.kakao.com\"},\"button_title\":\"바로 확인\"}";
-        // MultiValueMap을 사용하여 form 데이터 구성
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("template_object", templateObjectJson);
-
-        // HttpEntity 구성
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
-
-        // POST 요청 실행
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "https://kapi.kakao.com/v2/api/talk/memo/default/send", requestEntity, String.class);
-
-        // 응답 출력
-        System.out.println(response.getBody());
-    }
-    public String shortenUrlFromNaver() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        String clientId = "aY6ehque07j5CjYTBIcX";
-        String clientSecret = "73CHBBQ3sD";
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.add("X-Naver-Client-Id",clientId);
-        headers.add("X-Naver-Client-Secret", clientSecret);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("url", "https://aicareer.co.kr");
-
-        // UriComponentsBuilder를 사용하여 URL 인코딩 처리
-        URI uri = UriComponentsBuilder.fromHttpUrl("https://openapi.naver.com/v1/util/shorturl")
-                .queryParams(map)
-                .build()
-                .encode()
-                .toUri();
-
-        // HttpEntity 구성
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
-
-        // POST 요청 실행
-        ResponseEntity<String> response = restTemplate.exchange(
-                uri, HttpMethod.POST, requestEntity, String.class);
-
-        JSONObject jsonObject = new JSONObject(response.getBody());
-        JSONObject result = (JSONObject) jsonObject.get("result");
-        log.info(result.get("url").toString());
-        return  result.get("url").toString();
-    }
 }

@@ -18,7 +18,7 @@ public class Career {
         NEW_COMER,JUNIOR,SENIOR,MIDDLE,LEADER, IRRELEVANCE
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

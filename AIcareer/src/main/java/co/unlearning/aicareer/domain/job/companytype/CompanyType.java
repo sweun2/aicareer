@@ -18,10 +18,10 @@ public class CompanyType {
         STARTUP, MAJOR, UNICORN, MIDDLE_MARKET, PUBLIC, FOREIGN, ETC
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @OneToOne
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.PERSIST)
     private Company company;
     @Column
     private CompanyTypeName companyTypeName;

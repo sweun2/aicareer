@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 public class SiteMap {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     @Column
     private String uid;
