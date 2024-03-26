@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Image {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(unique = true)
     private String imageUrl;

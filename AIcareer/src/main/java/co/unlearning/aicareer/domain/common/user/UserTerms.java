@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 public class UserTerms {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ColumnDefault("0")
     private Boolean isAgree;

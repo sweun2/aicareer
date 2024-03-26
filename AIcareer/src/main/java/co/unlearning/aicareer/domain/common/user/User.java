@@ -16,7 +16,7 @@ import java.util.Set;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column
     private String nickname;
@@ -36,7 +36,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<Bookmark> bookmarkSet;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private UserInterest userInterest;
     @Column
     private Boolean isInterest;

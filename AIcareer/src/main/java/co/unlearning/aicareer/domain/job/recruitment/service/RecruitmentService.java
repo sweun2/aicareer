@@ -157,7 +157,7 @@ public class RecruitmentService {
         if(recruitmentDeadlineType.equals(RecruitmentDeadlineType.DUE_DATE)) {
             recruitment.setRecruitmentDeadline(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentDeadline().getRecruitmentDeadline()));
         } else if (recruitmentDeadlineType.equals(RecruitmentDeadlineType.EXPIRED)) {
-            recruitment.setRecruitmentDeadline(LocalDateTime.now());
+            recruitment.setRecruitmentDeadline(LocalDateTime.of(2000,1,1,0,0));
         }
         else {
             recruitment.setRecruitmentDeadline((LocalDateTime.of(2999,12,12,12,12)));
@@ -386,7 +386,7 @@ public class RecruitmentService {
             return getOrder(search, pageable, specification);
         }
     }
-    private List<Recruitment> getOrder(RecruitmentRequirementDto.Search search, Pageable pageable, Specification<Recruitment> specification) {
+    public List<Recruitment> getOrder(RecruitmentRequirementDto.Search search, Pageable pageable, Specification<Recruitment> specification) {
         Sort sort = switch (search.getSortCondition()) {
             case "HITS" -> Sort.by("hits");
             case "DEADLINE" -> Sort.by("recruitmentDeadline");
@@ -469,4 +469,19 @@ public class RecruitmentService {
     public List<Recruitment> findAllNotInRecruitmentDeadlineTypes(List<RecruitmentDeadlineType> recruitmentDeadlineTypes) {
         return recruitmentRepository.findAll(RecruitmentSpecification.notInDeadlineTypes(recruitmentDeadlineTypes));
     }
+    public List<Recruitment> getTodayRecruitmentsWithCareer(List<Career.AnnualLeave> annualLeaves) {
+        Set<Recruitment> resultList = new LinkedHashSet<>();
+        LocalDateTime startOfToday = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfToday = startOfToday.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        log.info("Test");
+        annualLeaves.forEach(
+                annualLeave -> {
+                    resultList.addAll(recruitmentRepository.findAllRecruitmentsDateRange(annualLeave,startOfToday, endOfToday));
+                }
+        );
+        log.info("getTodayRecruit");
+        resultList.forEach(r->log.info(String.valueOf(r.getId())));
+        return new ArrayList<>(resultList);
+    }
+
 }

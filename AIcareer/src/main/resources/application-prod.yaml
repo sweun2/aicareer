@@ -60,7 +60,6 @@ spring:
             client-name: Kakao
             scope:
               - profile_nickname
-              - account_email
         provider:
           naver:
             authorization_uri: https://nid.naver.com/oauth2.0/authorize

@@ -8,11 +8,17 @@ import co.unlearning.aicareer.domain.common.user.repository.UserInterestReposito
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.job.companytype.CompanyType;
+import co.unlearning.aicareer.domain.job.companytype.repository.CompanyTypeRepository;
 import co.unlearning.aicareer.domain.job.education.Education;
+import co.unlearning.aicareer.domain.job.education.repository.EducationRepository;
+import co.unlearning.aicareer.domain.job.recruitmenttype.RecruitmentType;
+import co.unlearning.aicareer.domain.job.recruitmenttype.repository.RecruitmentTypeRepository;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
+import co.unlearning.aicareer.domain.job.recrutingjob.repository.RecruitingJobRepository;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +41,10 @@ import java.util.Set;
 public class UserService {
     private final UserRepository userRepository;
     private final UserInterestRepository userInterestRepository;
-
+    private final RecruitingJobRepository recruitingJobRepository;
+    private final EducationRepository educationRepository;
+    private final CompanyTypeRepository companyTypeRepository;
+    private final EntityManager entityManager;
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.USER_NOT_FOUND)
@@ -126,13 +135,21 @@ public class UserService {
     }
     public UserInterest updateUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
         User user = getLoginUser();
-        if (user.getUserInterest() != null) {
+        if (user.getUserInterest() != null && user.getIsInterest()) {
             UserInterest userInterest = user.getUserInterest();
-            userInterest.getRecruitingJobSet().clear();
-            userInterest.getCompanyTypeSet().clear();
-            userInterest.getEducationSet().clear();
+            if(userInterest.getRecruitingJobSet() != null) {
+                recruitingJobRepository.deleteAll(userInterest.getRecruitingJobSet());
+            }
+            if(userInterest.getCompanyTypeSet() != null) {
+                companyTypeRepository.deleteAll(userInterest.getCompanyTypeSet());
+            }
+            if(userInterest.getEducationSet() != null) {
+                educationRepository.deleteAll(userInterest.getEducationSet());
+            }
+            entityManager.flush();
+            entityManager.clear();
 
-            EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
+            /*EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
             userInterestInfo.getCompanyTypes().forEach(companyTypeNameStr -> {
                 CompanyType.CompanyTypeName companyTypeName = companyTypeNameEnumValidator.validateEnumString(companyTypeNameStr, CompanyType.CompanyTypeName.class);
                 userInterest.getCompanyTypeSet().add(CompanyType.builder()
@@ -161,49 +178,49 @@ public class UserService {
             user.setUserInterest(userInterest);
 
             userInterestRepository.save(userInterest);
-            return userInterest;
-        } else {
-            UserInterest userInterest = new UserInterest();
-
-            Set<CompanyType> companyTypeSet = new HashSet<>();
-            EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
-            for (String companyTypeNameStr : userInterestInfo.getCompanyTypes()) {
-                CompanyType.CompanyTypeName companyTypeName = companyTypeNameEnumValidator.validateEnumString(companyTypeNameStr, CompanyType.CompanyTypeName.class);
-                companyTypeSet.add(CompanyType.builder()
-                        .companyTypeName(companyTypeName)
-                        .build());
-            }
-            Set<RecruitingJob> recruitingJobSet = new HashSet<>();
-            EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
-            for (String recruitingJobNameStr : userInterestInfo.getRecruitingJobNames()) {
-                RecruitingJob.RecruitingJobName recruitingJobName = recruitingJobNameEnumValidator.validateEnumString(recruitingJobNameStr, RecruitingJob.RecruitingJobName.class);
-                recruitingJobSet.add(RecruitingJob.builder()
-                        .userInterest(userInterest)
-                        .recruitJobName(recruitingJobName)
-                        .build());
-            }
-            Set<Education> educationSet = new HashSet<>();
-            EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
-            for (String degreeStr : userInterestInfo.getEducations()) {
-                Education.DEGREE degree = degreeEnumValidator.validateEnumString(degreeStr, Education.DEGREE.class);
-                educationSet.add(Education.builder()
-                        .userInterest(userInterest)
-                        .degree(degree)
-                        .build());
-            }
-
-            userInterest.setEducationSet(educationSet);
-            userInterest.setCompanyTypeSet(companyTypeSet);
-            userInterest.setRecruitingJobSet(recruitingJobSet);
-            userInterest.setIsMetropolitanArea(userInterestInfo.getIsMetropolitanArea());
-            userInterest.setReceiveEmail(userInterestInfo.getReceivedEmail());
-            userInterestRepository.save(userInterest);
-
-            user.setUserInterest(userInterest);
-            user.setIsInterest(true);
-            userRepository.save(user);
-            return userInterest;
+            return userInterest;*/
         }
+        UserInterest userInterest = new UserInterest();
+
+        Set<CompanyType> companyTypeSet = new HashSet<>();
+        EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
+        for (String companyTypeNameStr : userInterestInfo.getCompanyTypes()) {
+            CompanyType.CompanyTypeName companyTypeName = companyTypeNameEnumValidator.validateEnumString(companyTypeNameStr, CompanyType.CompanyTypeName.class);
+            companyTypeSet.add(CompanyType.builder()
+                    .userInterest(userInterest)
+                    .companyTypeName(companyTypeName)
+                    .build());
+        }
+        Set<RecruitingJob> recruitingJobSet = new HashSet<>();
+        EnumValidator<RecruitingJob.RecruitingJobName> recruitingJobNameEnumValidator = new EnumValidator<>();
+        for (String recruitingJobNameStr : userInterestInfo.getRecruitingJobNames()) {
+            RecruitingJob.RecruitingJobName recruitingJobName = recruitingJobNameEnumValidator.validateEnumString(recruitingJobNameStr, RecruitingJob.RecruitingJobName.class);
+            recruitingJobSet.add(RecruitingJob.builder()
+                    .userInterest(userInterest)
+                    .recruitJobName(recruitingJobName)
+                    .build());
+        }
+        Set<Education> educationSet = new HashSet<>();
+        EnumValidator<Education.DEGREE> degreeEnumValidator = new EnumValidator<>();
+        for (String degreeStr : userInterestInfo.getEducations()) {
+            Education.DEGREE degree = degreeEnumValidator.validateEnumString(degreeStr, Education.DEGREE.class);
+            educationSet.add(Education.builder()
+                    .userInterest(userInterest)
+                    .degree(degree)
+                    .build());
+        }
+
+        userInterest.setEducationSet(educationSet);
+        userInterest.setCompanyTypeSet(companyTypeSet);
+        userInterest.setRecruitingJobSet(recruitingJobSet);
+        userInterest.setIsMetropolitanArea(userInterestInfo.getIsMetropolitanArea());
+        userInterest.setReceiveEmail(userInterestInfo.getReceivedEmail());
+        userInterestRepository.save(userInterest);
+
+        user.setUserInterest(userInterest);
+        user.setIsInterest(true);
+        userRepository.save(user);
+        return userInterest;
     }
     public User setUserInterest(UserRequestDto.UserInterestInfo userInterestInfo) {
         updateUserInterest(userInterestInfo);

@@ -15,11 +15,24 @@ import org.hibernate.annotations.CascadeType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Education {
+    @Getter
     public enum DEGREE {
-        IRRELEVANCE, HIGH_SCHOOL, BACHELOR, MASTER, DOCTOR
+        IRRELEVANCE("무관"),
+        HIGH_SCHOOL("고졸"),
+        BACHELOR("학사"),
+        MASTER("석사"),
+        DOCTOR("박사");
+
+        private final String koreanName;
+
+        DEGREE(String koreanName) {
+            this.koreanName = koreanName;
+        }
+
     }
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

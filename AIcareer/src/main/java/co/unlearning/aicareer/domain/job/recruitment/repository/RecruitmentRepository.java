@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.job.recruitment.repository;
 
+import co.unlearning.aicareer.domain.job.career.Career;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import org.springframework.data.domain.Page;
@@ -27,5 +28,8 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment,Integer
     List<Recruitment> findAllByRecruitmentDeadlineTypeIsNot(RecruitmentDeadlineType recruitmentDeadlineType);
 
     List<Recruitment> findAllByRecruitmentDeadlineTypeAndRecruitmentDeadlineIsBefore(RecruitmentDeadlineType recruitmentDeadlineType, LocalDateTime deadline);
+    @Query("SELECT r FROM Recruitment r JOIN Career c on c.recruitment = r WHERE c.annualLeave = :annualLeave AND r.uploadDate >= :startDate AND r.uploadDate <= :endDate")
+    List<Recruitment> findAllRecruitmentsDateRange(@Param("annualLeave")Career.AnnualLeave annualLeave,@Param("startDate") LocalDateTime startDate, @Param("endDate")LocalDateTime endDate);
+
 }
 

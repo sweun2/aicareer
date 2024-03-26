@@ -193,7 +193,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto.UserInterestInfo> getUserInterest() {
         return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.getUserInterest()));
     }
-    @GetMapping("/make")
+    /*@GetMapping("/make")
     public void addDefaultUserTermsToAllUsers() {
             List<User> users = userRepository.findAll(); // 모든 User를 조회합니다.
 
@@ -224,6 +224,6 @@ public class UserController {
                 // 변경사항을 데이터베이스에 저장합니다.
                 userRepository.save(user);
             }
-    }
+    }*/
 
 }

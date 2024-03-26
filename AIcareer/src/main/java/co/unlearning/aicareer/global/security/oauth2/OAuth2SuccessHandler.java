@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.global.security.oauth2;
 
 import co.unlearning.aicareer.domain.common.user.User;
+import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
@@ -55,18 +56,22 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .joinDate(LocalDateTime.now())
                     .build();
             userRepository.save(user);
-            if(user.getIsMarketing()==null || user.getIsAgreeUseTerms()==null || user.getIsAgreePrivacyTerms()==null || user.getIsAgreeInformationTerms()==null) {
-                UserTerms isMarketing = UserTerms.builder().isAgree(false).build();
-                UserTerms isAgreeUseTerms = UserTerms.builder().isAgree(true).build();
-                UserTerms isAgreePrivacyTerms = UserTerms.builder().isAgree(true).build();
-                UserTerms isAgreeInformationTerms = UserTerms.builder().isAgree(false).build();
+            UserInterest userInterest = new UserInterest();
+            userInterest.setReceiveEmail("");
+            userInterest.setIsMetropolitanArea(false);
+            user.setUserInterest(userInterest);
 
-                user.setIsMarketing(isMarketing);
-                user.setIsAgreeUseTerms(isAgreeUseTerms);
-                user.setIsAgreeInformationTerms(isAgreeInformationTerms);
-                user.setIsAgreePrivacyTerms(isAgreePrivacyTerms);
-                userRepository.save(user);
-            }
+            UserTerms isMarketing = UserTerms.builder().isAgree(false).build();
+            UserTerms isAgreeUseTerms = UserTerms.builder().isAgree(true).build();
+            UserTerms isAgreePrivacyTerms = UserTerms.builder().isAgree(true).build();
+            UserTerms isAgreeInformationTerms = UserTerms.builder().isAgree(false).build();
+
+            user.setIsInterest(false);
+            user.setIsMarketing(isMarketing);
+            user.setIsAgreeUseTerms(isAgreeUseTerms);
+            user.setIsAgreeInformationTerms(isAgreeInformationTerms);
+            user.setIsAgreePrivacyTerms(isAgreePrivacyTerms);
+            userRepository.save(user);
         }
         ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
                 .path("/")

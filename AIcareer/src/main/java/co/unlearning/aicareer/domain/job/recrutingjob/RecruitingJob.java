@@ -14,12 +14,29 @@ import org.hibernate.annotations.CascadeType;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecruitingJob {
+    @Getter
     public enum RecruitingJobName {
-        MACHINE_LEARNING_ENGINEER, DATA_SCIENTIST,DATA_ANALYST,DATA_ENGINEER,NLP,RESEARCH,COMPUTER_VISION, GENERATIVE_AI,ETC
-        ,PRODUCT_MANAGER ,PRODUCT_OWNER
+        MACHINE_LEARNING_ENGINEER("머신러닝 엔지니어"),
+        DATA_SCIENTIST("데이터 사이언티스트"),
+        DATA_ANALYST("데이터 분석가"),
+        DATA_ENGINEER("데이터 엔지니어"),
+        NLP("NLP"),
+        RESEARCH("리서치"),
+        COMPUTER_VISION("컴퓨터 비전"),
+        GENERATIVE_AI("생성형 AI"),
+        ETC("기타"),
+        PRODUCT_MANAGER("PM"),
+        PRODUCT_OWNER("PO");
+
+        private final String koreanName;
+
+        RecruitingJobName(String koreanName) {
+            this.koreanName = koreanName;
+        }
+
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

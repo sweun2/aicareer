@@ -6,11 +6,13 @@ import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentBatch;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentRepository;
+import co.unlearning.aicareer.global.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -28,6 +30,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RecruitmentBatchService {
     private final RecruitmentService recruitmentService;
+    private final EmailService emailService;
     public void printList() {
         getUrlNot2xxRecruitment().forEach(
                 (str) -> {
@@ -70,5 +73,9 @@ public class RecruitmentBatchService {
         return webClient.get()
                 .uri(recruitment.getRecruitmentAnnouncementLink())
                 .exchangeToMono(response -> Mono.just(Map.of(recruitment, response.statusCode().value())));
+    }
+    @Scheduled(cron = "0 0 7 * * *")
+    public void mailServiceScheduler () {
+        emailService.sendMail();
     }
 }

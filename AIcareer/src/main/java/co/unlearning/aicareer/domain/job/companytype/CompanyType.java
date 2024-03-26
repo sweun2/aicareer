@@ -14,15 +14,27 @@ import org.hibernate.annotations.CascadeType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompanyType {
+    @Getter
     public enum CompanyTypeName {
-        STARTUP, MAJOR, UNICORN, MIDDLE_MARKET, PUBLIC, FOREIGN, ETC
+        STARTUP("스타트업"),
+        MAJOR("대기업"),
+        UNICORN("유니콘"),
+        MIDDLE_MARKET("중견기업"),
+        PUBLIC("공기업"),
+        FOREIGN("외국계"),
+        ETC("기타");
+
+        private final String koreanName;
+
+        CompanyTypeName(String koreanName) {
+            this.koreanName = koreanName;
+        }
+
     }
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @OneToOne
-    @Cascade(CascadeType.PERSIST)
-    private Company company;
     @Column
     private CompanyTypeName companyTypeName;
     @ManyToOne

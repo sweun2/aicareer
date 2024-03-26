@@ -85,12 +85,14 @@ public class UserResponseDto {
         private List<RecruitingJobResponseDto.RecruitingJobNameDto> recruitingJobNames;
         private List<CompanyTypeResponseDto.CompanyTypeInfo> companyTypeInfos;
         private Boolean isMetropolitanArea;
+        private String receivedEmail;
         public static UserInterestInfo of(UserInterest userInterest) {
             return UserInterestInfo.builder()
                     .recruitingJobNames(RecruitingJobResponseDto.RecruitingJobNameDto.of(List.copyOf(userInterest.getRecruitingJobSet())))
                     .educationDtos(EducationResponseDto.EducationDto.of(List.copyOf(userInterest.getEducationSet())))
                     .companyTypeInfos(CompanyTypeResponseDto.CompanyTypeInfo.of(List.copyOf(userInterest.getCompanyTypeSet())))
                     .isMetropolitanArea(userInterest.getIsMetropolitanArea())
+                    .receivedEmail(userInterest.getReceiveEmail())
                     .build();
         }
 

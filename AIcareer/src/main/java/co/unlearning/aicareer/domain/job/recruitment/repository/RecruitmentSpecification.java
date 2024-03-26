@@ -98,4 +98,7 @@ public class RecruitmentSpecification {
     public static Specification<Recruitment> notInDeadlineTypes(List<RecruitmentDeadlineType> deadlineTypes) {
         return (root, query, builder) -> builder.not(root.get("recruitmentDeadlineType").in(deadlineTypes));
     }
+    public static Specification<Recruitment> uploadDateBetween(LocalDateTime start, LocalDateTime end) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("uploadDate"), start, end);
+    }
 }

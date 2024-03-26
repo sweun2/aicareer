@@ -14,11 +14,24 @@ import org.hibernate.annotations.CascadeType;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class Career {
-    public enum AnnualLeave{
-        NEW_COMER,JUNIOR,SENIOR,MIDDLE,LEADER, IRRELEVANCE
+    @Getter
+    public enum AnnualLeave {
+        NEW_COMER("신입"),
+        JUNIOR("주니어"),
+        SENIOR("시니어"),
+        MIDDLE("중간"),
+        LEADER("리더"),
+        IRRELEVANCE("무관");
+
+        private final String koreanName;
+
+        AnnualLeave(String koreanName) {
+            this.koreanName = koreanName;
+        }
     }
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

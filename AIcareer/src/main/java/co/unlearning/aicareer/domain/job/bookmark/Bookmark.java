@@ -18,7 +18,7 @@ import org.hibernate.annotations.CascadeType;
 })
 public class Bookmark {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
     @Cascade(CascadeType.PERSIST)

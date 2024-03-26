@@ -87,7 +87,6 @@ public class RecruitmentRequirementDto {
         private List<String> recruitmentAddress; //지역
         @Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE", "EXPIRED"})
         private List<String> recruitmentDeadlineType; //마감 타입
-
     }
 
 
