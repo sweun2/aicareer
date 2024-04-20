@@ -172,7 +172,7 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
     public ResponseEntity<RecruitmentResponseDto.RecruitmentSimple> postBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
-                                                                                     @PathVariable("uid") String uid) throws Exception {
+                                                                                     @PathVariable("uid") String uid) {
         return ResponseEntity.status(HttpStatus.CREATED).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.addRecruitmentBookmark(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -189,7 +189,7 @@ public class RecruitmentController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
     @GetMapping("/bookmark/")
-    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findBookmarkRecruitmentInfo() throws Exception {
+    public ResponseEntity<List<RecruitmentResponseDto.RecruitmentSimple>> findBookmarkRecruitmentInfo() {
         return ResponseEntity.status(HttpStatus.OK).body(RecruitmentResponseDto.RecruitmentSimple.of(recruitmentService.findUserBookMark()));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -205,7 +205,7 @@ public class RecruitmentController {
     })
     @DeleteMapping("/bookmark/delete/{uid}")
     public ResponseEntity<Void> removeBookmarkRecruitmentInfo(@Parameter(name = "uid", description = "공고 uid", in = ParameterIn.PATH)
-                                                                                         @PathVariable("uid") String uid) throws Exception {
+                                                                                         @PathVariable("uid") String uid) {
         recruitmentService.removeRecruitmentBookMark(uid);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

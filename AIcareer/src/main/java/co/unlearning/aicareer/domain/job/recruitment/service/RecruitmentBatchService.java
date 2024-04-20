@@ -1,11 +1,7 @@
 package co.unlearning.aicareer.domain.job.recruitment.service;
 
-import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
-import co.unlearning.aicareer.domain.common.Image.service.ImageService;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
-import co.unlearning.aicareer.domain.job.recruitment.RecruitmentBatch;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
-import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentRepository;
 import co.unlearning.aicareer.global.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +29,7 @@ public class RecruitmentBatchService {
     private final EmailService emailService;
     public void printList() {
         getUrlNot2xxRecruitment().forEach(
-                (str) -> {
-                    System.out.println("url:"+str);
-                }
+                (str) -> System.out.println("url:"+str)
         );
     }
 /*    public void getAllRecruitmentURLNot2xx() {
@@ -50,12 +44,11 @@ public class RecruitmentBatchService {
         Flux<Map<Recruitment, Integer>> flux = Flux.fromIterable(recruitmentList)
                 .flatMap(this::getResponseStatusCodeFromRecruitment);
 
-        // 응답 코드가 2xx가 아닌 경우를 필터링하여 urlNot2xx 리스트에 추가
         flux.filter(map -> !HttpStatus.valueOf(map.entrySet().iterator().next().getValue()).is2xxSuccessful())
                 .map(map -> map.entrySet().iterator().next().getKey())
                 .doOnNext(urlNot2xx::add)
                 .then()
-                .block(); // Flux의 데이터가 모두 수신될 때까지 대기
+                .block();
 
         return urlNot2xx;
     }
@@ -74,8 +67,13 @@ public class RecruitmentBatchService {
                 .uri(recruitment.getRecruitmentAnnouncementLink())
                 .exchangeToMono(response -> Mono.just(Map.of(recruitment, response.statusCode().value())));
     }
-    @Scheduled(cron = "0 0 7 * * *")
+    @Scheduled(cron = "0 0 9 * * *")
     public void mailServiceScheduler () {
-        emailService.sendMail();
+        emailService.sendRecruitMailEveryDay();
+    }
+
+    @Scheduled(cron = "0 0 11 ? * SAT", zone="Asia/Seoul")
+    public void sendWeeklyTopHitsRecruitmentMail() {
+        emailService.sendRecruitMailEveryWeek();
     }
 }

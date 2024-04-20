@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,16 +42,18 @@ public class ImageService {
     public Image addS3Image(ImageRequirementDto.ImagePost imagePost) throws IOException {
         ImageValidator.ImageExistValidator(imagePost.getImageFile());
         MultipartFile multipartFile = imagePost.getImageFile();
-        String originImageName = imagePost.getOriginImageName();
         String contentType;
         if(Objects.equals(multipartFile.getContentType(), "image/jpeg")) {
             contentType = ".jpg";
         } else if (Objects.equals(multipartFile.getContentType(), "image/png")) {
             contentType = ".png";
-        } else {
+        } else if (Objects.equals(multipartFile.getContentType(),"image/webp")) {
+            contentType = ".webp";
+        }
+        else {
             throw new BusinessException(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE);
         }
-        String imagePath = originImageName + UUID.randomUUID() + contentType;
+        String imagePath = (UUID.randomUUID().toString() + UUID.randomUUID().toString() + contentType).replaceAll(" ", "");
 
         //파일 변환
         ObjectMetadata objectMetadata = new ObjectMetadata();

@@ -14,8 +14,8 @@ spring-doc:
 spring:
   datasource:
     url: jdbc:mariadb://localhost:3306/aicareer
-    username: root
-    password: root
+    username: aicareer
+    password: aicareer
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     hibernate:
@@ -76,7 +76,7 @@ spring:
 logging:
   level:
     org:
-      springframework: ERROR
+      springframework: DEBUG
 back-url: "http://localhost:8080"
 front-url: "https://www.aicareer.co.kr"
 

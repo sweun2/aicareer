@@ -18,6 +18,7 @@ import co.unlearning.aicareer.domain.job.recrutingjob.repository.RecruitingJobRe
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.EnumValidator;
+import com.nimbusds.openid.connect.sdk.assurance.evidences.ElectronicSignatureEvidence;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;

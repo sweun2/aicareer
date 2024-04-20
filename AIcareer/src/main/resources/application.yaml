@@ -1,8 +1,8 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 20MB
+      max-request-size: 20MB
   profiles:
     include:
       - "aws"
@@ -14,12 +14,12 @@ spring:
     active: local
 
 
+---
+spring:
+  profiles:
+    active: prod
 
 ---
 spring:
   profiles:
     active: dev
----
-spring:
-  profiles:
-    active: prod

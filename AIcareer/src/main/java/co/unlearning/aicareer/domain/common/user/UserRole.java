@@ -7,7 +7,7 @@ public enum UserRole {
     USER("USER")
     ,ADMIN("ADMIN")
     ,GUEST("GUEST")
-    ,BLOCK("BLOCK");
+    ,PERMANENT_BLOCK("PERMANENT_BLOCK");
 
     private final String userRole;
     UserRole(String userRole) {

@@ -63,4 +63,5 @@ public class Recruitment {
     private Set<Image> subImageSet;
     @Column
     private LocalDateTime lastModified;
+
 }

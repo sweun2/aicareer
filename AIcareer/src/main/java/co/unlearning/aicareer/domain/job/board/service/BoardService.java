@@ -37,6 +37,7 @@ public class BoardService {
                     () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
+        assert image != null;
         image.setIsRelated(true);
 
         Board board = Board.builder()
@@ -62,6 +63,7 @@ public class BoardService {
             }
             board.setSubImageSet(subImages);
         }
+        //board.setBoardContentType(boardPost.getContentType());
         jobBoardRepository.save(board);
 
         siteMapService.registerJobBoardSiteMap(board);
@@ -96,6 +98,7 @@ public class BoardService {
         board.setTitle(boardPost.getTitle());
         board.setContent(boardPost.getContent());
         board.setLastModified(LocalDateTime.now());
+        //board.setBoardContentType(boardPost.getContentType());
 
         jobBoardRepository.save(board);
         siteMapService.registerJobBoardSiteMap(board);

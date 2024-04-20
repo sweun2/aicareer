@@ -1,5 +1,7 @@
 package co.unlearning.aicareer.domain.common.user;
 
+import co.unlearning.aicareer.domain.community.communitycommentuser.CommunityCommentUser;
+import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,4 +50,9 @@ public class User {
     private UserTerms isAgreeUseTerms;
     @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL,orphanRemoval = true)
     private UserTerms isAgreePrivacyTerms;
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private Set<CommunityPostingUser> communityPostingUser;
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    private Set<CommunityCommentUser> communityCommentUserSet;
 }

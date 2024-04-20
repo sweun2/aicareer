@@ -19,6 +19,10 @@ public enum ResponseErrorCode {
     INVALID_DATE_STRING_INPUT(HttpStatus.BAD_REQUEST.value(), "COMMON_003","잘못된 date 입력 값입니다."),
     @ExplainError("입력하는 date 값이 유효하지 않은 경우,마감 일자 입력은 현재 보다 나중이어야 합니다.")
     DATE_BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "COMMON_004","잘못된 date 입력 값입니다."),
+    @ExplainError("유저가 이미 추천을 했습니다.")
+    USER_ALREADY_RECOMMEND(HttpStatus.METHOD_NOT_ALLOWED.value(), "COMMON_005","유저가 이미 추천을 했습니다."),
+    @ExplainError("유저가 이미 신고를 했습니다.")
+    USER_ALREADY_REPORT(HttpStatus.METHOD_NOT_ALLOWED.value(), "COMMON_006","유저가 이미 신고를 했습니다."),
 
     @ExplainError("DB에 유저 정보가 없는 경우, 회원 가입 필요")
     USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "USER_001", "유저 정보가 없습니다."),
@@ -26,6 +30,9 @@ public enum ResponseErrorCode {
     USER_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED.value(),"USER_002","유저 권한이 부족합니다."),
     @ExplainError("access-token/refresh-token 정보가 잘못된 경우, 재로그인 필요")
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(),"USER_003","로그인에 실패했습니다."),
+    @ExplainError("아이디 밴 당한 경우, 관리자에게 문의 바람")
+    USER_BLOCKED(HttpStatus.UNAUTHORIZED.value(),"USER_004","접근이 차단되었습니다."),
+
 
     @ExplainError("uid가 잘못되었을 때 발생하는 에러, uid 확인 필요")
     UID_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "RECRUITMENT_001", "uid가 잘못 입력되었습니다."),

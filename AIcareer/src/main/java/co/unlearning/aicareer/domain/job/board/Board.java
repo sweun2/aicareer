@@ -39,4 +39,5 @@ public class Board {
     private Boolean isView;
     @OneToMany(mappedBy = "board",fetch = FetchType.EAGER, cascade = {jakarta.persistence.CascadeType.ALL}, orphanRemoval = true)
     private Set<Image> subImageSet;
+
 }

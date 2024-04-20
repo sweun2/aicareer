@@ -25,15 +25,14 @@ public class RecruitingJob {
         COMPUTER_VISION("컴퓨터 비전"),
         GENERATIVE_AI("생성형 AI"),
         ETC("기타"),
-        PRODUCT_MANAGER("PM"),
-        PRODUCT_OWNER("PO");
-
+        PM_PO("PM/PO"),
+        CONSULTANT("컨설턴트"),
+        SOFTWARE_ENGINEER("소프트웨어 엔지니어")
+        ;
         private final String koreanName;
-
         RecruitingJobName(String koreanName) {
             this.koreanName = koreanName;
         }
-
     }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

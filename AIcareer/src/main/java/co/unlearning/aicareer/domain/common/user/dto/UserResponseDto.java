@@ -26,12 +26,10 @@ public class UserResponseDto {
     @AllArgsConstructor
     public static class UserSimple {
         private Integer userId;
-        private String name;
         private String nickname;
         public static UserSimple of(User user) {
             return UserSimple.builder()
                     .userId(user.getId())
-                    .name(user.getName())
                     .nickname(user.getNickname())
                     .build();
         }

@@ -25,7 +25,7 @@ public class RecruitmentRequirementDto {
         private String companyName;
         @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC","FOREIGN","ETC"})
         private String companyType;
-        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PRODUCT_MANAGER","PRODUCT_OWNER"})
+        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PM_PO","CONSULTANT","SOFTWARE_ENGINEER"})
         @NotNull
         private List<String> recruitingJobNames;
         @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
@@ -48,6 +48,8 @@ public class RecruitmentRequirementDto {
         private String title; //title
         @Schema(description = "내용")
         private String content; //내용
+        /*@Schema(description = "내부 타입",allowableValues = {"markdown,html"})
+        private String contentType;*/
     }
     @Getter
     @Setter
@@ -75,7 +77,7 @@ public class RecruitmentRequirementDto {
         private String orderBy;
         @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC", "ETC"})
         private List<String> companyTypes;
-        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PRODUCT_MANAGER","PRODUCT_OWNER"})
+        @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PM_PO","CONSULTANT","SOFTWARE_ENGINEER"})
         private List<String> recruitingJobNames;
         @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
         private List<String> recruitmentTypeNames;

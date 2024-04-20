@@ -59,6 +59,7 @@ public class RecruitmentResponseDto {
         private String title; //title
         //@Schema(description = "내용")
         private String content; //내용
+        /*private String contentType;*/
 
         public static RecruitmentInfo of(Recruitment recruitment) {
             RecruitmentInfoBuilder builder =  RecruitmentInfo.builder()
@@ -78,6 +79,7 @@ public class RecruitmentResponseDto {
                     .recruitmentAddress(recruitment.getRecruitmentAddress())
                     .title(recruitment.getTitle())
                     .content(recruitment.getContent());
+                    //.contentType(recruitment.getRecruitmentContentType());
 
             if (recruitment.getMainImage() != null) {
                 builder.mainImageUrl(ImageResponseDto.ImageData.of(recruitment.getMainImage()));

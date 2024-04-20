@@ -7,15 +7,12 @@ import co.unlearning.aicareer.domain.job.companytype.CompanyType;
 import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentAddress;
-import co.unlearning.aicareer.domain.job.recruitment.dto.RecruitmentRequirementDto;
 import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentRepository;
 import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentSpecification;
-import co.unlearning.aicareer.domain.job.recruitment.service.RecruitmentService;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +23,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,19 +46,17 @@ public class EmailService {
     private final UserRepository userRepository;
     private final RecruitmentRepository recruitmentRepository;
     @Async
-    public void sendMail() {
-        /*if(Objects.equals(frontUrl, "https://alpha.aicareer.co.kr")) {
+    public void sendRecruitMailEveryDay() {
+        if(Objects.equals(frontUrl, "https://alpha.aicareer.co.kr")) {
            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
-        }*/
-        Map<UserInterest, String> userUrlMap = getRecruitmentUrlMap();
+        }
+        Map<UserInterest, String> userUrlMap = getRecruitmentUrlMapWithDay(1,15);
         userUrlMap.forEach((userInterest, url) -> {
             try {
                 MimeMessage message = javaMailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-                // 사용자의 이메일 주소로 설정
                 helper.setTo(userInterest.getReceiveEmail());
-                //helper.setTo(userInterest.getReceiveEmail());
                 helper.setSubject("에이아이 커리어 채용공고");
 
                 String htmlContent = getRecruitmentMailHTML(url); // URL을 포함한 HTML 콘텐츠를 가져옵니다.
@@ -73,8 +64,7 @@ public class EmailService {
 
                 javaMailSender.send(message);
             } catch (MessagingException e) {
-                // 오류 처리
-                e.printStackTrace(); // 실제 프로덕션 코드에서는 로깅 프레임워크를 사용하는 것이 좋습니다.
+                log.info(e.getMessage());
             }
         });
     }
@@ -84,24 +74,21 @@ public class EmailService {
         RestTemplate restTemplate = new RestTemplate();
 
         try {
-            // 첫 번째 요청을 실행하여 리다이렉트 URL을 얻음
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
 
-            // 리다이렉트 URL 추출
             String redirectUrl = Objects.requireNonNull(response.getHeaders().getLocation()).toString();
 
             // 리다이렉트 URL로부터 HTML 가져오기
             html = restTemplate.getForObject(redirectUrl, String.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
         }
         return html;
     }
 
-    public Map<UserInterest, String> getRecruitmentUrlMap() {
+    public Map<UserInterest, String> getRecruitmentUrlMapWithDay(Integer day,Integer pageSize) {
         Map<UserInterest, String> userUrlMap = new HashMap<>();
         List<User> userList = userRepository.findAll();
-        PageRequest pageRequest = PageRequest.of(0, 5);
 
         userList.forEach(user -> {
             if (user.getIsInterest() && user.getUserInterest() != null && user.getIsAgreeInformationTerms().getIsAgree()) {
@@ -126,8 +113,8 @@ public class EmailService {
                         ))
                         .and(RecruitmentSpecification.isOpenRecruitment());
 
-                LocalDateTime startOfYesterday = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
-                LocalDateTime endOfYesterday = startOfYesterday.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+                LocalDateTime startOfYesterday = LocalDateTime.now().minusDays(day).withHour(0).withMinute(0).withSecond(0).withNano(0);
+                LocalDateTime endOfYesterday = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
                 specification = specification.and(RecruitmentSpecification.uploadDateBetween(startOfYesterday, endOfYesterday));
 
                 List<RecruitmentAddress> recruitmentAddresses = List.of(SEOUL, GANGNAM, MAPO, GURO_GARSAN_GAME, BUNDANG_PANGYO);
@@ -137,8 +124,8 @@ public class EmailService {
                     specification = specification.and(RecruitmentSpecification.hasRecruitmentAddress(recruitmentAddresses));
                 }
 
-                Sort sort = Sort.by("uploadDate").descending();
-                PageRequest pageableWithSort = pageRequest.withSort(sort);
+                Sort sort = Sort.by("hits").descending();
+                PageRequest pageableWithSort = PageRequest.of(0, pageSize, sort);
                 List<Recruitment> resultList = recruitmentRepository.findAll(specification, pageableWithSort).stream().toList();
                 if(!resultList.isEmpty()) {
                     String idList = resultList.stream()
@@ -152,6 +139,30 @@ public class EmailService {
         });
 
         return userUrlMap;
+    }
+
+    @Async
+    public void sendRecruitMailEveryWeek() {
+        if(Objects.equals(frontUrl, "https://alpha.aicareer.co.kr")) {
+            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        Map<UserInterest, String> userUrlMap = getRecruitmentUrlMapWithDay(7,5);
+        userUrlMap.forEach((userInterest, url) -> {
+            try {
+                MimeMessage message = javaMailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                helper.setTo(userInterest.getReceiveEmail());
+                helper.setSubject("에이아이 커리어 주간 탑5 조회수 채용공고");
+
+                String htmlContent = getRecruitmentMailHTML(url);
+                helper.setText(htmlContent, true);
+
+                javaMailSender.send(message);
+            } catch (MessagingException e) {
+                log.info(e.getMessage());
+            }
+        });
     }
 
 }

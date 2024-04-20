@@ -30,7 +30,6 @@ import java.util.UUID;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenService tokenService;
-    private final UserTermsRepository userTermsRepository;
     private final UserRepository userRepository;
     @Value("${front-url}")
     private String frontURL;
@@ -43,8 +42,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Optional<User> userOptional = userRepository.findByEmail(email);
 
-        String url;
-        //최초 로그인 시 회원가입
         if(userOptional.isEmpty()){
             User user = User.builder()
                     .email(email)

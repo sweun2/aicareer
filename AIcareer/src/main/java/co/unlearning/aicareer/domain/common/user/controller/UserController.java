@@ -6,6 +6,7 @@ import co.unlearning.aicareer.domain.common.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
+import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
@@ -41,6 +42,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
+    private final TokenService tokenService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저의 기본 정보 가져오기", description = "현재 로그인된 유저의 기본 정보를 가져옵니다.")
     @ApiResponse(
@@ -193,37 +195,9 @@ public class UserController {
     public ResponseEntity<UserResponseDto.UserInterestInfo> getUserInterest() {
         return ResponseEntity.ok(UserResponseDto.UserInterestInfo.of(userService.getUserInterest()));
     }
-    /*@GetMapping("/make")
-    public void addDefaultUserTermsToAllUsers() {
-            List<User> users = userRepository.findAll(); // 모든 User를 조회합니다.
-
-            for (User user : users) {
-                // 각 UserTerms 유형에 대해 기본값을 설정합니다.
-                UserTerms marketingTerms = new UserTerms();
-                marketingTerms.setIsAgree(false);
-                marketingTerms.setAgreeDate(LocalDateTime.now());
-
-                UserTerms informationTerms = new UserTerms();
-                informationTerms.setIsAgree(false);
-                informationTerms.setAgreeDate(LocalDateTime.now());
-
-                UserTerms useTerms = new UserTerms();
-                useTerms.setIsAgree(true);
-                useTerms.setAgreeDate(LocalDateTime.now());
-
-                UserTerms privacyTerms = new UserTerms();
-                privacyTerms.setIsAgree(true);
-                privacyTerms.setAgreeDate(LocalDateTime.now());
-
-                // 각 UserTerms 인스턴스를 User에 설정합니다.
-                user.setIsMarketing(marketingTerms);
-                user.setIsAgreeInformationTerms(informationTerms);
-                user.setIsAgreeUseTerms(useTerms);
-                user.setIsAgreePrivacyTerms(privacyTerms);
-                user.setIsInterest(false);
-                // 변경사항을 데이터베이스에 저장합니다.
-                userRepository.save(user);
-            }
-    }*/
+    @GetMapping("/test")
+    public ResponseEntity<String> getToken() {
+        return ResponseEntity.ok(tokenService.generateToken("sweun3@gmail.com","USER").getAccessToken());
+    }
 
 }

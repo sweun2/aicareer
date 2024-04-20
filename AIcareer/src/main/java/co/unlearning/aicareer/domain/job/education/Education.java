@@ -28,7 +28,6 @@ public class Education {
         DEGREE(String koreanName) {
             this.koreanName = koreanName;
         }
-
     }
 
     @Id

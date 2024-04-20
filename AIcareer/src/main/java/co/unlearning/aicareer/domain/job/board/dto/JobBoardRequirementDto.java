@@ -22,5 +22,7 @@ public class JobBoardRequirementDto {
         private String title;
         @Schema(description = "내용")
         private String content;
+/*        @Schema(description = "내부 타입",allowableValues = {"markdown,html"})
+        private String contentType;*/
     }
 }

@@ -40,26 +40,30 @@ public class MainController {
     private final KaKaoTalkService kaKaoTalkService;
     @Value("${back-url}")
     private String backUrl;
+    @Value("${front-url}")
+    private String frontUrl;
+
     @GetMapping("")
-    public void exRedirect3(HttpServletResponse httpServletResponse) throws IOException {
-        httpServletResponse.sendRedirect("https://aicareer.co.kr");
+    public void redirectToHomePage(HttpServletResponse httpServletResponse) throws IOException {
+        httpServletResponse.sendRedirect(frontUrl);
     }
+
     @ResponseBody
     @GetMapping("/kakao")
     public ResponseEntity<String> kakaoCallback(@RequestParam(name = "code") String code) throws Exception {
         log.info(code);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Content-type","application/x-www-form-urlencoded;chartset=utf-8");
-        MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
+        httpHeaders.add("Content-type", "application/x-www-form-urlencoded;chartset=utf-8");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         String REST_API_KEY = "567a3bba3ec24bb1cabaadaab32a2325";
-        String REDIRECT_URI = backUrl+"/kakao";
-        params.add("grant_type","authorization_code");
-        params.add("client_id",REST_API_KEY);
-        params.add("redirect_uri",REDIRECT_URI);
-        params.add("code",code);
+        String REDIRECT_URI = backUrl + "/kakao";
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", REST_API_KEY);
+        params.add("redirect_uri", REDIRECT_URI);
+        params.add("code", code);
 
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String,String>> kakaoToken = new HttpEntity<>(params,httpHeaders);
+        HttpEntity<MultiValueMap<String, String>> kakaoToken = new HttpEntity<>(params, httpHeaders);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 "https://kauth.kakao.com/oauth/token",
@@ -73,5 +77,14 @@ public class MainController {
         kaKaoTalkService.sendKakaoMessage(accessToken);
 
         return ResponseEntity.ok(response.getBody());
+    }
+
+    @ResponseBody
+    @GetMapping("/kakao/bot")
+    public RedirectView redirectToExternalURL() {
+        String externalURL = "https://kauth.kakao.com/oauth/authorize?" +
+                "client_id=567a3bba3ec24bb1cabaadaab32a2325&" +
+                "redirect_uri=https://api.aicareer.co.kr/kakao&response_type=code&scope=talk_message";
+        return new RedirectView(externalURL);
     }
 }

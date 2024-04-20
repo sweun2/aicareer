@@ -167,6 +167,7 @@ public class RecruitmentService {
         recruitment.setTitle(recruitmentPost.getTitle());
         recruitment.setContent(recruitmentPost.getContent());
         recruitment.setLastModified(LocalDateTime.now());
+        //recruitment.setRecruitmentContentType(recruitmentPost.getContentType());
 
         recruitmentRepository.save(recruitment);
 
@@ -291,7 +292,6 @@ public class RecruitmentService {
             subImage.setRecruitment(recruitment);
             subImages.add(subImage);
         }
-
         mainImage.setRecruitment(recruitment);
 
         recruitment.setRecruitingJobSet(recruitingJobs);
@@ -299,6 +299,7 @@ public class RecruitmentService {
         recruitment.setEducationSet(educations);
         recruitment.setCareerSet(careers);
         recruitment.setSubImageSet(subImages);
+        //recruitment.setRecruitmentContentType(recruitmentPost.getContentType());
         recruitmentRepository.save(recruitment);
 
         siteMapService.registerRecruitmentSiteMap(recruitment);

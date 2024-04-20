@@ -2,6 +2,7 @@ package co.unlearning.aicareer.domain.kakaotalk.service;
 
 import co.unlearning.aicareer.domain.job.career.Career;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.job.recruitment.service.RecruitmentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -34,13 +36,10 @@ public class KaKaoTalkService {
     private String frontUrl;
     private final RecruitmentService recruitmentService;
     public void sendKakaoMessage(String accessToken) {
-        // RestTemplate에 FormHttpMessageConverter와 StringHttpMessageConverter 추가
-        log.info("sendkakaotalk");
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new FormHttpMessageConverter());
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
-        // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.add("Authorization", "Bearer " + accessToken);
@@ -50,62 +49,69 @@ public class KaKaoTalkService {
         List<Recruitment> expertSet = recruitmentService.getTodayRecruitmentsWithCareer(expertList);
         String newComerMsg = "";
         String expertMsg = "";
-        for(Recruitment recruitment : newComerSet) {
-            log.info(recruitment.getUid());
-            newComerMsg += "\\uD83D\\uDDA5 " + recruitment.getCompany().getCompanyName() + " [" + recruitment.getCompany().getCompanyType().getCompanyTypeName().getKoreanName() + "]" + "\\n" +
-                    "- 직무 : " + recruitment.getRecruitingJobSet().stream().map(job->job.getRecruitJobName().getKoreanName()).collect(Collectors.joining(", ")) + " (" + recruitment.getRecruitmentDeadlineType().getKoreanName() + ")" + "\\n" +
-                    "- 요건 : 학력 " + recruitment.getEducationSet().stream().map(edu -> edu.getDegree().getKoreanName()).collect(Collectors.joining(",")) +
-                    ", " +
-                    "경력 " + recruitment.getCareerSet().stream().map(car -> car.getAnnualLeave().getKoreanName()).collect(Collectors.joining(", ")) + "\\n" +
-                    shortenUrlFromNaver(frontUrl+"/recruitment/"+recruitment.getUid()) + "\\n" + "\\n";
-        }
-        String templateObjectJson1 = "{\"object_type\":\"text\",\"text\":\"" +
+        newComerMsg = getKakaoTalkMsgText(newComerSet, newComerMsg);
+        List<String> splitNewComerMsg = splitMessage(newComerMsg);
+        String templateObjectJsonNewComer1 = "{\"object_type\":\"text\",\"text\":\"" +
                 "\\uD83D\\uDEA8 AI커리어 오늘의 공고" + "\\n" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd(E)", Locale.KOREAN)) + "\\n" + "\\n" +
                 "⌨ 맞춤 채용공고 메일 등록하기\\n" +
                 "https://www.aicareer.co.kr/?milp=true" + "\\n" + "\\n" +
                 "\\uD83E\\uDDD1\\u200D\\uD83D\\uDCBB 신입/인턴 채용공고—————" + "\\n" + "\\n" +
-                newComerMsg +
-                "\",\"link\":{\"web_url\":\"https://developers.kakao.com\",\"mobile_web_url\":\"https://developers.kakao.com\"},\"button_title\":\"바로 확인\"}";
+                "\",\"link\":{\"web_url\":\""+ frontUrl +"\",\"mobile_web_url\":\""+ frontUrl +"\"},\"button_title\":\"바로 확인\" }";
+        sendMsgWithTemplateObjectJson(restTemplate, headers, templateObjectJsonNewComer1);
+        for (String msg : splitNewComerMsg) {
+            String templateObjectJsonNewComer2 = "{\"object_type\":\"text\",\"text\":\"" +
+                    msg +
+                    "\",\"link\":{\"web_url\":\""+ frontUrl +"\",\"mobile_web_url\":\""+ frontUrl +"\"},\"button_title\":\"바로 확인\" }";
+            sendMsgWithTemplateObjectJson(restTemplate,headers,templateObjectJsonNewComer2);
+        }
 
-        // MultiValueMap을 사용하여 form 데이터 구성
-        MultiValueMap<String, String> map1 = new LinkedMultiValueMap<>();
-        map1.add("template_object", templateObjectJson1);
-        HttpEntity<MultiValueMap<String, String>> requestEntity1 = new HttpEntity<>(map1, headers);
-        ResponseEntity<String> response1 = restTemplate.postForEntity(
-                "https://kapi.kakao.com/v2/api/talk/memo/default/send", requestEntity1, String.class);
+        expertMsg = getKakaoTalkMsgText(expertSet, expertMsg);
+        List<String> splitExpertMsg = splitMessage(expertMsg);
+        String templateObjectJsonExpert1 = "{\"object_type\":\"text\",\"text\":\""+
+                "\\uD83E\\uDDD1\\u200D\\uD83D\\uDCBB 경력 채용공고—————" + "\\n" + "\\n" +
+                "\",\"link\":{\"web_url\":\""+ frontUrl +"\",\"mobile_web_url\":\""+ frontUrl +"\"},\"button_title\":\"바로 확인\" }";
+        // ,\"link\":{\"web_url\":\""+ frontUrl +"\",\"mobile_web_url\":\""+ frontUrl +"\"},\"button_title\":\"바로 확인\"
+        sendMsgWithTemplateObjectJson(restTemplate, headers, templateObjectJsonExpert1);
 
+        for (String msg : splitExpertMsg) {
+            String templateJsonExpert2 = "{\"object_type\":\"text\",\"text\":\""+
+                    msg +
+                    "\",\"link\":{\"web_url\":\""+ frontUrl +"\",\"mobile_web_url\":\""+ frontUrl +"\"},\"button_title\":\"바로 확인\" }";
+            sendMsgWithTemplateObjectJson(restTemplate,headers,templateJsonExpert2);
+        }
+    }
 
+    private void sendMsgWithTemplateObjectJson(RestTemplate restTemplate, HttpHeaders headers, String templateObjectJson) {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("template_object", templateObjectJson);
 
+        HttpEntity<MultiValueMap<String, String>> requestEntity2 = new HttpEntity<>(map, headers);
 
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "https://kapi.kakao.com/v2/api/talk/memo/default/send", requestEntity2, String.class);
+        log.info(response.getStatusCode().toString());
+    }
+
+    private String getKakaoTalkMsgText(List<Recruitment> expertSet, String msg) {
         for(Recruitment recruitment : expertSet) {
-            log.info(recruitment.getUid());
-            expertMsg += "\\uD83D\\uDDA5 " + recruitment.getCompany().getCompanyName() + " [" + recruitment.getCompany().getCompanyType().getCompanyTypeName().getKoreanName() + "]" + "\\n" +
-                    "- 직무 : " + recruitment.getRecruitingJobSet().stream().map(job->job.getRecruitJobName().getKoreanName()).collect(Collectors.joining(", ")) + " (" + recruitment.getRecruitmentDeadlineType().getKoreanName() + ")" + "\\n" +
+            String deadline = "";
+            if(recruitment.getRecruitmentDeadlineType()== RecruitmentDeadlineType.DUE_DATE) {
+                deadline += "~";
+                deadline += recruitment.getRecruitmentDeadline().format(DateTimeFormatter.ofPattern("MM.dd"));
+            } else {
+                deadline = recruitment.getRecruitmentDeadlineType().getKoreanName();
+            }
+            msg += "\\uD83D\\uDDA5 " + recruitment.getCompany().getCompanyName() + " [" + recruitment.getCompany().getCompanyType().getCompanyTypeName().getKoreanName() + "]" + "\\n" +
+                    "- 직무 : " + recruitment.getTitle() + " (" + deadline + ")" + "\\n" +
                     "- 요건 : 학력 " + recruitment.getEducationSet().stream().map(edu -> edu.getDegree().getKoreanName()).collect(Collectors.joining(",")) +
                     ", " +
                     "경력 " + recruitment.getCareerSet().stream().map(job -> job.getAnnualLeave().getKoreanName()).collect(Collectors.joining(", ")) + "\\n" +
                     shortenUrlFromNaver(frontUrl+"/recruitment/"+recruitment.getUid()) + "\\n" + "\\n" ;
         }
-        String templateObjectJson2 = "{\"object_type\":\"text\",\"text\":\""+
-
-                "\\uD83E\\uDDD1\\u200D\\uD83D\\uDCBB 경력 채용공고—————" + "\\n" + "\\n" +
-                expertMsg +
-                "\",\"link\":{\"web_url\":\"https://developers.kakao.com\",\"mobile_web_url\":\"https://developers.kakao.com\"},\"button_title\":\"바로 확인\"}";
-
-        MultiValueMap<String, String> map2 = new LinkedMultiValueMap<>();
-        map2.add("template_object", templateObjectJson2);
-
-        // HttpEntity 구성
-        HttpEntity<MultiValueMap<String, String>> requestEntity2 = new HttpEntity<>(map2, headers);
-
-        // POST 요청 실행
-        ResponseEntity<String> response2 = restTemplate.postForEntity(
-                "https://kapi.kakao.com/v2/api/talk/memo/default/send", requestEntity2, String.class);
-
-        System.out.println(response1.getBody());
-        System.out.println(response2.getBody());
+        return msg;
     }
+
     public String shortenUrlFromNaver(String url) {
         RestTemplate restTemplate = new RestTemplate();
 
@@ -138,22 +144,13 @@ public class KaKaoTalkService {
         JSONObject result = (JSONObject) jsonObject.get("result");
         return  result.get("url").toString();
     }
-    public String makeRecruitmentKAKAOTalkMsg() {
-        String msg = "";
-        msg = "📣AI커리어 오늘의 공고" + "\n";
-        msg += LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd(E)", Locale.KOREAN)) + "\n";
-        msg += "⌨ 에이아이커리어 링크\n" +
-                "https://www.aicareer.co.kr\n";
-        msg += "신입/인턴 채용공고—————" + "\n";
-        msg += " " + "companyName " + "[" + "companyType" + "]" + "\n";
-        msg += "- 직무 : " + "recruitingJob " + "(" + "deadlineType" + ")" + "\n";
-        msg += "- 요건 : 학력 " + "education" + ", " + "경력 신입/무관" + "\n";
-        msg += shortenUrlFromNaver("aicareer.co.kr") + "\n";
-        msg += "경력 채용공고—————" + "\n";
-        msg += " " + "companyName " + "[" + "companyType" + "]" + "\n";
-        msg += "- 직무 : " + "recruitingJob " + "(" + "deadlineType" + ")" + "\n";
-        msg += "- 요건 : 학력 " + "education" + ", " + "경력 주니어/리더/..." + "\n";
-        msg += shortenUrlFromNaver("aicareer.co.kr") + "\n";
-        return msg;
+    public List<String> splitMessage(String message) {
+        List<String> parts = new ArrayList<>();
+        int length = message.length();
+        for (int i = 0; i < length; i += 1000) {
+            parts.add(message.substring(i, Math.min(length, i + 1000)));
+        }
+        return parts;
     }
+
 }
