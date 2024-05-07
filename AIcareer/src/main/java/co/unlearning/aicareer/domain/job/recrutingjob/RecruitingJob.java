@@ -27,7 +27,9 @@ public class RecruitingJob {
         ETC("기타"),
         PM_PO("PM/PO"),
         CONSULTANT("컨설턴트"),
-        SOFTWARE_ENGINEER("소프트웨어 엔지니어")
+        SOFTWARE_ENGINEER("소프트웨어 엔지니어"),
+        SALES("세일즈"),
+        OPERATION("운영")
         ;
         private final String koreanName;
         RecruitingJobName(String koreanName) {

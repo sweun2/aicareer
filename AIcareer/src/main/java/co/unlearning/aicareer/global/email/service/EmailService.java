@@ -29,6 +29,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,7 +51,17 @@ public class EmailService {
         if(Objects.equals(frontUrl, "https://alpha.aicareer.co.kr")) {
            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
         }
-        Map<UserInterest, String> userUrlMap = getRecruitmentUrlMapWithDay(1,15);
+        if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.SATURDAY || LocalDateTime.now().getDayOfWeek() == DayOfWeek.SUNDAY) {
+            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
+        }
+        Map<UserInterest, String> userUrlMap;
+        if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.MONDAY) {
+            userUrlMap = getRecruitmentUrlMapWithDay(3,15);
+        } else {
+            userUrlMap = getRecruitmentUrlMapWithDay(1,15);
+        }
+
+
         userUrlMap.forEach((userInterest, url) -> {
             try {
                 MimeMessage message = javaMailSender.createMimeMessage();
@@ -117,7 +128,7 @@ public class EmailService {
                 LocalDateTime endOfYesterday = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
                 specification = specification.and(RecruitmentSpecification.uploadDateBetween(startOfYesterday, endOfYesterday));
 
-                List<RecruitmentAddress> recruitmentAddresses = List.of(SEOUL, GANGNAM, MAPO, GURO_GARSAN_GAME, BUNDANG_PANGYO);
+                List<RecruitmentAddress> recruitmentAddresses = List.of(SEOUL, GANGNAM, MAPO, GURO_GARSAN, BUNDANG_PANGYO);
                 if (!userInterest.getIsMetropolitanArea()) {
                     specification = specification.and(RecruitmentSpecification.hasRecruitmentAddress(List.of(RecruitmentAddress.values())));
                 } else {

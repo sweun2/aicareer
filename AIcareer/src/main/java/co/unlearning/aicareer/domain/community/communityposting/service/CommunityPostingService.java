@@ -75,6 +75,11 @@ public class CommunityPostingService {
         communityPosting.setTitle(communityPostingPost.getTitle());
         communityPosting.setContent(communityPostingPost.getContent());
 
+        if(communityPostingPost.getIsView()!= null) {
+            userService.checkAdmin();
+            communityPosting.setIsView(communityPosting.getIsView());
+        }
+
         return communityPostingRepository.save(communityPosting);
     }
     public void deleteCommunityPostByUid(String uid) {
@@ -106,7 +111,7 @@ public class CommunityPostingService {
     public List<CommunityPosting> getAllCommunityPostingSearchByKeyword(String keyword, Pageable pageable) {
         return communityPostingRepository.findAllByContentContainsOrTitleContains(keyword,keyword,pageable).stream().toList();
     }
-    public CommunityPostingUser recommendCommunityPosting(String uid) {
+    public CommunityPostingUser recommendCommunityPosting(String uid,Boolean status) {
         User user = userService.getLoginUser();
         CommunityPosting communityPosting = getCommunityPostingByUid(uid);
         Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,user);
@@ -122,17 +127,21 @@ public class CommunityPostingService {
             communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
         } else communityPostingUser = communityPostingUserOptional.get();
 
-        if(communityPostingUser.getIsRecommend()) {
-            communityPostingUser.setIsRecommend(false);
+        if(communityPostingUser.getIsRecommend() && status) {
+            communityPostingUser.setIsRecommend(true);
             throw new BusinessException(ResponseErrorCode.USER_ALREADY_RECOMMEND);
-        } else {
+        } else if(communityPostingUser.getIsRecommend() && !status){
+            communityPostingUser.setIsRecommend(false);
+            communityPosting.setRecommendCnt(communityPosting.getRecommendCnt()-1);
+        } else if(!communityPostingUser.getIsRecommend() && status) {
             communityPostingUser.setIsRecommend(true);
             communityPosting.setRecommendCnt(communityPosting.getRecommendCnt()+1);
         }
+
         communityPostingRepository.save(communityPosting);
         return communityPostingUser;
     }
-    public CommunityPostingUser reportCommunityPosting(String uid) {
+    public CommunityPostingUser reportCommunityPosting(String uid,Boolean status) {
         User user = userService.getLoginUser();
         CommunityPosting communityPosting = getCommunityPostingByUid(uid);
         Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,user);
@@ -148,12 +157,16 @@ public class CommunityPostingService {
             communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
         } else communityPostingUser = communityPostingUserOptional.get();
 
-        if(communityPostingUser.getIsReport()) {
+        if(communityPostingUser.getIsReport() && status) {
+            communityPostingUser.setIsReport(true);
             throw new BusinessException(ResponseErrorCode.USER_ALREADY_REPORT);
-        } else {
+        } else if(communityPostingUser.getIsReport() && !status){
+            communityPostingUser.setIsReport(false);
+            communityPosting.setRecommendCnt(communityPosting.getReportCnt()-1);
+        } else if(!communityPostingUser.getIsReport() && status) {
             communityPostingUser.setIsReport(true);
             communityPosting.setReportCnt(communityPosting.getReportCnt()+1);
-            if(communityPosting.getReportCnt() > 5) {
+            if(communityPosting.getReportCnt()>5) {
                 hideCommunityPosting(communityPosting);
             }
         }

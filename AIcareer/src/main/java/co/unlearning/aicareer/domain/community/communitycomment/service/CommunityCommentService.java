@@ -11,7 +11,6 @@ import co.unlearning.aicareer.domain.community.communitycommentuser.service.Comm
 import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting;
 import co.unlearning.aicareer.domain.community.communityposting.repository.CommunityPostingRepository;
 import co.unlearning.aicareer.domain.community.communityposting.service.CommunityPostingService;
-import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import org.springframework.data.domain.Pageable;
@@ -72,7 +71,7 @@ public class CommunityCommentService {
         communityPostingRepository.save(communityPosting);
         return communityCommentRepository.save(communityComment);
     }
-    public CommunityComment updateCommunityPost(String commentUid, CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost) {
+    public CommunityComment updateCommunityComment(String commentUid, CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost) {
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
         CommunityComment communityComment = communityCommentRepository.findByUid(commentUid).orElseThrow(
@@ -83,6 +82,11 @@ public class CommunityCommentService {
         }
 
         communityComment.setContent(communityCommentPost.getContent());
+
+        if(communityCommentPost.getIsView()!= null) {
+            userService.checkAdmin();
+            communityComment.setIsView(communityComment.getIsView());
+        }
         return communityCommentRepository.save(communityComment);
     }
     public void deleteCommunityCommentByUid(String commentUid) {
@@ -98,7 +102,7 @@ public class CommunityCommentService {
 
         communityCommentRepository.delete(communityComment);
     }
-    public CommunityCommentUser recommendCommunityComment(String uid) {
+    public CommunityCommentUser recommendCommunityComment(String uid,Boolean status) {
         User user = userService.getLoginUser();
         CommunityComment communityComment = getCommunityCommentByUid(uid);
         Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByCommunityComment(communityComment);
@@ -114,16 +118,20 @@ public class CommunityCommentService {
             communityComment.getCommunityCommentUserSet().add(communityCommentUser);
         } else communityCommentUser = communityCommentUserOptional.get();
 
-        if(communityCommentUser.getIsRecommend()) {
+        if(communityCommentUser.getIsRecommend() && status) {
+            communityCommentUser.setIsRecommend(true);
             throw new BusinessException(ResponseErrorCode.USER_ALREADY_RECOMMEND);
-        } else {
+        } else if(communityCommentUser.getIsRecommend() && !status){
+            communityCommentUser.setIsRecommend(false);
+            communityComment.setRecommendCnt(communityComment.getRecommendCnt()-1);
+        } else if(!communityCommentUser.getIsRecommend() && status) {
             communityCommentUser.setIsRecommend(true);
             communityComment.setRecommendCnt(communityComment.getRecommendCnt()+1);
         }
         communityCommentRepository.save(communityComment);
         return communityCommentUser;
     }
-    public CommunityCommentUser reportCommunityComment(String uid) {
+    public CommunityCommentUser reportCommunityComment(String uid,Boolean status) {
         User user = userService.getLoginUser();
         CommunityComment communityComment = getCommunityCommentByUid(uid);
         Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByCommunityComment(communityComment);
@@ -139,11 +147,18 @@ public class CommunityCommentService {
             communityComment.getCommunityCommentUserSet().add(communityCommentUser);
         } else communityCommentUser = communityCommentUserOptional.get();
 
-        if(communityCommentUser.getIsReport()) {
+        if(communityCommentUser.getIsReport() && status) {
+            communityCommentUser.setIsReport(true);
             throw new BusinessException(ResponseErrorCode.USER_ALREADY_REPORT);
-        } else {
+        } else if(communityCommentUser.getIsReport() && !status){
+            communityCommentUser.setIsReport(false);
+            communityComment.setRecommendCnt(communityComment.getReportCnt()-1);
+        } else if(!communityCommentUser.getIsReport() && status) {
             communityCommentUser.setIsReport(true);
             communityComment.setReportCnt(communityComment.getReportCnt()+1);
+            if(communityComment.getReportCnt()>5) {
+                hideCommunityComment(communityComment);
+            }
         }
         communityCommentRepository.save(communityComment);
         return communityCommentUser;

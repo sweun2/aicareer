@@ -1,12 +1,10 @@
 package co.unlearning.aicareer.domain.community.communitycomment.controller;
 
-import co.unlearning.aicareer.domain.community.communitycomment.CommunityComment;
 import co.unlearning.aicareer.domain.community.communitycomment.dto.CommunityCommentRequirementDto;
 import co.unlearning.aicareer.domain.community.communitycomment.dto.CommunityCommentResponseDto;
 import co.unlearning.aicareer.domain.community.communitycomment.service.CommunityCommentService;
 import co.unlearning.aicareer.domain.community.communitycommentuser.dto.CommunityCommentUserResponseDto;
 import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingResponseDto;
-import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
@@ -40,7 +38,7 @@ public class CommunityCommentController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = CommunityCommentResponseDto.CommunityCommentInfo.class)))
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityCommentResponseDto.CommunityCommentInfo.class))))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
@@ -79,7 +77,7 @@ public class CommunityCommentController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostInfo.class)))
+                    schema = @Schema(implementation = CommunityCommentResponseDto.CommunityCommentInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
@@ -91,7 +89,7 @@ public class CommunityCommentController {
             @Parameter(name = "uid", description = "댓글 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid,
             @RequestBody CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost) throws Exception {
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.updateCommunityPost(uid,communityCommentPost)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.updateCommunityComment(uid,communityCommentPost)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "댓글삭제", description = "커뮤니티 댓글삭제")
@@ -116,7 +114,7 @@ public class CommunityCommentController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class))))
+                    schema = @Schema(implementation = CommunityCommentUserResponseDto.CommunityCommentUserInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
@@ -124,15 +122,17 @@ public class CommunityCommentController {
     @PostMapping("/recommend/{uid}")
     public ResponseEntity<CommunityCommentUserResponseDto.CommunityCommentUserInfo> recommendCommunityComment(
             @Parameter(name = "uid", description = "댓글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.recommendCommunityComment(uid)));
+            @PathVariable("uid") String uid,
+            @Parameter(name = "status", description = "추천 여부, true or false", in = ParameterIn.QUERY)
+            @RequestParam("status") Boolean status) {
+        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.recommendCommunityComment(uid,status)));
     }
     @Operation(summary = "댓글 신고", description = "커뮤니티 댓글 신고")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class))))
+                    schema = @Schema(implementation = CommunityCommentUserResponseDto.CommunityCommentUserInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
@@ -140,7 +140,9 @@ public class CommunityCommentController {
     @PostMapping("/report/{uid}")
     public ResponseEntity<CommunityCommentUserResponseDto.CommunityCommentUserInfo> reportCommunityComment(
             @Parameter(name = "uid", description = "댓글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.reportCommunityComment(uid)));
+            @PathVariable("uid") String uid,
+            @Parameter(name = "status", description = "추천 여부, true or false", in = ParameterIn.QUERY)
+            @RequestParam("status") Boolean status) {
+        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.reportCommunityComment(uid,status)));
     }
 }

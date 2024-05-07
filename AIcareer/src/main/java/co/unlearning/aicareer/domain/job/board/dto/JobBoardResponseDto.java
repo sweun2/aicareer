@@ -1,13 +1,11 @@
 package co.unlearning.aicareer.domain.job.board.dto;
 
 import co.unlearning.aicareer.domain.job.board.Board;
-import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +17,10 @@ public class JobBoardResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BoardInfo {
-        @Schema(description = "배너 이미지 url")
-        private ImageResponseDto.ImageData bannerImage;
+        @Schema(description = "데스크탑 배너 이미지 url")
+        private ImageResponseDto.ImageData desktopBannerImage;
+        @Schema(description = "모바일 배너 이미지 url")
+        private ImageResponseDto.ImageData mobileBannerImage;
         @Schema(description = "서브 이미지 url")
         private List<ImageResponseDto.ImageData> subImages;
         @Schema(description = "글 uid")
@@ -49,7 +49,10 @@ public class JobBoardResponseDto {
                     .content(board.getContent());
 
             if (board.getBannerImage() != null) {
-                builder.bannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
+                builder.desktopBannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
+            }
+            if(board.getMobileBannerImage() != null) {
+                builder.mobileBannerImage(ImageResponseDto.ImageData.of(board.getMobileBannerImage()));
             }
             return builder.build();
         }
@@ -65,7 +68,9 @@ public class JobBoardResponseDto {
     @AllArgsConstructor
     public static class BoardSimple {
         @Schema(description = "배너 이미지 url")
-        private ImageResponseDto.ImageData bannerImage;
+        private ImageResponseDto.ImageData desktopBannerImage;
+        @Schema(description = "모바일 배너 이미지 url")
+        private ImageResponseDto.ImageData mobileBannerImage;
         @Schema(description = "글 uid")
         private String uid;
         @Schema(description = "연결 페이지 url")
@@ -77,7 +82,10 @@ public class JobBoardResponseDto {
                     .pageLinkUrl(board.getPageLinkUrl());
 
             if (board.getBannerImage() != null) {
-                builder.bannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
+                builder.desktopBannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
+            }
+            if(board.getMobileBannerImage() != null) {
+                builder.mobileBannerImage(ImageResponseDto.ImageData.of(board.getMobileBannerImage()));
             }
             return builder.build();
 

@@ -4,6 +4,8 @@ import co.unlearning.aicareer.domain.job.career.Career;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.job.recruitment.service.RecruitmentService;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
+import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,6 +39,9 @@ public class KaKaoTalkService {
     private String frontUrl;
     private final RecruitmentService recruitmentService;
     public void sendKakaoMessage(String accessToken) {
+        if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.SATURDAY || LocalDateTime.now().getDayOfWeek() == DayOfWeek.SUNDAY) {
+            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
+        }
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new FormHttpMessageConverter());
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
@@ -44,9 +50,17 @@ public class KaKaoTalkService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.add("Authorization", "Bearer " + accessToken);
         List<Career.AnnualLeave> newComerList = List.of(Career.AnnualLeave.NEW_COMER,Career.AnnualLeave.IRRELEVANCE);
-        List<Recruitment> newComerSet = recruitmentService.getTodayRecruitmentsWithCareer(newComerList);
         List<Career.AnnualLeave> expertList = List.of(Career.AnnualLeave.JUNIOR,Career.AnnualLeave.MIDDLE, Career.AnnualLeave.LEADER, Career.AnnualLeave.SENIOR);
-        List<Recruitment> expertSet = recruitmentService.getTodayRecruitmentsWithCareer(expertList);
+        List<Recruitment> newComerSet = new ArrayList<>();
+        List<Recruitment> expertSet = new ArrayList<>();
+        if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.MONDAY) {
+            newComerSet = recruitmentService.getRecruitmentsWithCareerAndDay(2,newComerList);
+            expertSet = recruitmentService.getRecruitmentsWithCareerAndDay(2,expertList);
+        } else {
+            newComerSet = recruitmentService.getRecruitmentsWithCareerAndDay(0,newComerList);
+            expertSet = recruitmentService.getRecruitmentsWithCareerAndDay(0,expertList);
+        }
+
         String newComerMsg = "";
         String expertMsg = "";
         newComerMsg = getKakaoTalkMsgText(newComerSet, newComerMsg);

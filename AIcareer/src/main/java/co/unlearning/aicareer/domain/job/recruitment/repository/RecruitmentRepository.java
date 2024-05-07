@@ -31,5 +31,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment,Integer
     @Query("SELECT r FROM Recruitment r JOIN Career c on c.recruitment = r WHERE c.annualLeave = :annualLeave AND r.uploadDate >= :startDate AND r.uploadDate <= :endDate")
     List<Recruitment> findAllRecruitmentsDateRange(@Param("annualLeave")Career.AnnualLeave annualLeave,@Param("startDate") LocalDateTime startDate, @Param("endDate")LocalDateTime endDate);
 
+    List<Recruitment> findAllByRecruitmentDeadlineType(RecruitmentDeadlineType recruitmentDeadlineType);
+
 }
 

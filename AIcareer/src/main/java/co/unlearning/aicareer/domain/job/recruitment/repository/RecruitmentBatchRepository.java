@@ -18,5 +18,6 @@ import java.util.Optional;
 
 @Repository
 public interface RecruitmentBatchRepository extends JpaRepository<RecruitmentBatch,Integer> {
+    Optional<RecruitmentBatch> findRecruitmentBatchByRecruitment(Recruitment recruitment);
 }
 

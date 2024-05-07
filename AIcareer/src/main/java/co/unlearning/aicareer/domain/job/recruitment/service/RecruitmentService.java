@@ -470,19 +470,21 @@ public class RecruitmentService {
     public List<Recruitment> findAllNotInRecruitmentDeadlineTypes(List<RecruitmentDeadlineType> recruitmentDeadlineTypes) {
         return recruitmentRepository.findAll(RecruitmentSpecification.notInDeadlineTypes(recruitmentDeadlineTypes));
     }
-    public List<Recruitment> getTodayRecruitmentsWithCareer(List<Career.AnnualLeave> annualLeaves) {
+    public List<Recruitment> findAllRecruitmentsWithDeadLineType(RecruitmentDeadlineType recruitmentDeadlineType) {
+        return recruitmentRepository.findAllByRecruitmentDeadlineType(recruitmentDeadlineType);
+    }
+
+    public List<Recruitment> getRecruitmentsWithCareerAndDay(Integer day, List<Career.AnnualLeave> annualLeaves) {
         Set<Recruitment> resultList = new LinkedHashSet<>();
-        LocalDateTime startOfToday = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
-        LocalDateTime endOfToday = startOfToday.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
-        log.info("Test");
+        LocalDateTime startOfToday = LocalDateTime.now().minusDays(day).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfToday = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+
         annualLeaves.forEach(
                 annualLeave -> {
                     resultList.addAll(recruitmentRepository.findAllRecruitmentsDateRange(annualLeave,startOfToday, endOfToday));
                 }
         );
-        log.info("getTodayRecruit");
         resultList.forEach(r->log.info(String.valueOf(r.getId())));
         return new ArrayList<>(resultList);
     }
-
 }

@@ -233,4 +233,9 @@ public class UserService {
            throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
        return user.getUserInterest();
     }
+    public User updateUserInfo(UserRequestDto.UserData userData) {
+        User user = getLoginUser();
+        user.setNickname(userData.getNickname());
+        return userRepository.save(user);
+    }
 }

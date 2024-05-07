@@ -63,5 +63,7 @@ public class Recruitment {
     private Set<Image> subImageSet;
     @Column
     private LocalDateTime lastModified;
+    @OneToOne(cascade = {CascadeType.REMOVE},orphanRemoval = true)
+    private RecruitmentBatch recruitmentBatch;
 
 }

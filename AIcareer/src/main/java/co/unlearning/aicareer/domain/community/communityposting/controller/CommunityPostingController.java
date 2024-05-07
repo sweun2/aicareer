@@ -111,7 +111,7 @@ public class CommunityPostingController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class)))
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class))))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
     })
@@ -145,7 +145,7 @@ public class CommunityPostingController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class))))
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingUserResponseDto.CommunityPostingUserInfo.class))))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
@@ -153,15 +153,17 @@ public class CommunityPostingController {
     @PostMapping("/recommend/{uid}")
     public ResponseEntity<CommunityPostingUserResponseDto.CommunityPostingUserInfo> recommendCommunityPosting(
             @Parameter(name = "uid", description = "게시글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingService.recommendCommunityPosting(uid)));
+            @PathVariable("uid") String uid,
+            @Parameter(name = "status", description = "추천 여부, true or false", in = ParameterIn.QUERY)
+            @RequestParam("status") Boolean status) {
+        return ResponseEntity.ok(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingService.recommendCommunityPosting(uid,status)));
     }
     @Operation(summary = "게시글 신고", description = "커뮤니티 게시글 신고")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class))))
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingUserResponseDto.CommunityPostingUserInfo.class))))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
@@ -169,15 +171,17 @@ public class CommunityPostingController {
     @PostMapping("/report/{uid}")
     public ResponseEntity<CommunityPostingUserResponseDto.CommunityPostingUserInfo> reportCommunityPosting(
             @Parameter(name = "uid", description = "게시글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingService.reportCommunityPosting(uid)));
+            @PathVariable("uid") String uid,
+            @Parameter(name = "status", description = "신고 여부, true or false", in = ParameterIn.QUERY)
+            @RequestParam("status") Boolean status) {
+        return ResponseEntity.ok(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingService.reportCommunityPosting(uid,status)));
     }
     @Operation(summary = "인기글 반환", description = "금일 조회수 + 좋아요 수 + 댓글 수 가 제일 높은 3개의 posting 반환")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class))))
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityPostingUserResponseDto.CommunityPostingUserInfo.class))))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
     })

@@ -65,4 +65,13 @@ public class UserRequestDto {
         @Schema(description = "알람 받을 이메일")
         private String receivedEmail;
     }
+    @Builder
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserData {
+        @Schema(description = "유저 닉네임")
+        private String nickname;
+    }
 }

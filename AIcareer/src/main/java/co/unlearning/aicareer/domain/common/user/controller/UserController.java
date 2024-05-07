@@ -80,6 +80,22 @@ public class UserController {
     public ResponseEntity<UserResponseDto.UserInfo> findUserInfo() {
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.getLoginUser()));
     }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "유저 정보 변경", description = "현재 로그인된 유저의 정보 변경.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = UserResponseDto.UserInfo.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
+    })
+    @PostMapping("/update")
+    public ResponseEntity<UserResponseDto.UserInfo> updateUserInfo(UserRequestDto.UserData userData) {
+        return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserInfo(userData)));
+    }
 
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "유저 Role 변경", description = "현재 로그인된 유저의 Role을 변경합니다. Role이 ADMIN인 경우만 사용 가능, ADMIN으로의 변경은 DB에서 직접 변경 필요, 문의바람")

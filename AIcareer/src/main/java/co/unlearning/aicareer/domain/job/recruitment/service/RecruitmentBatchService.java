@@ -1,79 +1,79 @@
 package co.unlearning.aicareer.domain.job.recruitment.service;
 
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
+import co.unlearning.aicareer.domain.job.recruitment.RecruitmentBatch;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
+import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentBatchRepository;
+import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentRepository;
 import co.unlearning.aicareer.global.email.service.EmailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
+import org.springframework.web.client.RestTemplate;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class RecruitmentBatchService {
     private final RecruitmentService recruitmentService;
+    private final RecruitmentRepository recruitmentRepository;
+    private final RecruitmentBatchRepository recruitmentBatchRepository;
     private final EmailService emailService;
-    public void printList() {
-        getUrlNot2xxRecruitment().forEach(
-                (str) -> System.out.println("url:"+str)
-        );
-    }
-/*    public void getAllRecruitmentURLNot2xx() {
-        List<Recruitment> urlNot2xx = getUrlNot2xxRecruitment();
-        if()
-    }*/
+    @Async
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void processBadResponseRecruitment(Recruitment recruitment) {
+        RestTemplate restTemplate = new RestTemplate();
+        String recruitmentLink = recruitment.getRecruitmentAnnouncementLink();
 
-    public List<Recruitment> getUrlNot2xxRecruitment() {
-        List<Recruitment> urlNot2xx = new ArrayList<>();
-        List<Recruitment> recruitmentList = recruitmentService.findAllNotInRecruitmentDeadlineTypes(Arrays.asList(RecruitmentDeadlineType.DUE_DATE, RecruitmentDeadlineType.EXPIRED));
-
-        Flux<Map<Recruitment, Integer>> flux = Flux.fromIterable(recruitmentList)
-                .flatMap(this::getResponseStatusCodeFromRecruitment);
-
-        flux.filter(map -> !HttpStatus.valueOf(map.entrySet().iterator().next().getValue()).is2xxSuccessful())
-                .map(map -> map.entrySet().iterator().next().getKey())
-                .doOnNext(urlNot2xx::add)
-                .then()
-                .block();
-
-        return urlNot2xx;
-    }
-    public Mono<Map<Recruitment, Integer>> getResponseStatusCodeFromRecruitment(Recruitment recruitment) {
-        String userAgent = "Mozilla/5.0 Firefox/26.0"; // 사용하고자 하는 User-Agent 값
-        HttpClient client = HttpClient.create()
-                .responseTimeout(Duration.ofSeconds(10));
-
-        // WebClient 객체 생성 및 User-Agent 설정
-        WebClient webClient = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(client))
-                .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
-                .build();
-        // 비동기로 응답 받기
-        return webClient.get()
-                .uri(recruitment.getRecruitmentAnnouncementLink())
-                .exchangeToMono(response -> Mono.just(Map.of(recruitment, response.statusCode().value())));
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                recruitmentLink, String.class);
+        List<Integer> statusCodes = List.of(400,401,402,403,404);
+        if(statusCodes.contains(response.getStatusCode().value())) {
+            Optional<RecruitmentBatch> recruitmentBatchOptional = recruitmentBatchRepository.findRecruitmentBatchByRecruitment(recruitment);
+            if (recruitmentBatchOptional.isEmpty()) {
+                recruitmentBatchRepository.save(RecruitmentBatch.builder()
+                                .recruitment(recruitment)
+                                .badResponseCnt(1)
+                        .build());
+            } else {
+                Integer badResponseCnt = recruitmentBatchOptional.get().getBadResponseCnt();
+                if(badResponseCnt >= 3) {
+                    recruitment.setRecruitmentDeadline(LocalDateTime.of(2000,1,1,0,0));
+                    recruitment.setRecruitmentDeadlineType(RecruitmentDeadlineType.EXPIRED);
+                    recruitmentRepository.save(recruitment);
+                }
+            }
+        }
     }
     @Scheduled(cron = "0 0 9 * * *")
-    public void mailServiceScheduler () {
+    public void sendMailEveryDayWithInterest() {
         emailService.sendRecruitMailEveryDay();
     }
 
     @Scheduled(cron = "0 0 11 ? * SAT", zone="Asia/Seoul")
     public void sendWeeklyTopHitsRecruitmentMail() {
         emailService.sendRecruitMailEveryWeek();
+    }
+    @Scheduled(cron = "0 0 3 * * *")
+    @Transactional
+    public void expireRecruitments() {
+        List<Recruitment> dueDateRecruitments = recruitmentService.findAllRecruitmentsWithDeadLineType(RecruitmentDeadlineType.DUE_DATE);
+        dueDateRecruitments.forEach(recruitment -> {
+            if(recruitment.getRecruitmentDeadline().isBefore(LocalDateTime.now())) {
+                recruitment.setRecruitmentDeadline(LocalDateTime.of(2000,1,1,0,0));
+                recruitment.setRecruitmentDeadlineType(RecruitmentDeadlineType.EXPIRED);
+            }
+        });
+        recruitmentRepository.saveAll(dueDateRecruitments);
+
+        List<Recruitment> recruitmentList = recruitmentService.findAllNotInRecruitmentDeadlineTypes(List.of(RecruitmentDeadlineType.DUE_DATE,RecruitmentDeadlineType.EXPIRED));
+        new HashSet<>(recruitmentList).stream().toList().forEach(this::processBadResponseRecruitment);
     }
 }

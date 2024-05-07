@@ -1,4 +1,4 @@
-package co.unlearning.aicareer.global.email;
+package co.unlearning.aicareer.global.email.dto;
 
 import lombok.Builder;
 import lombok.Getter;

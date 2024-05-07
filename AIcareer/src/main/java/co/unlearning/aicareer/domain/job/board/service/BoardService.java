@@ -31,18 +31,29 @@ public class BoardService {
     private final ImageService imageService;
     private final SiteMapService siteMapService;
     public Board addBoardPost(JobBoardRequirementDto.BoardPost boardPost) {
-        Image image = null;
-        if(boardPost.getBannerImage()!=null) {
-            image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
+        Image desktopImage = null;
+        if(boardPost.getDesktopBannerImage()!=null) {
+            desktopImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getDesktopBannerImage())).orElseThrow(
                     () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
-        assert image != null;
-        image.setIsRelated(true);
+        assert desktopImage != null;
+        desktopImage.setIsRelated(true);
+
+        Image mobileImage = null;
+        if(boardPost.getMobileBannerImage()!=null) {
+            mobileImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getMobileBannerImage())).orElseThrow(
+                    () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+            );
+        }
+        assert mobileImage != null;
+        mobileImage.setIsRelated(true);
+
 
         Board board = Board.builder()
                 .pageLinkUrl(boardPost.getPageLink())
-                .bannerImage(image)
+                .bannerImage(desktopImage)
+                .mobileBannerImage(mobileImage)
                 .title(boardPost.getTitle())
                 .uid(UUID.randomUUID().toString())
                 .content(boardPost.getContent())
@@ -50,7 +61,8 @@ public class BoardService {
                 .isView(true)
                 .build();
 
-        image.setBoard(board);
+        desktopImage.setBoard(board);
+        mobileImage.setBoard(board);
         if(!boardPost.getSubImage().isEmpty()) {
             Set<Image> subImages = new HashSet<>();
             for (String subImageUrl : boardPost.getSubImage()) {
@@ -74,8 +86,8 @@ public class BoardService {
                 ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
         Image image = null;
-        if(boardPost.getBannerImage()!=null) {
-            image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getBannerImage())).orElseThrow(
+        if(boardPost.getDesktopBannerImage()!=null) {
+            image = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(boardPost.getDesktopBannerImage())).orElseThrow(
                     () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
         }
