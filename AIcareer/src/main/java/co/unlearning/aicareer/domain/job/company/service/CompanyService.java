@@ -26,7 +26,7 @@ public class CompanyService {
                 ()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"company name not found")
         );
     }
-    public Company addNewCompany(CompanyRequirementDto.CompanyInfo companyInfo) throws Exception {
+    public Company addNewCompany(CompanyRequirementDto.CompanyInfo companyInfo) {
         Optional<Company> companyOptional = companyRepository.findByCompanyName(companyInfo.getCompanyName());
         if(companyOptional.isEmpty()) {
             EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();

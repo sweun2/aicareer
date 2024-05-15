@@ -125,7 +125,7 @@ public class EmailService {
                         .and(RecruitmentSpecification.isOpenRecruitment());
 
                 LocalDateTime startOfYesterday = LocalDateTime.now().minusDays(day).withHour(0).withMinute(0).withSecond(0).withNano(0);
-                LocalDateTime endOfYesterday = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+                LocalDateTime endOfYesterday = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
                 specification = specification.and(RecruitmentSpecification.uploadDateBetween(startOfYesterday, endOfYesterday));
 
                 List<RecruitmentAddress> recruitmentAddresses = List.of(SEOUL, GANGNAM, MAPO, GURO_GARSAN, BUNDANG_PANGYO);

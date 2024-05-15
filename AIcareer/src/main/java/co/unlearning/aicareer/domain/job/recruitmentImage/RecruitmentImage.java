@@ -5,7 +5,6 @@ import co.unlearning.aicareer.domain.job.board.Board;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
-
 @Entity
 @Getter
 @Builder
@@ -18,6 +17,8 @@ public class RecruitmentImage {
     private Integer id;
     @ManyToOne
     private Recruitment recruitment;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Image image;
+    @Column
+    private Integer imageOrder;
 }
