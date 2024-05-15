@@ -392,7 +392,6 @@ public class RecruitmentService {
 
         // Register recruitment to site map
         siteMapService.registerRecruitmentSiteMap(recruitment);
-
         return recruitment;
     }
 

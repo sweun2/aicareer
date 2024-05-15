@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.community.communityposting;
 
 import co.unlearning.aicareer.domain.common.user.User;
+import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
 import co.unlearning.aicareer.domain.community.communitycomment.CommunityComment;
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 @Entity
 @Getter
@@ -46,4 +48,8 @@ public class CommunityPosting {
     private Set<CommunityPostingUser> communityPostingUserSet;
     @ManyToOne //글쓴이
     private User writer;
+    @OneToOne(cascade = CascadeType.ALL)
+    private CommunityPostingImage mainImage;
+    @OneToMany(mappedBy ="communityPosting",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<CommunityPostingImage> subImages;
 }

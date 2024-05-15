@@ -14,6 +14,26 @@ public class CommunityCommentRequirementDto {
         private String postingUid;
         @Schema(description = "댓글 내용")
         private String content;
+    }
+    @Getter
+    @Setter
+    @Builder
+    @RequiredArgsConstructor
+    @AllArgsConstructor
+    public static class CommunityCommentUpdate {
+        @Schema(description = "댓글 내용")
+        private String content;
+    }
+
+
+    @Getter
+    @Setter
+    @Builder
+    @RequiredArgsConstructor
+    @AllArgsConstructor
+    public static class CommunityCommentIsView {
+        @Schema(description = "댓글 uid")
+        private String uid;
         @Schema(description = "블라인드 여부, null값 아닐시 admin 체크이므로 관리자만 값 수정")
         private Boolean isView;
     }

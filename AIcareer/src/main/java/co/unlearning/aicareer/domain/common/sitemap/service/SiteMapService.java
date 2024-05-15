@@ -2,6 +2,7 @@ package co.unlearning.aicareer.domain.common.sitemap.service;
 
 import co.unlearning.aicareer.domain.common.sitemap.SiteMap;
 import co.unlearning.aicareer.domain.common.sitemap.repository.SiteMapRepository;
+import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting;
 import co.unlearning.aicareer.domain.job.board.Board;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
@@ -40,11 +41,18 @@ public class SiteMapService {
 
         processSiteMap(uid, lastModified, urlPrefix);
     }
+    public void registerCommunityPostingSiteMap(CommunityPosting communityPosting) {
+        String uid = communityPosting.getUid();
+        LocalDateTime lastModified = communityPosting.getLastModified();
+        String urlPrefix = "/community/";
 
-    public void registerJobBoardSiteMap(Board board) {
+        processSiteMap(uid, lastModified, urlPrefix);
+    }
+
+    public void registerBoardSiteMap(Board board) {
         String uid = board.getUid();
         LocalDateTime lastModified = board.getLastModified();
-        String urlPrefix = "/job/board/";
+        String urlPrefix = "/board/";
 
         processSiteMap(uid, lastModified, urlPrefix);
     }
@@ -72,7 +80,7 @@ public class SiteMapService {
     }
 
     public void deleteSiteMap(Object param) {
-        if (!(param instanceof Recruitment || param instanceof Board)) {
+        if (!(param instanceof Recruitment || param instanceof Board || param instanceof CommunityPosting)) {
             throw new BusinessException(ResponseErrorCode.INTERNAL_SERVER_ERROR);
         }
 
@@ -83,9 +91,13 @@ public class SiteMapService {
                     ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
             );
             siteMapRepository.delete(siteMap);
-        } else {
-            Board board = (Board) param;
+        } else if(param instanceof Board board){
             SiteMap siteMap = siteMapRepository.findByUid(board.getUid()).orElseThrow(
+                    ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+            );
+            siteMapRepository.delete(siteMap);
+        } else if (param instanceof  CommunityPosting communityPosting) {
+            SiteMap siteMap = siteMapRepository.findByUid(communityPosting.getUid()).orElseThrow(
                     ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
             );
             siteMapRepository.delete(siteMap);

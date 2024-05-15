@@ -38,13 +38,13 @@ public class CommunityCommentService {
     private final UserService userService;
 
     public List<CommunityComment> getCommunityCommentsByCommunityPosting (String uid, Pageable pageable) {
-        CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(uid);
+        CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(uid).getKey();
         return communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(communityPosting,pageable).stream().toList();
     }
     public CommunityComment addCommunityComment(CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost){
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
-        CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(communityCommentPost.getPostingUid());
+        CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(communityCommentPost.getPostingUid()).getKey();
 
         CommunityComment communityComment = CommunityComment.builder()
                 .uid(UUID.randomUUID().toString())
@@ -71,7 +71,7 @@ public class CommunityCommentService {
         communityPostingRepository.save(communityPosting);
         return communityCommentRepository.save(communityComment);
     }
-    public CommunityComment updateCommunityComment(String commentUid, CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost) {
+    public CommunityComment updateCommunityComment(String commentUid, CommunityCommentRequirementDto.CommunityCommentUpdate communityCommentUpdate) {
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
         CommunityComment communityComment = communityCommentRepository.findByUid(commentUid).orElseThrow(
@@ -81,14 +81,23 @@ public class CommunityCommentService {
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
         }
 
-        communityComment.setContent(communityCommentPost.getContent());
+        communityComment.setContent(communityCommentUpdate.getContent());
 
-        if(communityCommentPost.getIsView()!= null) {
+        return communityCommentRepository.save(communityComment);
+    }
+    public CommunityComment updateIsView(CommunityCommentRequirementDto.CommunityCommentIsView communityCommentIsView) {
+        CommunityComment communityComment = communityCommentRepository.findByUid(communityCommentIsView.getUid()).orElseThrow(
+                () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+        );
+
+        if(communityCommentIsView.getIsView()!= null) {
             userService.checkAdmin();
-            communityComment.setIsView(communityComment.getIsView());
+            communityComment.setIsView(communityCommentIsView.getIsView());
         }
         return communityCommentRepository.save(communityComment);
     }
+
+
     public void deleteCommunityCommentByUid(String commentUid) {
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
@@ -102,7 +111,7 @@ public class CommunityCommentService {
 
         communityCommentRepository.delete(communityComment);
     }
-    public CommunityCommentUser recommendCommunityComment(String uid,Boolean status) {
+    public CommunityCommentUser recommendCommunityComment(String uid) {
         User user = userService.getLoginUser();
         CommunityComment communityComment = getCommunityCommentByUid(uid);
         Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByCommunityComment(communityComment);
@@ -118,20 +127,17 @@ public class CommunityCommentService {
             communityComment.getCommunityCommentUserSet().add(communityCommentUser);
         } else communityCommentUser = communityCommentUserOptional.get();
 
-        if(communityCommentUser.getIsRecommend() && status) {
-            communityCommentUser.setIsRecommend(true);
+        if(communityCommentUser.getIsRecommend()) {
             throw new BusinessException(ResponseErrorCode.USER_ALREADY_RECOMMEND);
-        } else if(communityCommentUser.getIsRecommend() && !status){
-            communityCommentUser.setIsRecommend(false);
-            communityComment.setRecommendCnt(communityComment.getRecommendCnt()-1);
-        } else if(!communityCommentUser.getIsRecommend() && status) {
+        } else {
             communityCommentUser.setIsRecommend(true);
             communityComment.setRecommendCnt(communityComment.getRecommendCnt()+1);
         }
+
         communityCommentRepository.save(communityComment);
         return communityCommentUser;
     }
-    public CommunityCommentUser reportCommunityComment(String uid,Boolean status) {
+    public CommunityCommentUser reportCommunityComment(String uid) {
         User user = userService.getLoginUser();
         CommunityComment communityComment = getCommunityCommentByUid(uid);
         Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByCommunityComment(communityComment);
@@ -147,13 +153,9 @@ public class CommunityCommentService {
             communityComment.getCommunityCommentUserSet().add(communityCommentUser);
         } else communityCommentUser = communityCommentUserOptional.get();
 
-        if(communityCommentUser.getIsReport() && status) {
-            communityCommentUser.setIsReport(true);
+        if(communityCommentUser.getIsReport()) {
             throw new BusinessException(ResponseErrorCode.USER_ALREADY_REPORT);
-        } else if(communityCommentUser.getIsReport() && !status){
-            communityCommentUser.setIsReport(false);
-            communityComment.setRecommendCnt(communityComment.getReportCnt()-1);
-        } else if(!communityCommentUser.getIsReport() && status) {
+        } else{
             communityCommentUser.setIsReport(true);
             communityComment.setReportCnt(communityComment.getReportCnt()+1);
             if(communityComment.getReportCnt()>5) {

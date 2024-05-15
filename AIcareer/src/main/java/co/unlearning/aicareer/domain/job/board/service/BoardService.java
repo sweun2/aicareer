@@ -98,7 +98,7 @@ public class BoardService {
         }
         boardRepository.save(board);
 
-        siteMapService.registerJobBoardSiteMap(board);
+        siteMapService.registerBoardSiteMap(board);
         return board;
     }
     public Board updateBoardPost(String boardUid, BoardRequirementDto.BoardPost boardPost) {
@@ -119,7 +119,7 @@ public class BoardService {
 
 
         boardRepository.save(board);
-        siteMapService.registerJobBoardSiteMap(board);
+        siteMapService.registerBoardSiteMap(board);
         return board;
     }
     public void updateBannerImage(String newImageUrl, BoardImage currentBoardImage, Consumer<BoardImage> setBoardImage) {

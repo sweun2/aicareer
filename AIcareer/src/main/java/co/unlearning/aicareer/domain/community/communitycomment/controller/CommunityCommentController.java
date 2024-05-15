@@ -1,9 +1,11 @@
 package co.unlearning.aicareer.domain.community.communitycomment.controller;
 
+import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.domain.community.communitycomment.dto.CommunityCommentRequirementDto;
 import co.unlearning.aicareer.domain.community.communitycomment.dto.CommunityCommentResponseDto;
 import co.unlearning.aicareer.domain.community.communitycomment.service.CommunityCommentService;
 import co.unlearning.aicareer.domain.community.communitycommentuser.dto.CommunityCommentUserResponseDto;
+import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingRequirementDto;
 import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingResponseDto;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
@@ -32,6 +34,7 @@ import java.util.List;
 @RequestMapping("/api/community/comment")
 public class CommunityCommentController {
     private final CommunityCommentService communityCommentService;
+    private final UserService userService;
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "커뮤니티 글에 대한 댓글 반환", description = "커뮤니티의 글의 댓글 리스트를 반환합니다. isView가 true인 일반 유저가 볼 수 있는객체들만 반환합니다.")
     @ApiResponse(
@@ -88,8 +91,8 @@ public class CommunityCommentController {
     public ResponseEntity<CommunityCommentResponseDto.CommunityCommentInfo> updateCommunityComment(
             @Parameter(name = "uid", description = "댓글 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid,
-            @RequestBody CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost) throws Exception {
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.updateCommunityComment(uid,communityCommentPost)));
+            @RequestBody CommunityCommentRequirementDto.CommunityCommentUpdate communityCommentUpdate) throws Exception {
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.updateCommunityComment(uid,communityCommentUpdate)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "댓글삭제", description = "커뮤니티 댓글삭제")
@@ -122,10 +125,8 @@ public class CommunityCommentController {
     @PostMapping("/recommend/{uid}")
     public ResponseEntity<CommunityCommentUserResponseDto.CommunityCommentUserInfo> recommendCommunityComment(
             @Parameter(name = "uid", description = "댓글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid,
-            @Parameter(name = "status", description = "추천 여부, true or false", in = ParameterIn.QUERY)
-            @RequestParam("status") Boolean status) {
-        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.recommendCommunityComment(uid,status)));
+            @PathVariable("uid") String uid) {
+        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.recommendCommunityComment(uid)));
     }
     @Operation(summary = "댓글 신고", description = "커뮤니티 댓글 신고")
     @ApiResponse(
@@ -140,9 +141,22 @@ public class CommunityCommentController {
     @PostMapping("/report/{uid}")
     public ResponseEntity<CommunityCommentUserResponseDto.CommunityCommentUserInfo> reportCommunityComment(
             @Parameter(name = "uid", description = "댓글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid,
-            @Parameter(name = "status", description = "추천 여부, true or false", in = ParameterIn.QUERY)
-            @RequestParam("status") Boolean status) {
-        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.reportCommunityComment(uid,status)));
+            @PathVariable("uid") String uid) {
+        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.reportCommunityComment(uid)));
+    }
+
+    @Operation(summary = "댓글 isView 설정", description = "커뮤니티 댓글 블라인드 처리 여부")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = CommunityCommentResponseDto.CommunityCommentInfo.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
+    })
+    @PutMapping("/view/{uid}")
+    public ResponseEntity<CommunityCommentResponseDto.CommunityCommentInfo> updateCommunityCommentIsView(CommunityCommentRequirementDto.CommunityCommentIsView communityCommentIsView) {
+        return ResponseEntity.ok(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.updateIsView(communityCommentIsView)));
     }
 }
