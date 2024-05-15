@@ -100,7 +100,6 @@ public class RecruitmentService {
                     () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
             subImage.setIsRelated(true);
-            subImage.setRecruitment(recruitment);
             subImages.add(subImage);
         }
 
@@ -289,10 +288,8 @@ public class RecruitmentService {
                     ()-> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
             );
             subImage.setIsRelated(true);
-            subImage.setRecruitment(recruitment);
             subImages.add(subImage);
         }
-        mainImage.setRecruitment(recruitment);
 
         recruitment.setRecruitingJobSet(recruitingJobs);
         recruitment.setRecruitmentTypeSet(recruitmentTypes);
@@ -421,9 +418,9 @@ public class RecruitmentService {
         Recruitment recruitment = recruitmentRepository.findByUid(uid).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
-        imageService.deleteImage(recruitment.getMainImage().getImageUrl());
+        imageService.deleteImageByUrl(recruitment.getMainImage().getImageUrl());
         recruitment.getSubImageSet().forEach(
-                image -> imageService.deleteImage(image.getImageUrl())
+                image -> imageService.deleteImageByUrl(image.getImageUrl())
         );
 
         siteMapService.deleteSiteMap(recruitment);

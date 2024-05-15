@@ -1,16 +1,18 @@
 package co.unlearning.aicareer.domain.job.board.dto;
 
 import co.unlearning.aicareer.domain.job.board.Board;
-import co.unlearning.aicareer.domain.common.Image.dto.ImageResponseDto;
+import co.unlearning.aicareer.domain.job.boardimage.BoardImage;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class JobBoardResponseDto {
+public class BoardResponseDto {
     @Builder
     @Getter
     @Setter
@@ -18,11 +20,11 @@ public class JobBoardResponseDto {
     @AllArgsConstructor
     public static class BoardInfo {
         @Schema(description = "데스크탑 배너 이미지 url")
-        private ImageResponseDto.ImageData desktopBannerImage;
+        private String desktopBannerImage;
         @Schema(description = "모바일 배너 이미지 url")
-        private ImageResponseDto.ImageData mobileBannerImage;
+        private String mobileBannerImage;
         @Schema(description = "서브 이미지 url")
-        private List<ImageResponseDto.ImageData> subImages;
+        private List<String> subImages;
         @Schema(description = "글 uid")
         private String uid;
         @Schema(description = "연결 페이지 url")
@@ -35,12 +37,9 @@ public class JobBoardResponseDto {
         private String title; //제목
         @Schema(description = "내용")
         private String content; //내용
-       /* @Schema(description = "내부 타입",allowableValues = {"markdown,html"})
-        private String contentType;*/
 
         public static BoardInfo of(Board board) {
-            BoardInfoBuilder builder =BoardInfo.builder()
-                    .subImages(ImageResponseDto.ImageData.of(new ArrayList<>(board.getSubImageSet())))
+            BoardInfoBuilder builder = BoardInfo.builder()
                     .uid(board.getUid())
                     .pageLinkUrl(board.getPageLinkUrl())
                     .uploadDate(LocalDateTimeStringConverter.LocalDateTimeToString(board.getUploadDate()))
@@ -48,12 +47,22 @@ public class JobBoardResponseDto {
                     .title(board.getTitle())
                     .content(board.getContent());
 
-            if (board.getBannerImage() != null) {
-                builder.desktopBannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
-            }
+            if (board.getDesktopBannerImage() != null) {
+                builder.desktopBannerImage(board.getDesktopBannerImage().getImage().getImageUrl());
+            } else builder.desktopBannerImage(StringUtils.EMPTY);
             if(board.getMobileBannerImage() != null) {
-                builder.mobileBannerImage(ImageResponseDto.ImageData.of(board.getMobileBannerImage()));
-            }
+                builder.mobileBannerImage(board.getMobileBannerImage().getImage().getImageUrl());
+            } else builder.mobileBannerImage(StringUtils.EMPTY);
+            if(!board.getSubImages().isEmpty()) {
+                builder.subImages(
+                        board.getSubImages().stream()
+                                .filter(boardImage -> boardImage.getImageOrder() != null && boardImage.getImageOrder() != 0)
+                                .sorted(Comparator.comparingInt(BoardImage::getImageOrder))
+                                .map(boardImage -> boardImage.getImage().getImageUrl())
+                                .collect(Collectors.toList())
+                );
+            } else builder.subImages(new ArrayList<>());
+
             return builder.build();
         }
 
@@ -68,9 +77,9 @@ public class JobBoardResponseDto {
     @AllArgsConstructor
     public static class BoardSimple {
         @Schema(description = "배너 이미지 url")
-        private ImageResponseDto.ImageData desktopBannerImage;
+        private String desktopBannerImage;
         @Schema(description = "모바일 배너 이미지 url")
-        private ImageResponseDto.ImageData mobileBannerImage;
+        private String mobileBannerImage;
         @Schema(description = "글 uid")
         private String uid;
         @Schema(description = "연결 페이지 url")
@@ -81,14 +90,14 @@ public class JobBoardResponseDto {
                     .uid(board.getUid())
                     .pageLinkUrl(board.getPageLinkUrl());
 
-            if (board.getBannerImage() != null) {
-                builder.desktopBannerImage(ImageResponseDto.ImageData.of(board.getBannerImage()));
-            }
+            if (board.getDesktopBannerImage() != null) {
+                builder.desktopBannerImage(board.getDesktopBannerImage().getImage().getImageUrl());
+            } else builder.desktopBannerImage(StringUtils.EMPTY);
             if(board.getMobileBannerImage() != null) {
-                builder.mobileBannerImage(ImageResponseDto.ImageData.of(board.getMobileBannerImage()));
-            }
-            return builder.build();
+                builder.mobileBannerImage(board.getMobileBannerImage().getImage().getImageUrl());
+            } else builder.desktopBannerImage(StringUtils.EMPTY);
 
+            return builder.build();
         }
 
         public static List<BoardSimple> of(List<Board> boards) {

@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.util.List;
 
-public class JobBoardRequirementDto {
+public class BoardRequirementDto {
     @Getter
     @Setter
     @Builder
@@ -24,8 +24,5 @@ public class JobBoardRequirementDto {
         private String content;
         @Schema(description = "모바일 배너 이미지 url")
         private String mobileBannerImage;
-
-/*        @Schema(description = "내부 타입",allowableValues = {"markdown,html"})
-        private String contentType;*/
     }
 }

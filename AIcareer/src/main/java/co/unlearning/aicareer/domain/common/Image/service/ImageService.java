@@ -19,8 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -76,9 +74,13 @@ public class ImageService {
                 .build();
         return imageRepository.save(image);
     }
-    public void deleteImage(String imageUrl) {
+    public void deleteImageByUrl(String imageUrl) {
+        Image image = getImageByUrl(imageUrl);
         amazonS3.deleteObject(new DeleteObjectRequest(bucket, imageUrl));
-        imageRepository.deleteById(getImageByUrl(imageUrl).getId());
+        imageRepository.delete(image);
+    }
+    public void deleteS3ImageUrl(String imageUrl) {
+        amazonS3.deleteObject(new DeleteObjectRequest(bucket, imageUrl));
     }
     public String getS3ImageUrl(String fileName) {
         return amazonS3.getUrl(bucket, fileName).toString();

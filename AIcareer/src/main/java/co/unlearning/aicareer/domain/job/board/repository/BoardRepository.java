@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface JobBoardRepository extends JpaRepository<Board,Integer> {
+public interface BoardRepository extends JpaRepository<Board,Integer> {
     List<Board> findAllByIsViewIsTrue();
     Optional<Board> findByUid(String uid);
 }

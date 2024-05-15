@@ -1,14 +1,13 @@
 package co.unlearning.aicareer.domain.job.board;
 
-import co.unlearning.aicareer.domain.common.Image.Image;
+import co.unlearning.aicareer.domain.job.boardimage.BoardImage;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -30,17 +29,16 @@ public class Board {
     private String title; //제목
     @Column(columnDefinition = "TEXT")
     private String content; //내용
-    @OneToOne
-    @Cascade(CascadeType.ALL)
-    private Image bannerImage;
     @Column
     private String pageLinkUrl;
     @Column
     private Boolean isView;
-    @OneToMany(mappedBy = "board",fetch = FetchType.EAGER, cascade = {jakarta.persistence.CascadeType.ALL}, orphanRemoval = true)
-    private Set<Image> subImageSet;
-    @OneToOne
-    @Cascade(CascadeType.ALL)
-    private Image mobileBannerImage;
+    @OneToOne(cascade = {CascadeType.ALL})
+    private BoardImage desktopBannerImage;
+    @OneToOne(cascade = {CascadeType.ALL})
+    private BoardImage mobileBannerImage;
+
+    @OneToMany(mappedBy = "board" ,fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<BoardImage> subImages;
 
 }

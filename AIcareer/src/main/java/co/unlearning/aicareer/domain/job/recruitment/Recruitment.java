@@ -59,7 +59,7 @@ public class Recruitment {
     private Set<Bookmark> bookmarkSet;
     @OneToOne(cascade = {CascadeType.ALL})
     private Image mainImage;
-    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private Set<Image> subImageSet;
     @Column
     private LocalDateTime lastModified;

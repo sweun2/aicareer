@@ -23,10 +23,6 @@ public class Image {
     @CreationTimestamp
     @Column
     private LocalDateTime createdDate = LocalDateTime.now();
-    @ManyToOne
-    private Recruitment recruitment;
-    @ManyToOne
-    private Board board;
     @Column
     private Boolean isRelated;
 }

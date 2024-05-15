@@ -1,7 +1,7 @@
 package co.unlearning.aicareer.domain.job.board.controller;
 
-import co.unlearning.aicareer.domain.job.board.dto.JobBoardRequirementDto;
-import co.unlearning.aicareer.domain.job.board.dto.JobBoardResponseDto;
+import co.unlearning.aicareer.domain.job.board.dto.BoardRequirementDto;
+import co.unlearning.aicareer.domain.job.board.dto.BoardResponseDto;
 import co.unlearning.aicareer.domain.job.board.service.BoardService;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
-public class JobBoardController {
+public class BoardController {
     private final BoardService boardService;
     private final UserService userService;
     @SecurityRequirement(name = "bearerAuth")
@@ -38,7 +38,7 @@ public class JobBoardController {
             responseCode = "201",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = JobBoardResponseDto.BoardInfo.class)))
+                    schema = @Schema(implementation = BoardResponseDto.BoardInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
@@ -46,39 +46,39 @@ public class JobBoardController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
     })
     @PostMapping("/post")
-    public ResponseEntity<JobBoardResponseDto.BoardInfo> postBoardInfo(@RequestBody JobBoardRequirementDto.BoardPost boardPost) throws Exception {
+    public ResponseEntity<BoardResponseDto.BoardInfo> postBoardInfo(@RequestBody BoardRequirementDto.BoardPost boardPost) throws Exception {
         userService.checkAdmin();
-        return ResponseEntity.status(HttpStatus.CREATED).body(JobBoardResponseDto.BoardInfo.of(boardService.addBoardPost(boardPost)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(BoardResponseDto.BoardInfo.of(boardService.addBoardPost(boardPost)));
     }
     @Operation(summary = "보드 글 리스트 반환", description = "공지 글 전부 반환")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    array = @ArraySchema(schema = @Schema(implementation = JobBoardResponseDto.BoardSimple.class))))
+                    array = @ArraySchema(schema = @Schema(implementation = BoardResponseDto.BoardSimple.class))))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR)
     })
     @PostMapping("/search")
-    public ResponseEntity<List<JobBoardResponseDto.BoardSimple>> findAllBoardInfo() {
-        return ResponseEntity.ok(JobBoardResponseDto.BoardSimple.of(boardService.getBoardList()));
+    public ResponseEntity<List<BoardResponseDto.BoardSimple>> findAllBoardInfo() {
+        return ResponseEntity.ok(BoardResponseDto.BoardSimple.of(boardService.getBoardList()));
     }
     @Operation(summary = "단일 글 조회", description = "단일 보드 글 조회, uid 필요")
     @ApiResponse(
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = JobBoardResponseDto.BoardInfo.class)))
+                    schema = @Schema(implementation = BoardResponseDto.BoardInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
     })
     @GetMapping("/{uid}")
-    public ResponseEntity<JobBoardResponseDto.BoardInfo> findBoardInfo(
+    public ResponseEntity<BoardResponseDto.BoardInfo> findBoardInfo(
             @Parameter(name = "uid", description = "보드 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(JobBoardResponseDto.BoardInfo.of(boardService.getBoardByUid(uid)));
+        return ResponseEntity.ok(BoardResponseDto.BoardInfo.of(boardService.getBoardByUid(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "공지 글 수정하기", description = "공지 글 수정하기")
@@ -86,7 +86,7 @@ public class JobBoardController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = JobBoardResponseDto.BoardInfo.class)))
+                    schema = @Schema(implementation = BoardResponseDto.BoardInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND),
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
@@ -94,11 +94,11 @@ public class JobBoardController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
     })
     @PutMapping("/{uid}")
-    public ResponseEntity<JobBoardResponseDto.BoardInfo> putRecruitmentInfo(@RequestBody JobBoardRequirementDto.BoardPost boardPost,
-                                                                            @Parameter(name = "uid", description = "공지 글 uid", in = ParameterIn.PATH)
+    public ResponseEntity<BoardResponseDto.BoardInfo> putRecruitmentInfo(@RequestBody BoardRequirementDto.BoardPost boardPost,
+                                                                         @Parameter(name = "uid", description = "공지 글 uid", in = ParameterIn.PATH)
                                                                                      @PathVariable("uid") String uid) throws Exception {
         userService.checkAdmin();
-        return ResponseEntity.status(HttpStatus.OK).body(JobBoardResponseDto.BoardInfo.of(boardService.updateBoardPost(uid,boardPost)));
+        return ResponseEntity.status(HttpStatus.OK).body(BoardResponseDto.BoardInfo.of(boardService.updateBoardPost(uid,boardPost)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "글 삭제", description = "글 삭제, 보드 uid 필요")
