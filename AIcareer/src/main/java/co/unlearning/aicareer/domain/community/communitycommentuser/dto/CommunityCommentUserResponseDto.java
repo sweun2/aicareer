@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.community.communitycommentuser.dto;
 
+import co.unlearning.aicareer.domain.common.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
 import co.unlearning.aicareer.domain.community.communitycommentuser.CommunityCommentUser;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +19,6 @@ public class CommunityCommentUserResponseDto {
     public static class CommunityCommentUserInfo {
         @Schema(description = "댓글 uid")
         private String commentUid;
-        @Schema(description = "유저 정보")
         private UserResponseDto.UserSimple userSimple;
         @Column
         private Boolean isReport;

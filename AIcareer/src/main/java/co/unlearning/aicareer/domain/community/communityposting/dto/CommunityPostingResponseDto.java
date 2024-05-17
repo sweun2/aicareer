@@ -1,17 +1,12 @@
 package co.unlearning.aicareer.domain.community.communityposting.dto;
 
-import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
-import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting;
 import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
-import co.unlearning.aicareer.domain.job.recruitment.dto.RecruitmentResponseDto;
-import co.unlearning.aicareer.domain.job.recruitmentImage.RecruitmentImage;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,7 +46,7 @@ public class CommunityPostingResponseDto {
         @Schema(description = "볼 수 있는지 여부/ 신고 횟수 초과시 가려짐")
         private Boolean isView;
         @Schema(description = "글쓴이 정보")
-        //private UserResponseDto.UserSimple userSimple;
+        private UserResponseDto.UserSimple writer;
         private CommunityPostingUserResponseDto.CommunityPostingUserInfo communityPostingUserInfo;
 
         public static CommunityPostInfo of(Map.Entry<CommunityPosting,CommunityPostingUser> postingUserEntry ) {
@@ -69,7 +64,7 @@ public class CommunityPostingResponseDto {
                     .recommendCnt(communityPosting.getRecommendCnt())
                     .isView(communityPosting.getIsView())
                     .communityPostingUserInfo(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingUser))
-                    //.userSimple(UserResponseDto.UserSimple.of(communityPosting.getWriter()))
+                    .writer(UserResponseDto.UserSimple.of(communityPosting.getWriter()))
                     ;
             if (communityPosting.getMainImage() != null) {
                 builder.mainImageUrl(communityPosting.getMainImage().getImage().getImageUrl());

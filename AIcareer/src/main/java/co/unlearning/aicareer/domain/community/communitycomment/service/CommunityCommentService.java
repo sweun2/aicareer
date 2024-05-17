@@ -13,6 +13,7 @@ import co.unlearning.aicareer.domain.community.communityposting.repository.Commu
 import co.unlearning.aicareer.domain.community.communityposting.service.CommunityPostingService;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
+import com.amazonaws.transform.MapEntry;
 import org.springframework.data.domain.Pageable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional
@@ -37,11 +35,19 @@ public class CommunityCommentService {
     private final CommunityCommentUserRepository communityCommentUserRepository;
     private final UserService userService;
 
-    public List<CommunityComment> getCommunityCommentsByCommunityPosting (String uid, Pageable pageable) {
+    public List<Map.Entry<CommunityComment,CommunityCommentUser>> getCommunityCommentsByCommunityPosting (String uid, Pageable pageable) {
         CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(uid).getKey();
-        return communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(communityPosting,pageable).stream().toList();
+        List<Map.Entry<CommunityComment,CommunityCommentUser>> entry = new ArrayList<>();
+
+        communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(communityPosting,pageable).stream().toList()
+                .forEach(communityComment -> {
+                    CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserFromLoginUser(communityComment);
+                    entry.add(Map.entry(communityComment,communityCommentUser));
+                });
+
+        return entry;
     }
-    public CommunityComment addCommunityComment(CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost){
+    public Map.Entry<CommunityComment,CommunityCommentUser> addCommunityComment(CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost){
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
         CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(communityCommentPost.getPostingUid()).getKey();
@@ -69,9 +75,10 @@ public class CommunityCommentService {
         communityComment.getCommunityCommentUserSet().add(communityCommentUser);
 
         communityPostingRepository.save(communityPosting);
-        return communityCommentRepository.save(communityComment);
+        communityCommentRepository.save(communityComment);
+        return Map.entry(communityComment,communityCommentUser);
     }
-    public CommunityComment updateCommunityComment(String commentUid, CommunityCommentRequirementDto.CommunityCommentUpdate communityCommentUpdate) {
+    public Map.Entry<CommunityComment,CommunityCommentUser> updateCommunityComment(String commentUid, CommunityCommentRequirementDto.CommunityCommentUpdate communityCommentUpdate) {
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
         CommunityComment communityComment = communityCommentRepository.findByUid(commentUid).orElseThrow(
@@ -82,10 +89,10 @@ public class CommunityCommentService {
         }
 
         communityComment.setContent(communityCommentUpdate.getContent());
-
-        return communityCommentRepository.save(communityComment);
+        communityCommentRepository.save(communityComment);
+        return Map.entry(communityComment, CommunityCommentUser.builder().build());
     }
-    public CommunityComment updateIsView(CommunityCommentRequirementDto.CommunityCommentIsView communityCommentIsView) {
+    public Map.Entry<CommunityComment,CommunityCommentUser> updateIsView(CommunityCommentRequirementDto.CommunityCommentIsView communityCommentIsView) {
         CommunityComment communityComment = communityCommentRepository.findByUid(communityCommentIsView.getUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
@@ -94,7 +101,8 @@ public class CommunityCommentService {
             userService.checkAdmin();
             communityComment.setIsView(communityCommentIsView.getIsView());
         }
-        return communityCommentRepository.save(communityComment);
+        communityCommentRepository.save(communityComment);
+        return Map.entry(communityComment, CommunityCommentUser.builder().build());
     }
 
 

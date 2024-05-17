@@ -61,7 +61,7 @@ public class CommunityPostingController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_BLOCKED),
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
     })
-    @PutMapping("/update/{uid}")
+    @PutMapping("/{uid}")
     public ResponseEntity<CommunityPostingResponseDto.CommunityPostInfo> updateCommunityPost(
             @Parameter(name = "uid", description = "게시글 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid,

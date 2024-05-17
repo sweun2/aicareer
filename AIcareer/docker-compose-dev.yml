@@ -14,7 +14,7 @@ services:
   web:
     image: sweun2/aicareer-dev:aicareer
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/aicareer
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/aicareer
       SPRING_DATASOURCE_USERNAME: aicareer
       SPRING_DATASOURCE_PASSWORD: aicareer
     depends_on:

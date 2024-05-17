@@ -16,7 +16,6 @@ import co.unlearning.aicareer.domain.community.communitypostingimage.service.Com
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.repository.CommunityPostingUserRepository;
 import co.unlearning.aicareer.domain.community.communitypostinguser.service.CommunityPostingUserService;
-import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
@@ -69,7 +68,6 @@ public class CommunityPostingService {
                 .communityPostingUserSet(new HashSet<>())
                 .writer(user)
                 .build();
-
 
         if (communityPostingPost.getMainImage() != null) {
             Image mainImage = imageRepository.findByImageUrl(
@@ -241,26 +239,11 @@ public class CommunityPostingService {
                 ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
         CommunityPostingUser communityPostingUser;
-        if(userService.isLogin()) {
-            Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,userService.getLoginUser());
-            communityPostingUser = communityPostingUserOptional.orElseGet(() -> CommunityPostingUser.builder()
-                    .user(userService.getLoginUser())
-                    .isReport(false)
-                    .isRecommend(false)
-                    .communityPosting(communityPosting)
-                    .build());
-            communityPostingUserRepository.save(communityPostingUser);
-
-        } else {
-            communityPostingUser = CommunityPostingUser.builder()
-                    .user(null)
-                    .isReport(false)
-                    .isRecommend(false)
-                    .communityPosting(communityPosting)
-                    .build();
-        }
+        communityPostingUser = communityPostingUserService.getMockCommunityPostingUserFromLoginUser(communityPosting);
         return Map.entry(communityPosting,communityPostingUser);
     }
+
+
     public List<CommunityPosting> getAllCommunityPostingIsViewTrue(Pageable pageable) {
         return communityPostingRepository.findAllByIsViewTrueOrderByUploadDateDesc(pageable).stream().toList();
     }
@@ -287,6 +270,7 @@ public class CommunityPostingService {
             throw new BusinessException(ResponseErrorCode.USER_ALREADY_RECOMMEND);
         } else {
             communityPosting.setRecommendCnt(communityPosting.getRecommendCnt()+1);
+            communityPostingUser.setIsRecommend(true);
         }
 
         communityPostingRepository.save(communityPosting);

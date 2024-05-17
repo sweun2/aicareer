@@ -2,13 +2,15 @@ package co.unlearning.aicareer.domain.community.communitycomment.dto;
 
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
 import co.unlearning.aicareer.domain.community.communitycomment.CommunityComment;
+import co.unlearning.aicareer.domain.community.communitycommentuser.CommunityCommentUser;
 import co.unlearning.aicareer.domain.community.communitycommentuser.dto.CommunityCommentUserResponseDto;
-import co.unlearning.aicareer.domain.community.communitycommentuser.repository.CommunityCommentUserRepository;
+import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommunityCommentResponseDto {
@@ -33,9 +35,14 @@ public class CommunityCommentResponseDto {
         @Schema(description = "볼 수 있는지 여부/ 신고 횟수 초과시 가려짐")
         private Boolean isView;
         @Schema(description = "글쓴이 정보")
-        private UserResponseDto.UserSimple userSimple;
+        private UserResponseDto.UserSimple writer;
+        private CommunityCommentUserResponseDto.CommunityCommentUserInfo communityCommentUserInfo;
 
-        public static CommunityCommentInfo of(CommunityComment communityComment) {
+
+        public static CommunityCommentInfo of(Map.Entry<CommunityComment, CommunityCommentUser> commentUserEntry) {
+            CommunityComment communityComment = commentUserEntry.getKey();
+            CommunityCommentUser communityCommentUser = commentUserEntry.getValue();
+
             return CommunityCommentInfo.builder()
                     .uid(communityComment.getUid())
                     .uploadDate(LocalDateTimeStringConverter.LocalDateTimeToString(communityComment.getUploadDate()))
@@ -44,12 +51,13 @@ public class CommunityCommentResponseDto {
                     .reportCnt(communityComment.getReportCnt())
                     .recommendCnt(communityComment.getRecommendCnt())
                     .isView(communityComment.getIsView())
-                    .userSimple(UserResponseDto.UserSimple.of(communityComment.getWriter()))
+                    .writer(UserResponseDto.UserSimple.of(communityComment.getWriter()))
+                    .communityCommentUserInfo(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentUser))
                     .build();
         }
 
-        public static List<CommunityCommentInfo> of(List<CommunityComment> communityComments) {
-            return communityComments.stream().map(CommunityCommentInfo::of).collect(Collectors.toList());
+        public static List<CommunityCommentInfo> of(List<Map.Entry<CommunityComment, CommunityCommentUser>> commentUserEntry) {
+            return commentUserEntry.stream().map(CommunityCommentInfo::of).collect(Collectors.toList());
         }
     }
     @Builder
