@@ -1,5 +1,6 @@
-package co.unlearning.aicareer.domain.job.recruitment;
+package co.unlearning.aicareer.domain.job.recruitmentbatch;
 
+import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Cascade;

@@ -17,10 +17,8 @@ public class CommunityPostingRequirementDto {
         @Schema(description = "내용")
         private String content;
 
-        @Schema(description = "메인 이미지 url")
-        private String mainImage;
-        @Schema(description = "서브 이미지 url")
-        private List<String> subImage;
+        @Schema(description = "이미지 urls, 첫번째 사진이 mainImageUrl로 반환")
+        private List<String> imageUrls;
     }
     @Getter
     @Setter

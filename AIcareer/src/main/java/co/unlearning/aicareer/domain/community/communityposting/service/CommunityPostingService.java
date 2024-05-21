@@ -69,23 +69,10 @@ public class CommunityPostingService {
                 .writer(user)
                 .build();
 
-        if (communityPostingPost.getMainImage() != null) {
-            Image mainImage = imageRepository.findByImageUrl(
-                            ImagePathLengthConverter.slicingImagePathLength(communityPostingPost.getMainImage()))
-                    .orElseThrow(() -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL));
-            mainImage.setIsRelated(true);
-            communityPosting.setMainImage(
-                    CommunityPostingImage.builder()
-                            .image(mainImage)
-                            .communityPosting(communityPosting)
-                            .imageOrder(0)
-                            .build()
-            );
-        }
 
         List<CommunityPostingImage> subImages = new ArrayList<>();
         int order = 0;
-        for (String subImageUrl : communityPostingPost.getSubImage()) {
+        for (String subImageUrl : communityPostingPost.getImageUrls()) {
             Image subImage = imageRepository.findByImageUrl(
                             ImagePathLengthConverter.slicingImagePathLength(subImageUrl))
                     .orElseThrow(() -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL));
@@ -123,11 +110,9 @@ public class CommunityPostingService {
         if(user != communityPostingUser.getUser()) {
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
         }
-        // Update main image
-        updateMainImage(communityPostingPost.getMainImage(), communityPosting.getMainImage(), communityPosting::setMainImage);
 
         // Update sub images
-        updateSubImages(communityPosting, communityPostingPost.getSubImage());
+        updateSubImages(communityPosting, communityPostingPost.getImageUrls());
 
         communityPosting.setLastModified(LocalDateTime.now());
         communityPosting.setTitle(communityPostingPost.getTitle());

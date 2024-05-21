@@ -7,11 +7,8 @@ spring:
     include:
       - "aws"
       - "email"
+      - "clova"
 
----
-spring:
-  profiles:
-    active: local
 
 
 ---
@@ -23,3 +20,9 @@ spring:
 spring:
   profiles:
     active: dev
+
+
+---
+spring:
+  profiles:
+    active: local

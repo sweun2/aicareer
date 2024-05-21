@@ -48,8 +48,6 @@ public class CommunityPosting {
     private Set<CommunityPostingUser> communityPostingUserSet;
     @ManyToOne //글쓴이
     private User writer;
-    @OneToOne(cascade = CascadeType.ALL)
-    private CommunityPostingImage mainImage;
     @OneToMany(mappedBy ="communityPosting",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<CommunityPostingImage> subImages;
 }

@@ -39,14 +39,14 @@ spring:
           google:
             client-id: 47627470600-dgjrp1bb3c4rpqkft51rqujs2l43t2gm.apps.googleusercontent.com
             client-secret: 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
-            redirect-uri: "https://api.aicareer.co.kr/login/oauth2/code/google"
+            redirect-uri: "http://api.aicareer.co.kr/login/oauth2/code/google"
             scope:
               - email
               - profile
           naver:
             client-id: aY6ehque07j5CjYTBIcX
             client-secret: 73CHBBQ3sD
-            redirect-uri: "https://api.aicareer.co.kr/login/oauth2/code/naver"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/naver"
             authorization_grant_type: authorization_code
             scope:
               - name
@@ -78,7 +78,7 @@ logging:
     org:
       springframework: DEBUG
 back-url: "http://localhost:8080"
-front-url: "https://www.aicareer.co.kr"
+front-url: "http://localhost:3000"
 
 
 jwt:

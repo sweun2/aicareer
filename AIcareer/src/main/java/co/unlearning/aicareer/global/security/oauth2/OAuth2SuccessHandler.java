@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,26 +71,49 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             user.setIsAgreePrivacyTerms(isAgreePrivacyTerms);
             userRepository.save(user);
         }
-        ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
-                .path("/")
-                .sameSite("None")
-                .domain(".aicareer.co.kr")
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(24*60*60)
-                .build();
-        response.addHeader("Set-Cookie", accessToken.toString());
+        if(!Objects.equals(frontURL, "http://localhost:3000")) {
+            ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
+                    .path("/")
+                    .sameSite("None")
+                    .domain(".aicareer.co.kr")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", accessToken.toString());
 
-        ResponseCookie refreshToken = ResponseCookie.from("_rT",token.getRefreshToken())
-                .path("/")
-                .sameSite("None")
-                .domain(".aicareer.co.kr")
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(24*60*60)
-                .build();
-        response.addHeader("Set-Cookie", refreshToken.toString());
-        getRedirectStrategy().sendRedirect(request, response, UriComponentsBuilder.fromUriString(frontURL).queryParam("login", "true").toUriString());
+            ResponseCookie refreshToken = ResponseCookie.from("_rT",token.getRefreshToken())
+                    .path("/")
+                    .sameSite("None")
+                    .domain(".aicareer.co.kr")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", refreshToken.toString());
+            getRedirectStrategy().sendRedirect(request, response, UriComponentsBuilder.fromUriString(frontURL).queryParam("login", "true").toUriString());
+        } else {
+            ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
+                    .path("/")
+                    .sameSite("None")
+                    .domain("localhost:3000")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", accessToken.toString());
+
+            ResponseCookie refreshToken = ResponseCookie.from("_rT",token.getRefreshToken())
+                    .path("/")
+                    .sameSite("None")
+                    .domain("localhost:3000")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", refreshToken.toString());
+            getRedirectStrategy().sendRedirect(request, response, UriComponentsBuilder.fromUriString(frontURL).queryParam("login", "true").toUriString());
+        }
     }
 
     private String makeRedirectUrl(String path, String token) {

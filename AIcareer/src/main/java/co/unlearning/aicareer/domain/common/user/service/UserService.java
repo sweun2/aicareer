@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -46,6 +48,8 @@ public class UserService {
     private final EducationRepository educationRepository;
     private final CompanyTypeRepository companyTypeRepository;
     private final EntityManager entityManager;
+    @Value("${front-url}")
+    private String frontURL;
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.USER_NOT_FOUND)
@@ -90,26 +94,47 @@ public class UserService {
         return user;
     }
     public void logout(HttpServletResponse response) {
-        ResponseCookie accessToken = ResponseCookie.from("accessToken","")
-                .path("/")
-                .sameSite("None")
-                .domain(".aicareer.co.kr")
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(24*60*60)
-                .build();
-        response.addHeader("Set-Cookie", accessToken.toString());
+        if(!Objects.equals(frontURL, "http://localhost:3000")) {
+            ResponseCookie accessToken = ResponseCookie.from("_aT","")
+                    .path("/")
+                    .sameSite("None")
+                    .domain(".aicareer.co.kr")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", accessToken.toString());
 
-        ResponseCookie refreshToken = ResponseCookie.from("refreshToken","")
-                .path("/")
-                .sameSite("None")
-                .domain(".aicareer.co.kr")
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(24*60*60)
-                .build();
-        response.addHeader("Set-Cookie", refreshToken.toString());
+            ResponseCookie refreshToken = ResponseCookie.from("_rT","")
+                    .path("/")
+                    .sameSite("None")
+                    .domain(".aicareer.co.kr")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", refreshToken.toString());
+        } else {
+            ResponseCookie accessToken = ResponseCookie.from("_aT","")
+                    .path("/")
+                    .sameSite("None")
+                    .domain("localhost:3000")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", accessToken.toString());
 
+            ResponseCookie refreshToken = ResponseCookie.from("_rT","")
+                    .path("/")
+                    .sameSite("None")
+                    .domain("localhost:3000")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(24*60*60)
+                    .build();
+            response.addHeader("Set-Cookie", refreshToken.toString());
+        }
     }
     public void checkAdmin() {
         User user = getLoginUser();

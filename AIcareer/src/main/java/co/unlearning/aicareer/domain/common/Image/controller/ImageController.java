@@ -3,7 +3,7 @@ package co.unlearning.aicareer.domain.common.Image.controller;
 import co.unlearning.aicareer.domain.common.Image.dto.ImageRequirementDto;
 import co.unlearning.aicareer.domain.common.Image.dto.ImageResponseDto;
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
-import co.unlearning.aicareer.domain.job.recruitment.service.RecruitmentBatchService;
+import co.unlearning.aicareer.domain.job.recruitmentbatch.service.RecruitmentBatchService;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -41,7 +41,6 @@ public class ImageController {
     )
     public ResponseEntity<byte[]> downloadS3Attach(@Parameter(name = "url", description = "이미지 url", in = ParameterIn.PATH)
                                                    @PathVariable("url") String url) throws MalformedURLException, FileNotFoundException {
-
         return ResponseEntity.ok()
                 .cacheControl(
                         CacheControl.maxAge(10, TimeUnit.MINUTES)

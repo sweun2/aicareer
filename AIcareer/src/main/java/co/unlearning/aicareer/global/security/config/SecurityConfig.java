@@ -50,6 +50,7 @@ public class SecurityConfig {
         origins.add("https://api.aicareer.co.kr");
 
         origins.add("https://dev.aicareer.co.kr");
+        origins.add("http://localhost:3000");
 
         origins.add("https://localhost:8080");
         origins.add("http://localhost:8080");

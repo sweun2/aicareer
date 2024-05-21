@@ -3,6 +3,7 @@ package co.unlearning.aicareer.domain.common.Image.service;
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.dto.ImageRequirementDto;
 import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
+import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import co.unlearning.aicareer.global.utils.validator.ImageValidator;
@@ -51,7 +52,7 @@ public class ImageService {
         else {
             throw new BusinessException(ResponseErrorCode.INVALID_IMAGE_CONTENT_TYPE);
         }
-        String imagePath = (UUID.randomUUID().toString() + UUID.randomUUID().toString() + contentType).replaceAll(" ", "");
+        String imagePath = (LocalDateTimeStringConverter.LocalDateTimeToString(LocalDateTime.now())+UUID.randomUUID().toString() + contentType).replaceAll(" ", "");
 
         //파일 변환
         ObjectMetadata objectMetadata = new ObjectMetadata();

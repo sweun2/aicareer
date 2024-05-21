@@ -26,7 +26,7 @@ public class CommunityPostingResponseDto {
         @Schema(description = "글 uid")
         private String uid;
         private String mainImageUrl;
-        private List<String> subImageUrls;
+        private List<String> imageUrls;
         @Schema(description = "업로드 시간")
         private String uploadDate;
         @Schema(description = "최종 수정일")
@@ -49,7 +49,7 @@ public class CommunityPostingResponseDto {
         private UserResponseDto.UserSimple writer;
         private CommunityPostingUserResponseDto.CommunityPostingUserInfo communityPostingUserInfo;
 
-        public static CommunityPostInfo of(Map.Entry<CommunityPosting,CommunityPostingUser> postingUserEntry ) {
+        public static CommunityPostInfo of(Map.Entry<CommunityPosting,CommunityPostingUser> postingUserEntry) {
             CommunityPosting communityPosting = postingUserEntry.getKey();
             CommunityPostingUser communityPostingUser = postingUserEntry.getValue();
             CommunityPostInfoBuilder builder = CommunityPostInfo.builder()
@@ -66,18 +66,23 @@ public class CommunityPostingResponseDto {
                     .communityPostingUserInfo(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingUser))
                     .writer(UserResponseDto.UserSimple.of(communityPosting.getWriter()))
                     ;
-            if (communityPosting.getMainImage() != null) {
-                builder.mainImageUrl(communityPosting.getMainImage().getImage().getImageUrl());
-            } else builder.mainImageUrl(StringUtils.EMPTY);
             if(!communityPosting.getSubImages().isEmpty()) {
-                builder.subImageUrls(
+                builder.imageUrls(
                         communityPosting.getSubImages().stream()
                                 .filter(recruitmentImage -> recruitmentImage.getImageOrder() != null && recruitmentImage.getImageOrder() != 0)
                                 .sorted(Comparator.comparingInt(CommunityPostingImage::getImageOrder))
                                 .map(recruitmentImage -> recruitmentImage.getImage().getImageUrl())
                                 .collect(Collectors.toList())
                 );
-            } else builder.subImageUrls(new ArrayList<>());
+                builder.mainImageUrl(
+                        communityPosting.getSubImages().stream()
+                        .filter(recruitmentImage->recruitmentImage.getImageOrder() == 1).toList().get(0)
+                                .getImage().getImageUrl()
+                );
+            } else {
+                builder.imageUrls(new ArrayList<>());
+                builder.mainImageUrl(StringUtils.EMPTY);
+            }
 
             return builder.build();
         }
@@ -127,9 +132,15 @@ public class CommunityPostingResponseDto {
                     .recommendCnt(communityPosting.getRecommendCnt())
                     .isView(communityPosting.getIsView());
 
-            if (communityPosting.getMainImage() != null) {
-                builder.mainImageUrl(communityPosting.getMainImage().getImage().getImageUrl());
-            } else builder.mainImageUrl(StringUtils.EMPTY);
+            if(!communityPosting.getSubImages().isEmpty()) {
+                builder.mainImageUrl(
+                        communityPosting.getSubImages().stream()
+                                .filter(recruitmentImage->recruitmentImage.getImageOrder() == 1).toList().get(0)
+                                .getImage().getImageUrl()
+                );
+            } else {
+                builder.mainImageUrl(StringUtils.EMPTY);
+            }
 
             return builder.build();
         }

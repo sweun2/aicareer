@@ -1,0 +1,83 @@
+package co.unlearning.aicareer.domain.job.recruitmentbatch.controller;
+
+import co.unlearning.aicareer.domain.common.user.service.UserService;
+import co.unlearning.aicareer.domain.job.recruitment.dto.RecruitmentResponseDto;
+import co.unlearning.aicareer.domain.job.recruitment.service.RecruitmentService;
+import co.unlearning.aicareer.domain.job.recruitmentbatch.service.RecruitmentBatchService;
+import co.unlearning.aicareer.global.utils.MultipartFileUtil;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
+import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.io.*;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+@RestController
+@Slf4j
+@Tag(name = "recruitment batch", description = "스케줄링 api")
+@RequiredArgsConstructor
+@RequestMapping("/api/recruitment/batch")
+public class RecruitmentBatchController {
+    private final RecruitmentService recruitmentService;
+    private final RecruitmentBatchService recruitmentBatchService;
+    private final UserService userService;
+
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "자동 글 올리기", description = "url 넣으면 자동화!?!?")
+    @ApiResponse(
+            responseCode = "201",
+            description = "정상 응답",
+            content = @Content(
+                    schema = @Schema(implementation = RecruitmentResponseDto.RecruitmentInfo.class)))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_DATE_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.DATE_BAD_REQUEST),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_IMAGE_URL),
+            @ApiErrorCodeExample(ResponseErrorCode.INVALID_ENUM_STRING_INPUT),
+            @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
+
+    })
+
+
+    @GetMapping("/extract")
+    public ResponseEntity<String> extractTextFromUrl(@RequestParam String url) {
+        try {
+            Document doc = Jsoup.connect(url).get();
+            Elements images = doc.select("img");
+            StringBuilder result = new StringBuilder();
+
+            for (Element img : images) {
+                String imgUrl = img.absUrl("src");
+                if (!imgUrl.isEmpty()) {
+                    MultipartFile file = MultipartFileUtil.convertUrlToMultipartFile(imgUrl);
+                    String ocrResult = recruitmentBatchService.performOcr(file);
+                    result.append(ocrResult).append("\n");
+                }
+            }
+
+            String pageText = doc.body().text();
+            result.append(pageText);
+
+            return ResponseEntity.ok(result.toString());
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return ResponseEntity.status(500).body("Failed to extract text");
+        }
+    }
+}

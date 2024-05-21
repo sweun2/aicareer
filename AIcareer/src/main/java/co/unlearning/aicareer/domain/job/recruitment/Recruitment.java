@@ -1,11 +1,11 @@
 package co.unlearning.aicareer.domain.job.recruitment;
 
-import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.job.career.Career;
 import co.unlearning.aicareer.domain.job.company.Company;
 import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.recruitmentImage.RecruitmentImage;
+import co.unlearning.aicareer.domain.job.recruitmentbatch.RecruitmentBatch;
 import co.unlearning.aicareer.domain.job.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
 import jakarta.persistence.*;
