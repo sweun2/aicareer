@@ -5,6 +5,7 @@ import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting
 import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
+import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -47,6 +48,7 @@ public class CommunityPostingResponseDto {
         private Boolean isView;
         @Schema(description = "글쓴이 정보")
         private UserResponseDto.UserSimple writer;
+        @Schema(description = "로그인 유저의 정보")
         private CommunityPostingUserResponseDto.CommunityPostingUserInfo communityPostingUserInfo;
 
         public static CommunityPostInfo of(Map.Entry<CommunityPosting,CommunityPostingUser> postingUserEntry) {
@@ -72,12 +74,14 @@ public class CommunityPostingResponseDto {
                                 .filter(recruitmentImage -> recruitmentImage.getImageOrder() != null && recruitmentImage.getImageOrder() != 0)
                                 .sorted(Comparator.comparingInt(CommunityPostingImage::getImageOrder))
                                 .map(recruitmentImage -> recruitmentImage.getImage().getImageUrl())
+                                .map(ImagePathLengthConverter::extendImagePathLength)
                                 .collect(Collectors.toList())
                 );
                 builder.mainImageUrl(
+                        ImagePathLengthConverter.extendImagePathLength(
                         communityPosting.getSubImages().stream()
                         .filter(recruitmentImage->recruitmentImage.getImageOrder() == 1).toList().get(0)
-                                .getImage().getImageUrl()
+                                .getImage().getImageUrl())
                 );
             } else {
                 builder.imageUrls(new ArrayList<>());
@@ -134,9 +138,10 @@ public class CommunityPostingResponseDto {
 
             if(!communityPosting.getSubImages().isEmpty()) {
                 builder.mainImageUrl(
-                        communityPosting.getSubImages().stream()
-                                .filter(recruitmentImage->recruitmentImage.getImageOrder() == 1).toList().get(0)
-                                .getImage().getImageUrl()
+                        ImagePathLengthConverter.extendImagePathLength(
+                                communityPosting.getSubImages().stream()
+                                        .filter(recruitmentImage->recruitmentImage.getImageOrder() == 1).toList().get(0)
+                                        .getImage().getImageUrl())
                 );
             } else {
                 builder.mainImageUrl(StringUtils.EMPTY);

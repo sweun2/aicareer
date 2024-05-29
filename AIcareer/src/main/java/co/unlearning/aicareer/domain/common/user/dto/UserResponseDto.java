@@ -28,10 +28,13 @@ public class UserResponseDto {
         private Integer userId;
         private String nickname;
         public static UserSimple of(User user) {
-            return UserSimple.builder()
-                    .userId(user.getId())
-                    .nickname(user.getNickname())
-                    .build();
+            if(user != null){
+                return UserSimple.builder()
+                        .userId(user.getId())
+                        .nickname(user.getNickname())
+                        .build();
+            } else
+                return UserSimple.builder().build();
         }
 
         public static List<UserSimple> of(List<User> users) {
@@ -44,6 +47,7 @@ public class UserResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserInfo {
+        private Integer userId;
         private String nickname;
         private String name;
         private String email;
@@ -56,6 +60,7 @@ public class UserResponseDto {
         private Boolean isInterest;
         public static UserInfo of(User user) {
             return UserInfo.builder()
+                    .userId(user.getId())
                     .nickname(user.getNickname())
                     .name(user.getName())
                     .email(user.getEmail())

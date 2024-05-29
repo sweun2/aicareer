@@ -48,8 +48,8 @@ public class RecruitmentRequirementDto {
         private String title; //title
         @Schema(description = "내용")
         private String content; //내용
-        /*@Schema(description = "내부 타입",allowableValues = {"markdown,html"})
-        private String contentType;*/
+        @Schema(description = "내부 타입",allowableValues = {"MARKDOWN,HTML"})
+        private String textType;
     }
     @Getter
     @Setter

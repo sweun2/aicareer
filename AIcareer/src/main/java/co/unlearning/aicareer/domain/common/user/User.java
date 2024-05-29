@@ -21,8 +21,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column
-    private String nickname;
-    @Column
     private String name;
     @Column
     private String email;
@@ -55,4 +53,6 @@ public class User {
     private Set<CommunityPostingUser> communityPostingUser;
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private Set<CommunityCommentUser> communityCommentUserSet;
+    @Column(unique = true)
+    private String nickname;
 }

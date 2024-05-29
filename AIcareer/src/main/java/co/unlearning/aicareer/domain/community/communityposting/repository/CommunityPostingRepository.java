@@ -17,8 +17,10 @@ import java.util.Optional;
 public interface CommunityPostingRepository extends JpaRepository<CommunityPosting,Integer> {
     Optional<CommunityPosting> findByUid(String uid);
     Page<CommunityPosting> findAllByIsViewTrueOrderByUploadDateDesc(Pageable pageable);
+    Page<CommunityPosting> findAllByOrderByUploadDateDesc(Pageable pageable);
+    Page<CommunityPosting> findAllByContentContainsOrTitleContainsAndIsViewTrue(String title,String content, Pageable pageable);
     Page<CommunityPosting> findAllByContentContainsOrTitleContains(String title,String content, Pageable pageable);
 
-    @Query("SELECT p FROM CommunityPosting p WHERE p.uploadDate >= :startOfDay AND p.uploadDate < :endOfDay ORDER BY (p.hits + p.recommendCnt + p.commentCnt) DESC")
-    List<CommunityPosting> findTopPosts(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay")LocalDateTime endOfDay, Pageable pageable);
+    @Query("SELECT p FROM CommunityPosting p WHERE ((p.isView = true) AND (p.uploadDate >= :startOfDay AND p.uploadDate < :endOfDay)) ORDER BY (p.hits + p.recommendCnt + p.commentCnt) DESC")
+    List<CommunityPosting> findTopPostsWithIsViewTrue(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay")LocalDateTime endOfDay, Pageable pageable);
 }

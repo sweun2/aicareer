@@ -5,15 +5,17 @@ import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
-import co.unlearning.aicareer.domain.common.user.repository.UserTermsRepository;
 import co.unlearning.aicareer.global.security.jwt.Token;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -21,33 +23,56 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenService tokenService;
     private final UserRepository userRepository;
     @Value("${front-url}")
     private String frontURL;
+    @Value("${nickname.file:classpath:nickname-list.txt}")
+    private String nicknameFilePath;
+    private final ResourceLoader resourceLoader;
+    private List<String> nicknames;
+    @PostConstruct
+    public void init() throws IOException {
+        Resource resource = resourceLoader.getResource(nicknameFilePath);
+        List<String> lines = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8);
+        nicknames = lines.stream().map(String::trim).collect(Collectors.toList());
+    }
+    public String generateUniqueNickname() throws IOException {
+        Random random = new Random();
+        String nickname;
+        do {
+            String randomNickname = nicknames.get(random.nextInt(nicknames.size()));
+            int randomNumber = 10000 + random.nextInt(90000); // 5자리 랜덤 숫자 생성
+            nickname = randomNickname + " " + randomNumber;
+        } while (userRepository.findByNickname(nickname).isPresent());
+
+        return nickname;
+    }
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         String email = oAuth2User.getAttribute("email");
-        Token token = tokenService.generateToken(email, "USER");
+        Token token = tokenService.generateLoginTokens(email, "USER");
 
         Optional<User> userOptional = userRepository.findByEmail(email);
-
         if(userOptional.isEmpty()){
+
+
             User user = User.builder()
                     .email(email)
                     .name(oAuth2User.getAttribute("name"))
-                    .nickname(UUID.randomUUID().toString())
+                    .nickname(generateUniqueNickname())
                     .password("none")
                     .recommender("none")
                     .userRole(UserRole.GUEST)
@@ -96,7 +121,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             ResponseCookie accessToken = ResponseCookie.from("_aT",token.getAccessToken())
                     .path("/")
                     .sameSite("None")
-                    .domain("localhost:3000")
+                    .domain("localhost")
                     .httpOnly(true)
                     .secure(true)
                     .maxAge(24*60*60)
@@ -106,7 +131,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             ResponseCookie refreshToken = ResponseCookie.from("_rT",token.getRefreshToken())
                     .path("/")
                     .sameSite("None")
-                    .domain("localhost:3000")
+                    .domain("localhost")
                     .httpOnly(true)
                     .secure(true)
                     .maxAge(24*60*60)

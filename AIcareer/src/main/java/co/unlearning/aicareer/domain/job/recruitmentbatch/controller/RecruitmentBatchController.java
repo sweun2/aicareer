@@ -3,11 +3,14 @@ package co.unlearning.aicareer.domain.job.recruitmentbatch.controller;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.domain.job.recruitment.dto.RecruitmentResponseDto;
 import co.unlearning.aicareer.domain.job.recruitment.service.RecruitmentService;
+import co.unlearning.aicareer.domain.job.recruitmentbatch.GptService;
 import co.unlearning.aicareer.domain.job.recruitmentbatch.service.RecruitmentBatchService;
 import co.unlearning.aicareer.global.utils.MultipartFileUtil;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,6 +39,8 @@ public class RecruitmentBatchController {
     private final RecruitmentService recruitmentService;
     private final RecruitmentBatchService recruitmentBatchService;
     private final UserService userService;
+    private final ObjectMapper objectMapper;
+    private final GptService gptService;
 
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "자동 글 올리기", description = "url 넣으면 자동화!?!?")
@@ -61,20 +66,30 @@ public class RecruitmentBatchController {
             Document doc = Jsoup.connect(url).get();
             Elements images = doc.select("img");
             StringBuilder result = new StringBuilder();
-
             for (Element img : images) {
                 String imgUrl = img.absUrl("src");
                 if (!imgUrl.isEmpty()) {
                     MultipartFile file = MultipartFileUtil.convertUrlToMultipartFile(imgUrl);
-                    String ocrResult = recruitmentBatchService.performOcr(file);
-                    result.append(ocrResult).append("\n");
+                    String ocrResult = recruitmentBatchService.performOcr(file,imgUrl);
+
+                    JsonNode ocrResultJson = objectMapper.readTree(ocrResult);
+                    JsonNode imagesNode = ocrResultJson.path("images");
+
+                    for (JsonNode imageNode : imagesNode) {
+                        JsonNode fieldsNode = imageNode.path("fields");
+                        for (JsonNode fieldNode : fieldsNode) {
+                            String inferText = fieldNode.path("inferText").asText();
+                            result.append(inferText).append(" ");
+                        }
+                    }
                 }
             }
 
             String pageText = doc.body().text();
             result.append(pageText);
 
-            return ResponseEntity.ok(result.toString());
+
+            return ResponseEntity.ok(gptService.requestToOpenAI(result.toString()));
         } catch (Exception e) {
             log.info(e.getMessage());
             return ResponseEntity.status(500).body("Failed to extract text");

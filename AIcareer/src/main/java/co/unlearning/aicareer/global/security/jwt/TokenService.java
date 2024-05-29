@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -43,7 +45,7 @@ public class TokenService {
         return claims;
     }
 
-    public Token generateToken(String uid, String role){
+    public Token generateLoginTokens(String uid, String role){
         Claims claims = generateClaims(uid, role);
         Date issueDate = new Date(); //토큰 발행 시각
 
@@ -66,6 +68,17 @@ public class TokenService {
         System.out.println("RefreshToken: " + refreshToken);
 
         return new Token(accessToken, refreshToken);
+    }
+    public String generateTokenWithString(String uid, String role){
+        Claims claims = generateClaims(uid, role);
+        Date issueDate = new Date(); //토큰 발행 시각
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(issueDate)
+                .setExpiration(new Date(issueDate.getTime() + ACCESS_EXPIRE))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public boolean verifyToken(String token){
@@ -95,7 +108,7 @@ public class TokenService {
         }
 
         //토큰 재발급
-        return generateToken(email, "USER");
+        return generateLoginTokens(email, "USER");
     }
 
     public Optional<String> getRefreshTokenFromCookie(HttpServletRequest request){
@@ -122,5 +135,21 @@ public class TokenService {
     }
     public String getUid(String token){
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+    }
+    public String getTokenFromCookie(ServletRequest request, String tokenName) {
+        String token = null;
+        if (request instanceof HttpServletRequest request2) {
+            Cookie[] cookies = request2.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    String cookieName = cookie.getName();
+                    String cookieValue = cookie.getValue();
+                    if(Objects.equals(cookieName, tokenName)) {
+                        token = cookieValue;
+                    }
+                }
+            }
+        }
+        return token;
     }
 }

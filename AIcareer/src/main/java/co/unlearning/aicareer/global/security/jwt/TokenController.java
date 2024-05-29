@@ -3,6 +3,7 @@ package co.unlearning.aicareer.global.security.jwt;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,10 +25,10 @@ public class TokenController {
     //access 토큰 만료시 refresh 토큰을 통해 재발급
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/token/refresh")
-    public ResponseEntity<String> refreshAuth(HttpServletRequest request) {
+    public ResponseEntity<String> refreshAuth(HttpServletRequest request, HttpServletResponse response) {
         Token newToken = tokenService.refresh(request);
 
-        ResponseCookie accessTokenCookie = ResponseCookie.from("_aT",newToken.getAccessToken())
+        ResponseCookie accessToken = ResponseCookie.from("_aT",newToken.getAccessToken())
                 .path("/")
                 .sameSite("None")
                 .domain(".aicareer.co.kr")
@@ -35,11 +36,12 @@ public class TokenController {
                 .secure(true)
                 .maxAge(24*60*60)
                 .build();
+        response.addHeader("Set-Cookie", accessToken.toString());
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Set-Cookie", accessTokenCookie.toString());
+        headers.set("Set-Cookie", accessToken.toString());
 
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(accessTokenCookie.toString());
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(accessToken.toString());
     }
     @GetMapping("/token/expired")
     public ResponseEntity<String> logout() {

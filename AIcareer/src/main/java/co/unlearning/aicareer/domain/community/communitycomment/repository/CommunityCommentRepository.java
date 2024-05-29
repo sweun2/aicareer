@@ -13,5 +13,6 @@ import java.util.Optional;
 @Repository
 public interface CommunityCommentRepository extends JpaRepository<CommunityComment,Integer> {
     Page<CommunityComment> findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(CommunityPosting communityPosting, Pageable pageable);
+    Page<CommunityComment> findAllByCommunityPostingOrderByUploadDateDesc(CommunityPosting communityPosting, Pageable pageable);
     Optional<CommunityComment> findByUid(String uid);
 }

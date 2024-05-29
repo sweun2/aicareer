@@ -2,6 +2,7 @@ package co.unlearning.aicareer.domain.job.board.dto;
 
 import co.unlearning.aicareer.domain.job.board.Board;
 import co.unlearning.aicareer.domain.job.boardimage.BoardImage;
+import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -48,17 +49,17 @@ public class BoardResponseDto {
                     .content(board.getContent());
 
             if (board.getDesktopBannerImage() != null) {
-                builder.desktopBannerImage(board.getDesktopBannerImage().getImage().getImageUrl());
+                builder.desktopBannerImage(ImagePathLengthConverter.extendImagePathLength(board.getDesktopBannerImage().getImage().getImageUrl()));
             } else builder.desktopBannerImage(StringUtils.EMPTY);
             if(board.getMobileBannerImage() != null) {
-                builder.mobileBannerImage(board.getMobileBannerImage().getImage().getImageUrl());
+                builder.mobileBannerImage(ImagePathLengthConverter.extendImagePathLength(board.getMobileBannerImage().getImage().getImageUrl()));
             } else builder.mobileBannerImage(StringUtils.EMPTY);
             if(!board.getSubImages().isEmpty()) {
                 builder.subImages(
                         board.getSubImages().stream()
                                 .filter(boardImage -> boardImage.getImageOrder() != null && boardImage.getImageOrder() != 0)
                                 .sorted(Comparator.comparingInt(BoardImage::getImageOrder))
-                                .map(boardImage -> boardImage.getImage().getImageUrl())
+                                .map(boardImage -> ImagePathLengthConverter.extendImagePathLength(boardImage.getImage().getImageUrl()))
                                 .collect(Collectors.toList())
                 );
             } else builder.subImages(new ArrayList<>());
@@ -91,11 +92,11 @@ public class BoardResponseDto {
                     .pageLinkUrl(board.getPageLinkUrl());
 
             if (board.getDesktopBannerImage() != null) {
-                builder.desktopBannerImage(board.getDesktopBannerImage().getImage().getImageUrl());
+                builder.desktopBannerImage(ImagePathLengthConverter.extendImagePathLength(board.getDesktopBannerImage().getImage().getImageUrl()));
             } else builder.desktopBannerImage(StringUtils.EMPTY);
             if(board.getMobileBannerImage() != null) {
-                builder.mobileBannerImage(board.getMobileBannerImage().getImage().getImageUrl());
-            } else builder.desktopBannerImage(StringUtils.EMPTY);
+                builder.mobileBannerImage(ImagePathLengthConverter.extendImagePathLength(board.getMobileBannerImage().getImage().getImageUrl()));
+            } else builder.mobileBannerImage(StringUtils.EMPTY);
 
             return builder.build();
         }

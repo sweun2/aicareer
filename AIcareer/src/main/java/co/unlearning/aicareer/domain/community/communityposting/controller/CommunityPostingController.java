@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -101,8 +103,9 @@ public class CommunityPostingController {
     @GetMapping("/{uid}")
     public ResponseEntity<CommunityPostingResponseDto.CommunityPostInfo> getCommunityPosting(
             @Parameter(name = "uid", description = "게시글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid){
-        communityPostingService.updatePostingHits(uid);
+            @PathVariable("uid") String uid,
+            HttpServletRequest request, HttpServletResponse response){
+        communityPostingService.updatePostingHits(request,response,uid);
         return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostingResponseDto.CommunityPostInfo.of(communityPostingService.getCommunityPostingByUid(uid)));
     }
     @SecurityRequirement(name = "bearerAuth")
@@ -120,7 +123,7 @@ public class CommunityPostingController {
             @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
             @RequestParam("page") Integer page){
         PageRequest pageRequest = PageRequest.of(page, 10);
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostingResponseDto.CommunityPostSimple.of(communityPostingService.getAllCommunityPostingIsViewTrue(pageRequest)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostingResponseDto.CommunityPostSimple.of(communityPostingService.getAllCommunityPosting(pageRequest)));
     }
     @Operation(summary = "제목/내용 검색", description = "커뮤니티 글 제목/내용 검색")
     @ApiResponse(
@@ -153,8 +156,10 @@ public class CommunityPostingController {
     @PostMapping("/recommend/{uid}")
     public ResponseEntity<CommunityPostingUserResponseDto.CommunityPostingUserInfo> recommendCommunityPosting(
             @Parameter(name = "uid", description = "게시글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingService.recommendCommunityPosting(uid)));
+            @PathVariable("uid") String uid,
+            @Parameter(name = "status", description = "추천 할지 여부 true -> 추천, false-> 추천취소", in = ParameterIn.QUERY)
+            @RequestParam("status") Boolean status) {
+        return ResponseEntity.ok(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingService.recommendCommunityPosting(uid,status)));
     }
     @Operation(summary = "게시글 신고", description = "커뮤니티 게시글 신고")
     @ApiResponse(
@@ -190,13 +195,13 @@ public class CommunityPostingController {
             responseCode = "200",
             description = "정상 응답",
             content = @Content(
-                    schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostSimple.class)))
+                    schema = @Schema(implementation = CommunityPostingResponseDto.CommunityPostInfo.class)))
     @ApiErrorCodeExamples({
             @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
             @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
     })
     @PutMapping("/view/{uid}")
-    public ResponseEntity<CommunityPostingResponseDto.CommunityPostSimple> updateCommunityPostingIsView(CommunityPostingRequirementDto.CommunityPostingIsView communityPostingIsView) {
-        return ResponseEntity.ok(CommunityPostingResponseDto.CommunityPostSimple.of(communityPostingService.updateIsView(communityPostingIsView)));
+    public ResponseEntity<CommunityPostingResponseDto.CommunityPostInfo> updateCommunityPostingIsView(CommunityPostingRequirementDto.CommunityPostingIsView communityPostingIsView) {
+        return ResponseEntity.ok(CommunityPostingResponseDto.CommunityPostInfo.of(communityPostingService.updateIsView(communityPostingIsView)));
     }
 }

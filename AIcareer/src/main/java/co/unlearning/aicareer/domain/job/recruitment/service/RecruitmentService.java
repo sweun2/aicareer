@@ -287,6 +287,9 @@ public class RecruitmentService {
         // Validate and set recruitment address
         RecruitmentAddress recruitmentAddress = new EnumValidator<RecruitmentAddress>()
                 .validateEnumString(recruitmentPost.getRecruitmentAddress(), RecruitmentAddress.class);
+        // Validate text type
+        Recruitment.TextType textType = new EnumValidator<Recruitment.TextType>()
+                .validateEnumString(recruitmentPost.getTextType(), Recruitment.TextType.class);
 
         // Build recruitment object
         Recruitment recruitment = Recruitment.builder()
@@ -301,6 +304,7 @@ public class RecruitmentService {
                 .content(recruitmentPost.getContent())
                 .recruitmentAddress(recruitmentAddress)
                 .title(recruitmentPost.getTitle())
+                .textType(textType)
                 .hits(0)
                 .build();
 

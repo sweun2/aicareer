@@ -44,8 +44,8 @@ spring:
               - email
               - profile
           naver:
-            client-id: aY6ehque07j5CjYTBIcX
-            client-secret: 73CHBBQ3sD
+            client-id: XCLVw0jSqc1KqojUkGLD
+            client-secret: fr6QJ52obf
             redirect-uri: "http://localhost:8080/login/oauth2/code/naver"
             authorization_grant_type: authorization_code
             scope:

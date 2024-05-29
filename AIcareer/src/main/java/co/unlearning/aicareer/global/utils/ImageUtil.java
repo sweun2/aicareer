@@ -3,7 +3,7 @@ package co.unlearning.aicareer.global.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileUtil {
+public class ImageUtil {
 
     private static final Map<String, String> mimeTypes = new HashMap<>();
 

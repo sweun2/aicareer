@@ -125,8 +125,10 @@ public class CommunityCommentController {
     @PostMapping("/recommend/{uid}")
     public ResponseEntity<CommunityCommentUserResponseDto.CommunityCommentUserInfo> recommendCommunityComment(
             @Parameter(name = "uid", description = "댓글 uid", in = ParameterIn.PATH)
-            @PathVariable("uid") String uid) {
-        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.recommendCommunityComment(uid)));
+            @PathVariable("uid") String uid,
+            @Parameter(name = "status", description = "추천 할지 여부 true -> 추천, false-> 추천취소", in = ParameterIn.QUERY)
+            @RequestParam("status") Boolean status) {
+        return ResponseEntity.ok(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentService.recommendCommunityComment(uid,status)));
     }
     @Operation(summary = "댓글 신고", description = "커뮤니티 댓글 신고")
     @ApiResponse(

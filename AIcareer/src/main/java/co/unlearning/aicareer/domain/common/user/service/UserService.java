@@ -25,16 +25,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -50,6 +50,7 @@ public class UserService {
     private final EntityManager entityManager;
     @Value("${front-url}")
     private String frontURL;
+
     public User getUserByEmail(String email){
         return userRepository.findByEmail(email).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.USER_NOT_FOUND)
@@ -260,6 +261,9 @@ public class UserService {
        return user.getUserInterest();
     }
     public User updateUserInfo(UserRequestDto.UserData userData) {
+        if(userRepository.findByNickname(userData.getNickname()).isPresent())
+            throw new BusinessException(ResponseErrorCode.USER_NICKNAME_DUPLICATE);
+
         User user = getLoginUser();
         user.setNickname(userData.getNickname());
         return userRepository.save(user);

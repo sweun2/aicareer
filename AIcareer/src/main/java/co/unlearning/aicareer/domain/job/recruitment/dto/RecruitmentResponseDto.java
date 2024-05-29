@@ -3,6 +3,7 @@ package co.unlearning.aicareer.domain.job.recruitment.dto;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.job.recruitmentImage.RecruitmentImage;
+import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,7 +56,7 @@ public class RecruitmentResponseDto {
         private String title; //title
         //@Schema(description = "내용")
         private String content; //내용
-
+        private String textType;
         public static RecruitmentInfo of(Recruitment recruitment) {
             RecruitmentInfoBuilder builder =  RecruitmentInfo.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
@@ -75,17 +76,19 @@ public class RecruitmentResponseDto {
                     .hits(recruitment.getHits())
                     .recruitmentAddress(String.valueOf(recruitment.getRecruitmentAddress()))
                     .title(recruitment.getTitle())
-                    .content(recruitment.getContent());
+                    .content(recruitment.getContent())
+                    .textType(recruitment.getTextType().toString());
+
 
             if (recruitment.getMainImage() != null) {
-                builder.mainImageUrl(recruitment.getMainImage().getImage().getImageUrl());
+                builder.mainImageUrl(ImagePathLengthConverter.extendImagePathLength(recruitment.getMainImage().getImage().getImageUrl()));
             } else builder.mainImageUrl(StringUtils.EMPTY);
             if(!recruitment.getSubImages().isEmpty()) {
                 builder.subImageUrls(
                         recruitment.getSubImages().stream()
                                 .filter(recruitmentImage -> recruitmentImage.getImageOrder() != null && recruitmentImage.getImageOrder() != 0)
                                 .sorted(Comparator.comparingInt(RecruitmentImage::getImageOrder))
-                                .map(recruitmentImage -> recruitmentImage.getImage().getImageUrl())
+                                .map(recruitmentImage -> ImagePathLengthConverter.extendImagePathLength(recruitmentImage.getImage().getImageUrl()))
                                 .collect(Collectors.toList())
                 );
             } else builder.subImageUrls(new ArrayList<>());
@@ -160,7 +163,7 @@ public class RecruitmentResponseDto {
                     .title(recruitment.getTitle());
 
             if (recruitment.getMainImage() != null) {
-                builder.mainImageUrl(recruitment.getMainImage().getImage().getImageUrl());
+                builder.mainImageUrl(ImagePathLengthConverter.extendImagePathLength(recruitment.getMainImage().getImage().getImageUrl()));
             } else builder.mainImageUrl(StringUtils.EMPTY);
             return builder.build();
         }

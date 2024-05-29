@@ -1,7 +1,5 @@
 package co.unlearning.aicareer.domain.common.user.controller;
 
-import co.unlearning.aicareer.domain.common.user.User;
-import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.dto.UserRequestDto;
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
@@ -19,19 +17,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.http.*;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -93,7 +81,7 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
     @PostMapping("/update")
-    public ResponseEntity<UserResponseDto.UserInfo> updateUserInfo(UserRequestDto.UserData userData) {
+    public ResponseEntity<UserResponseDto.UserInfo> updateUserInfo(@RequestBody UserRequestDto.UserData userData) {
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserInfo(userData)));
     }
 
@@ -112,7 +100,7 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED),
     })
     @PostMapping("/role")
-    public ResponseEntity<UserResponseDto.UserInfo> userInfo(UserRequestDto.UserRole userRole) {
+    public ResponseEntity<UserResponseDto.UserInfo> userInfo(@RequestBody UserRequestDto.UserRole userRole) {
         userService.checkAdmin();
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserRole(userRole)));
     }
@@ -213,7 +201,7 @@ public class UserController {
     }
     @GetMapping("/test")
     public ResponseEntity<String> getToken() {
-        return ResponseEntity.ok(tokenService.generateToken("sweun3@gmail.com","USER").getAccessToken());
+        return ResponseEntity.ok(tokenService.generateLoginTokens("sweun3@gmail.com","USER").getAccessToken());
     }
 
 }

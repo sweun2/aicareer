@@ -21,6 +21,8 @@ public enum ResponseErrorCode {
     DATE_BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "COMMON_004","잘못된 date 입력 값입니다."),
     @ExplainError("유저가 이미 추천을 했습니다.")
     USER_ALREADY_RECOMMEND(HttpStatus.METHOD_NOT_ALLOWED.value(), "COMMON_005","유저가 이미 추천을 했습니다."),
+    @ExplainError("유저가 이미 추천 취소를 한 경우")
+    USER_ALREADY_CANCEL_RECOMMEND(HttpStatus.METHOD_NOT_ALLOWED.value(), "COMMON_005","유저가 이미 추천을 했습니다."),
     @ExplainError("유저가 이미 신고를 했습니다.")
     USER_ALREADY_REPORT(HttpStatus.METHOD_NOT_ALLOWED.value(), "COMMON_006","유저가 이미 신고를 했습니다."),
 
@@ -32,6 +34,8 @@ public enum ResponseErrorCode {
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(),"USER_003","로그인에 실패했습니다."),
     @ExplainError("아이디 밴 당한 경우, 관리자에게 문의 바람")
     USER_BLOCKED(HttpStatus.UNAUTHORIZED.value(),"USER_004","접근이 차단되었습니다."),
+    @ExplainError("유저 닉네임이 이미 존재하는 경우, 닉네임 변경 바람")
+    USER_NICKNAME_DUPLICATE(HttpStatus.FORBIDDEN.value(),"USER_005","접근이 차단되었습니다."),
 
 
     @ExplainError("uid가 잘못되었을 때 발생하는 에러, uid 확인 필요")

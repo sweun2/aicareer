@@ -2,8 +2,6 @@ package co.unlearning.aicareer.global.security.jwt;
 
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
-import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
-import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -16,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
@@ -30,7 +27,7 @@ public class JwtAuthFilter extends GenericFilterBean {
     private final UserService userService;
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = getTokenFromCookie(request);
+        String token = tokenService.getTokenFromCookie(request,"_aT");
         if(token != null) {
             if (tokenService.verifyToken(token)) {
                 String email = tokenService.getUid(token);
@@ -42,22 +39,7 @@ public class JwtAuthFilter extends GenericFilterBean {
         chain.doFilter(request, response);
     }
 
-    private static String getTokenFromCookie(ServletRequest request) {
-        String token = null;
-        if (request instanceof HttpServletRequest request2) {
-            Cookie[] cookies = request2.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    String cookieName = cookie.getName();
-                    String cookieValue = cookie.getValue();
-                    if(Objects.equals(cookieName, "_aT")) {
-                        token = cookieValue;
-                    }
-                }
-            }
-        }
-        return token;
-    }
+
     public Authentication getAuthentication(User user){
         return new UsernamePasswordAuthenticationToken(user, "",
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));

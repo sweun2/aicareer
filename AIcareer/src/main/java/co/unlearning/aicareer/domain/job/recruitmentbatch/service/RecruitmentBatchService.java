@@ -7,38 +7,26 @@ import co.unlearning.aicareer.domain.job.recruitment.repository.RecruitmentRepos
 import co.unlearning.aicareer.domain.job.recruitment.service.RecruitmentService;
 import co.unlearning.aicareer.domain.job.recruitmentbatch.RecruitmentBatch;
 import co.unlearning.aicareer.global.email.service.EmailService;
-import jakarta.annotation.PostConstruct;
+import co.unlearning.aicareer.global.utils.ImageUtil;
+import co.unlearning.aicareer.global.utils.MultipartFileUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -113,19 +101,60 @@ public class RecruitmentBatchService {
     public Recruitment postRecruitmentFromOCRText() {
 
     }*/
-    public String performOcr(MultipartFile image) {
+    public String performOcr(MultipartFile file, String imageUrl) throws Exception {
         log.info("perform OCR");
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-OCR-SECRET", ocrSecret);
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        List<String> clovaExtension = List.of("jpg", "jpeg", "png", "pdf", "tiff");
+        String extension = ImageUtil.getExtension(imageUrl);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", image.getResource());
+        // SVG 및 WebP 변환 처리
+        if (extension.equalsIgnoreCase("svg") || extension.equalsIgnoreCase("webp")) {
+            file = MultipartFileUtil.convertImageToSupportedFormat(file);
+            extension = "jpg"; // 변환 후 확장자를 JPG로 설정
+        }
+        // 이미지 파일을 Base64로 인코딩
+        String base64EncodedImage = MultipartFileUtil.convertToBase64(file);
 
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        Map<String, Object> imageMap = new HashMap<>();
+        imageMap.put("format", extension);
+        imageMap.put("data", base64EncodedImage);
+        imageMap.put("name", imageUrl);
 
+        Map<String, Object> body = new HashMap<>();
+        body.put("version", "V2");
+        body.put("requestId", UUID.randomUUID().toString());
+        body.put("timestamp", System.currentTimeMillis());
+        body.put("images", List.of(imageMap));
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.exchange(ocrApiUrl, HttpMethod.POST, requestEntity, String.class);
 
+
         return response.getBody();
+    }
+    private String extractInferText(String jsonResponse) throws Exception {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(jsonResponse);
+            JsonNode images = root.path("images");
+            if (images.isArray()) {
+                for (JsonNode image : images) {
+                    if (image.path("message").asText().equals("SUCCESS")) {
+                        JsonNode fields = image.path("fields");
+                        if (fields.isArray()) {
+                            for (JsonNode field : fields) {
+                                return field.path("inferText").asText();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse JSON response", e);
+        }
+        return null;
     }
 }

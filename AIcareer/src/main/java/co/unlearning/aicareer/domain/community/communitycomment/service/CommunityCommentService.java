@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.community.communitycomment.service;
 
 import co.unlearning.aicareer.domain.common.user.User;
+import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.domain.community.communitycomment.CommunityComment;
 import co.unlearning.aicareer.domain.community.communitycomment.dto.CommunityCommentRequirementDto;
@@ -35,18 +36,23 @@ public class CommunityCommentService {
     private final CommunityCommentUserRepository communityCommentUserRepository;
     private final UserService userService;
 
-    public List<Map.Entry<CommunityComment,CommunityCommentUser>> getCommunityCommentsByCommunityPosting (String uid, Pageable pageable) {
+    public List<Map.Entry<CommunityComment, CommunityCommentUser>> getCommunityCommentsByCommunityPosting(String uid, Pageable pageable) {
         CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(uid).getKey();
-        List<Map.Entry<CommunityComment,CommunityCommentUser>> entry = new ArrayList<>();
+        List<Map.Entry<CommunityComment, CommunityCommentUser>> entry = new ArrayList<>();
 
-        communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(communityPosting,pageable).stream().toList()
-                .forEach(communityComment -> {
-                    CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserFromLoginUser(communityComment);
-                    entry.add(Map.entry(communityComment,communityCommentUser));
-                });
+        boolean isAdmin = userService.isLogin() && userService.getLoginUser().getUserRole() == UserRole.ADMIN;
+        List<CommunityComment> comments = isAdmin
+                ? communityCommentRepository.findAllByCommunityPostingOrderByUploadDateDesc(communityPosting, pageable).stream().toList()
+                : communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(communityPosting, pageable).stream().toList();
+
+        comments.forEach(communityComment -> {
+            CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserFromLoginUser(communityComment);
+            entry.add(Map.entry(communityComment, communityCommentUser));
+        });
 
         return entry;
     }
+
     public Map.Entry<CommunityComment,CommunityCommentUser> addCommunityComment(CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost){
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
@@ -117,12 +123,15 @@ public class CommunityCommentService {
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
         }
 
+        CommunityPosting communityPosting = communityComment.getCommunityPosting();
+        communityPosting.setCommentCnt(communityPosting.getCommentCnt()-1);
+
         communityCommentRepository.delete(communityComment);
     }
-    public CommunityCommentUser recommendCommunityComment(String uid) {
+    public CommunityCommentUser recommendCommunityComment(String uid,Boolean status) {
         User user = userService.getLoginUser();
         CommunityComment communityComment = getCommunityCommentByUid(uid);
-        Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByCommunityComment(communityComment);
+        Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByUserAndCommunityComment(user,communityComment);
         CommunityCommentUser communityCommentUser;
 
         if(communityCommentUserOptional.isEmpty()) {
@@ -135,11 +144,16 @@ public class CommunityCommentService {
             communityComment.getCommunityCommentUserSet().add(communityCommentUser);
         } else communityCommentUser = communityCommentUserOptional.get();
 
-        if(communityCommentUser.getIsRecommend()) {
-            throw new BusinessException(ResponseErrorCode.USER_ALREADY_RECOMMEND);
+        if(status) {
+            if (!communityCommentUser.getIsRecommend()) {
+                communityComment.setRecommendCnt(communityComment.getRecommendCnt()+1);
+                communityCommentUser.setIsRecommend(true);
+            }
         } else {
-            communityCommentUser.setIsRecommend(true);
-            communityComment.setRecommendCnt(communityComment.getRecommendCnt()+1);
+            if (communityCommentUser.getIsRecommend()) {
+                communityComment.setRecommendCnt(communityComment.getRecommendCnt()-1);
+                communityCommentUser.setIsRecommend(false);
+            }
         }
 
         communityCommentRepository.save(communityComment);
@@ -148,7 +162,7 @@ public class CommunityCommentService {
     public CommunityCommentUser reportCommunityComment(String uid) {
         User user = userService.getLoginUser();
         CommunityComment communityComment = getCommunityCommentByUid(uid);
-        Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByCommunityComment(communityComment);
+        Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByUserAndCommunityComment(user,communityComment);
         CommunityCommentUser communityCommentUser;
 
         if(communityCommentUserOptional.isEmpty()) {
@@ -158,11 +172,12 @@ public class CommunityCommentService {
                     .isRecommend(false)
                     .isReport(false)
                     .build();
+
+            communityCommentUserRepository.save(communityCommentUser);
             communityComment.getCommunityCommentUserSet().add(communityCommentUser);
         } else communityCommentUser = communityCommentUserOptional.get();
 
         if(communityCommentUser.getIsReport()) {
-            throw new BusinessException(ResponseErrorCode.USER_ALREADY_REPORT);
         } else{
             communityCommentUser.setIsReport(true);
             communityComment.setReportCnt(communityComment.getReportCnt()+1);

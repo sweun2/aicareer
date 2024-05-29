@@ -9,20 +9,24 @@ spring:
       - "email"
       - "clova"
 
+nickname: "./nickname-list.txt"
 
 
----
-spring:
-  profiles:
-    active: prod
-
----
-spring:
-  profiles:
-    active: dev
 
 
 ---
 spring:
   profiles:
     active: local
+
+
+
+---
+spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  profiles:
+    active: prod

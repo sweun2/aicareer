@@ -23,6 +23,10 @@ import java.util.Set;
 @Getter
 @Setter
 public class Recruitment {
+    @Getter
+    public enum TextType {
+        MARKDOWN, HTML;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -67,5 +71,6 @@ public class Recruitment {
     private LocalDateTime lastModified;
     @OneToOne(cascade = {CascadeType.REMOVE},orphanRemoval = true)
     private RecruitmentBatch recruitmentBatch;
-
+    @Column
+    private TextType textType;
 }

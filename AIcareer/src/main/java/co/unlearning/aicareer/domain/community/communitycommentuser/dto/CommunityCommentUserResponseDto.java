@@ -17,8 +17,7 @@ public class CommunityCommentUserResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CommunityCommentUserInfo {
-        @Schema(description = "댓글 uid")
-        private String commentUid;
+
         private UserResponseDto.UserSimple userSimple;
         @Column
         private Boolean isReport;
@@ -27,7 +26,6 @@ public class CommunityCommentUserResponseDto {
 
         public static CommunityCommentUserInfo of(CommunityCommentUser communityCommentUser) {
             return CommunityCommentUserInfo.builder()
-                    .commentUid(communityCommentUser.getCommunityComment().getUid())
                     .userSimple(UserResponseDto.UserSimple.of(communityCommentUser.getUser()))
                     .isRecommend(communityCommentUser.getIsRecommend())
                     .isReport(communityCommentUser.getIsReport())

@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface ImageRepository extends JpaRepository<Image,Integer> {
     Optional<Image> findByImageUrl(String imageUrl);
+    List<Image> findAllByIsRelatedFalse();
     void deleteByImageUrl(String url);
 }

@@ -16,20 +16,27 @@ import co.unlearning.aicareer.domain.community.communitypostingimage.service.Com
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.repository.CommunityPostingUserRepository;
 import co.unlearning.aicareer.domain.community.communitypostinguser.service.CommunityPostingUserService;
+import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
+import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -49,6 +56,7 @@ public class CommunityPostingService {
     private final CommunityPostingImageService communityPostingImageService;
     private final CommunityPostingImageRepository communityPostingImageRepository;
     private final EntityManager entityManager;
+    private final TokenService tokenService;
     public Map.Entry<CommunityPosting,CommunityPostingUser> addCommunityPost(CommunityPostingRequirementDto.CommunityPostingPost communityPostingPost) {
         User user = userService.getLoginUser();
         isNonBlockedCommunityUser(user);
@@ -123,30 +131,6 @@ public class CommunityPostingService {
 
         return Map.entry(communityPosting,communityPostingUser);
     }
-    private void updateMainImage(String newImageUrl, CommunityPostingImage currentCommunityPostingImage, Consumer<CommunityPostingImage> setCommunityPostingImage) {
-        if (newImageUrl != null && !newImageUrl.isEmpty()) {
-            Image newImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(newImageUrl))
-                    .orElseThrow(() -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL));
-            if (currentCommunityPostingImage != null && !newImage.getImageUrl().equals(currentCommunityPostingImage.getImage().getImageUrl())) {
-                currentCommunityPostingImage.getImage().setIsRelated(false);
-                communityPostingImageService.removeCommunityPostingImage(currentCommunityPostingImage);
-
-                CommunityPostingImage communityPostingImage = CommunityPostingImage.builder()
-                        .imageOrder(0)
-                        .image(newImage)
-                        .communityPosting(currentCommunityPostingImage.getCommunityPosting())
-                        .build();
-                newImage.setIsRelated(true);
-                setCommunityPostingImage.accept(communityPostingImage);
-                communityPostingImageRepository.save(communityPostingImage);
-            }
-        } else if (currentCommunityPostingImage != null) {
-            currentCommunityPostingImage.getImage().setIsRelated(false);
-            communityPostingImageService.removeCommunityPostingImage(currentCommunityPostingImage);
-            setCommunityPostingImage.accept(null);
-            entityManager.flush();
-        }
-    }
 
     private void updateSubImages(CommunityPosting communityPosting, List<String> newSubImageUrls) {
         List<CommunityPostingImage> currentCommunityPostingImages = communityPosting.getSubImages().stream()
@@ -156,7 +140,6 @@ public class CommunityPostingService {
         if (!currentCommunityPostingImages.isEmpty()) {
             currentCommunityPostingImages.forEach(bi -> {
                 bi.getImage().setIsRelated(false);
-                imageService.deleteImageByUrl(bi.getImage().getImageUrl());
             });
             communityPostingImageRepository.deleteAll(currentCommunityPostingImages);
             entityManager.flush();
@@ -187,7 +170,7 @@ public class CommunityPostingService {
         }
         communityPostingRepository.save(communityPosting);
     }
-    public CommunityPosting updateIsView(CommunityPostingRequirementDto.CommunityPostingIsView communityPostingIsView) {
+    public Map.Entry<CommunityPosting,CommunityPostingUser> updateIsView(CommunityPostingRequirementDto.CommunityPostingIsView communityPostingIsView) {
         CommunityPosting communityPosting = communityPostingRepository.findByUid(communityPostingIsView.getUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
@@ -196,7 +179,7 @@ public class CommunityPostingService {
             userService.checkAdmin();
             communityPosting.setIsView(communityPostingIsView.getIsView());
         }
-        return communityPostingRepository.save(communityPosting);
+        return Map.entry(communityPostingRepository.save(communityPosting),communityPostingUserService.getMockCommunityPostingUserFromLoginUser(communityPosting));
     }
     public void deleteCommunityPostByUid(String uid) {
         User user  = userService.getLoginUser();
@@ -204,15 +187,14 @@ public class CommunityPostingService {
 
         //수정 가능한지 체크
         isNonBlockedCommunityUser(user);
-        if(user != communityPostingUserService.getCommunityPostingUserByCommentUserAndPosting(communityPosting,user).getUser()) {
-            throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
-        }
-        communityPosting.getSubImages().forEach(
-                communityPostingImageService::removeCommunityPostingImage
-        );
+        if(user == communityPosting.getWriter() || user.getUserRole() == UserRole.ADMIN) {
+            communityPosting.getSubImages().forEach(
+                    communityPostingImageService::removeCommunityPostingImage
+            );
 
-        siteMapService.deleteSiteMap(communityPosting);
-        communityPostingRepository.delete(communityPosting);
+            siteMapService.deleteSiteMap(communityPosting);
+            communityPostingRepository.delete(communityPosting);
+        } else throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
     }
 
     public void isNonBlockedCommunityUser(User user) {
@@ -223,19 +205,35 @@ public class CommunityPostingService {
         CommunityPosting communityPosting = communityPostingRepository.findByUid(uid).orElseThrow(
                 ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
+        if(!communityPosting.getIsView()) {
+            userService.checkAdmin();
+        }
+
         CommunityPostingUser communityPostingUser;
         communityPostingUser = communityPostingUserService.getMockCommunityPostingUserFromLoginUser(communityPosting);
         return Map.entry(communityPosting,communityPostingUser);
     }
 
 
-    public List<CommunityPosting> getAllCommunityPostingIsViewTrue(Pageable pageable) {
+    public List<CommunityPosting> getAllCommunityPosting(Pageable pageable) {
+        if(userService.isLogin()) {
+            User user = userService.getLoginUser();
+            if(user.getUserRole() == UserRole.ADMIN) {
+                return communityPostingRepository.findAllByOrderByUploadDateDesc(pageable).stream().toList();
+            }
+        }
         return communityPostingRepository.findAllByIsViewTrueOrderByUploadDateDesc(pageable).stream().toList();
     }
     public List<CommunityPosting> getAllCommunityPostingSearchByKeyword(String keyword, Pageable pageable) {
-        return communityPostingRepository.findAllByContentContainsOrTitleContains(keyword,keyword,pageable).stream().toList();
+        if(userService.isLogin()) {
+            User user = userService.getLoginUser();
+            if(user.getUserRole() == UserRole.ADMIN) {
+                return communityPostingRepository.findAllByContentContainsOrTitleContains(keyword, keyword,pageable).stream().toList();
+            }
+        }
+        return communityPostingRepository.findAllByContentContainsOrTitleContainsAndIsViewTrue(keyword, keyword,pageable).stream().toList();
     }
-    public CommunityPostingUser recommendCommunityPosting(String uid) {
+    public CommunityPostingUser recommendCommunityPosting(String uid,Boolean status) {
         User user = userService.getLoginUser();
         CommunityPosting communityPosting = getCommunityPostingByUid(uid).getKey();
         Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,user);
@@ -251,19 +249,27 @@ public class CommunityPostingService {
             communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
         } else communityPostingUser = communityPostingUserOptional.get();
 
-        if(communityPostingUser.getIsRecommend()) {
-            throw new BusinessException(ResponseErrorCode.USER_ALREADY_RECOMMEND);
+        if(status) {
+            if (!communityPostingUser.getIsRecommend()) {
+                communityPosting.setRecommendCnt(communityPosting.getRecommendCnt()+1);
+                communityPostingUser.setIsRecommend(true);
+            }
         } else {
-            communityPosting.setRecommendCnt(communityPosting.getRecommendCnt()+1);
-            communityPostingUser.setIsRecommend(true);
+            if (communityPostingUser.getIsRecommend()) {
+                communityPosting.setRecommendCnt(communityPosting.getRecommendCnt()-1);
+                communityPostingUser.setIsRecommend(false);
+            }
         }
 
         communityPostingRepository.save(communityPosting);
         return communityPostingUser;
     }
     public CommunityPostingUser reportCommunityPosting(String uid) {
+        log.info("repost");
         User user = userService.getLoginUser();
         CommunityPosting communityPosting = getCommunityPostingByUid(uid).getKey();
+        log.info(communityPosting.getUid());
+
         Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,user);
         CommunityPostingUser communityPostingUser;
 
@@ -274,12 +280,12 @@ public class CommunityPostingService {
                     .isRecommend(false)
                     .isReport(false)
                     .build();
+
+            communityPostingUserRepository.save(communityPostingUser);
             communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
         } else communityPostingUser = communityPostingUserOptional.get();
 
-        if(communityPostingUser.getIsReport()) {
-            throw new BusinessException(ResponseErrorCode.USER_ALREADY_REPORT);
-        } else {
+        if (!communityPostingUser.getIsReport()) {
             communityPostingUser.setIsReport(true);
             communityPosting.setReportCnt(communityPosting.getReportCnt()+1);
             if(communityPosting.getReportCnt()>5) {
@@ -299,12 +305,71 @@ public class CommunityPostingService {
         LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
 
         Pageable topThree = PageRequest.of(0, 3);
-        return communityPostingRepository.findTopPosts(startOfDay, endOfDay, topThree);
+        return communityPostingRepository.findTopPostsWithIsViewTrue(startOfDay, endOfDay, topThree);
     }
-    public void updatePostingHits (String uid) {
-        CommunityPosting communityPosting = getCommunityPostingByUid(uid).getKey();
-        communityPosting.setHits(communityPosting.getHits()+1);
+    public void updatePostingHits(HttpServletRequest request, HttpServletResponse response, String uid) {
+        String cookieValue = null;
 
+        // 쿠키에서 토큰 가져오기
+        HttpServletRequest request2 = (HttpServletRequest) request;
+        if (request2 != null) {
+            Cookie[] cookies = request2.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if(Objects.equals(cookie.getName(), "_cP")) {
+                        cookieValue = cookie.getValue();
+                    }
+                }
+            }
+        }
+
+        // 현재 날짜와 자정 시간을 합쳐서 당일 자정의 LocalDateTime을 생성
+        LocalDateTime todayMidnight = LocalDate.now().atTime(LocalTime.MIDNIGHT);
+
+        // 토큰이 없으면 새로 생성하여 쿠키에 저장
+        if (cookieValue == null || Objects.equals(cookieValue, StringUtils.EMPTY)) {
+            ResponseCookie cpCookie = ResponseCookie.from("_cP", LocalDateTime.now().toString())
+                    .path("/")
+                    .sameSite("None")
+                    .domain(".aicareer.co.kr")
+                    .httpOnly(true)
+                    .secure(true)
+                    .maxAge(Duration.between(ZonedDateTime.now(), todayMidnight.atZone(ZoneId.systemDefault())).getSeconds())
+                    .build();
+
+            // 쿠키를 응답 헤더와 HttpHeaders에 추가
+            response.addHeader("Set-Cookie", cpCookie.toString());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Set-Cookie", cpCookie.toString());
+        } else {
+            // 이미 조회수를 증가시킨 경우에는 추가적인 작업을 수행하지 않음
+            if (isHitIncreasedToday(cookieValue)) {
+                return;
+            }
+        }
+
+        // 게시글 조회 및 hits 증가
+        CommunityPosting communityPosting = getCommunityPostingByUid(uid).getKey();
+        communityPosting.setHits(communityPosting.getHits() + 1);
+
+        // 저장
         communityPostingRepository.save(communityPosting);
     }
+
+    private boolean isHitIncreasedToday(String cookieValue) {
+        // 쿠키가 존재하지 않는 경우에는 조회수가 증가되지 않은 것으로 판단합니다.
+        if (StringUtils.isEmpty(cookieValue)) {
+            return false;
+        }
+
+        // 쿠키의 값에서 저장된 날짜 정보를 추출합니다.
+        LocalDateTime cookieDateTime = LocalDateTime.parse(cookieValue);
+
+        // 쿠키에 저장된 날짜 정보와 오늘 자정을 비교하여 조회수가 이미 증가되었는지 여부를 판단합니다.
+        LocalDateTime todayMidnight = LocalDate.now().atTime(LocalTime.MIDNIGHT);
+        return cookieDateTime.isEqual(todayMidnight) || cookieDateTime.isAfter(todayMidnight);
+    }
+
+
 }

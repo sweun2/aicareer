@@ -217,16 +217,21 @@ public class BoardService {
         BoardImage t1 = board.getDesktopBannerImage();
         BoardImage t2 = board.getMobileBannerImage();
 
-        board.setDesktopBannerImage(null);
-        board.setMobileBannerImage(null);
-
-        boardImageService.removeBoardImage(t1);
+/*        boardImageService.removeBoardImage(t1);
         if(t2!=null)
-            boardImageService.removeBoardImage(t2);
-        board.getSubImages().forEach(
-                boardImage -> imageService.deleteImageByUrl(boardImage.getImage().getImageUrl())
-        );
+            boardImageService.removeBoardImage(t2);*/
 
+        if(!board.getSubImages().isEmpty())
+            board.getSubImages().forEach(
+                    boardImage -> {
+                        if(boardImage!=null) {
+                            if(boardImage.getImage()!=null) {
+                                boardImage.getImage().setIsRelated(false);
+                                imageRepository.save(boardImage.getImage());
+                            }
+                            boardImageService.removeBoardImage(boardImage);
+                        }
+                    });
         siteMapService.deleteSiteMap(board);
         boardRepository.delete(board);
     }
