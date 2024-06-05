@@ -66,7 +66,7 @@ public class CommunityPostingResponseDto {
                     .recommendCnt(communityPosting.getRecommendCnt())
                     .isView(communityPosting.getIsView())
                     .communityPostingUserInfo(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingUser))
-                    .writer(UserResponseDto.UserSimple.of(communityPosting.getWriter()))
+                    .writer(UserResponseDto.UserSimple.of(communityPosting.getIsAnonymous() ? null : communityPosting.getWriter()))
                     ;
             if(!communityPosting.getSubImages().isEmpty()) {
                 builder.imageUrls(
@@ -118,10 +118,13 @@ public class CommunityPostingResponseDto {
         private Integer recommendCnt; //내용
         @Schema(description = "볼 수 있는지 여부/ 신고 횟수 초과시 가려짐")
         private Boolean isView;
+        @Schema(description = "글쓴이 정보")
+        private UserResponseDto.UserSimple writer;
         public static CommunityPostSimple of(CommunityPosting communityPosting) {
             String simpleContent = communityPosting.getContent();
-            if(communityPosting.getContent().length()>20) {
-                simpleContent = simpleContent.substring(0,20);
+            int contentLength = 100;
+            if(communityPosting.getContent().length() > contentLength) {
+                simpleContent = simpleContent.substring(0,contentLength);
             }
 
             CommunityPostSimpleBuilder builder = CommunityPostSimple.builder()
@@ -134,6 +137,7 @@ public class CommunityPostingResponseDto {
                     .commentCnt(communityPosting.getCommentCnt())
                     .reportCnt(communityPosting.getReportCnt())
                     .recommendCnt(communityPosting.getRecommendCnt())
+                    .writer(UserResponseDto.UserSimple.of(communityPosting.getIsAnonymous() ? null : communityPosting.getWriter()))
                     .isView(communityPosting.getIsView());
 
             if(!communityPosting.getSubImages().isEmpty()) {

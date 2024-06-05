@@ -80,7 +80,7 @@ public class UserController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_UNAUTHORIZED),
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_FOUND),
     })
-    @PostMapping("/update")
+    @PatchMapping("/update")
     public ResponseEntity<UserResponseDto.UserInfo> updateUserInfo(@RequestBody UserRequestDto.UserData userData) {
         return ResponseEntity.ok(UserResponseDto.UserInfo.of(userService.updateUserInfo(userData)));
     }

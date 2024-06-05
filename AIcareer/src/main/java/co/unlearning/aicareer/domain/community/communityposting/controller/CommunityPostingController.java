@@ -3,7 +3,9 @@ package co.unlearning.aicareer.domain.community.communityposting.controller;
 import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingRequirementDto;
 import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingResponseDto;
 import co.unlearning.aicareer.domain.community.communityposting.service.CommunityPostingService;
+import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
+import co.unlearning.aicareer.domain.community.communitypostinguser.service.CommunityPostingUserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
@@ -34,6 +36,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityPostingController {
     private final CommunityPostingService communityPostingService;
+    private final CommunityPostingUserService communityPostingUserService;
+
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "커뮤니티 글쓰기", description = "커뮤니티 글쓰기")
     @ApiResponse(

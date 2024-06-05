@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,7 +28,7 @@ public class CommunityPostingUserService {
                 ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
     }
-    public CommunityPostingUser getMockCommunityPostingUserFromLoginUser(CommunityPosting communityPosting) {
+    public CommunityPostingUser getMockCommunityPostingUserIfNotLogin(CommunityPosting communityPosting) {
         CommunityPostingUser communityPostingUser;
         if(userService.isLogin()) {
             Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,userService.getLoginUser());
@@ -47,5 +48,10 @@ public class CommunityPostingUserService {
                     .build();
         }
         return communityPostingUser;
+    }
+
+    public void deleteCommunityPostingUserOptionFalse() {
+        List<CommunityPostingUser> communityPostingUsers = communityPostingUserRepository.findCommunityPostingUserAllOptionFalseAndNotWriter();
+        communityPostingUserRepository.deleteAll(communityPostingUsers);
     }
 }

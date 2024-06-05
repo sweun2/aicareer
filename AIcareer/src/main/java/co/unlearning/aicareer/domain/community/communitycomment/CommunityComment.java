@@ -37,9 +37,11 @@ public class CommunityComment {
     private Integer reportCnt;
     @Column
     private Integer recommendCnt;
-    @OneToMany(mappedBy = "communityComment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = "communityComment",fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
     private Set<CommunityCommentUser> communityCommentUserSet;
     @ManyToOne
     private User writer;
+    @Column
+    private Boolean isAnonymous;
 }
 

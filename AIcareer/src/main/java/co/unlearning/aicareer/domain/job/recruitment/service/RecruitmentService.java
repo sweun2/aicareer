@@ -100,10 +100,16 @@ public class RecruitmentService {
         updateSubImages(recruitment, recruitmentPost.getSubImage());
 
         // Update sets
-        recruitment.setRecruitingJobSet(updateRecruitingJobs(recruitment, recruitmentPost.getRecruitingJobNames()));
-        recruitment.setRecruitmentTypeSet(updateRecruitmentTypes(recruitment, recruitmentPost.getRecruitmentTypeNames()));
-        recruitment.setEducationSet(updateEducations(recruitment, recruitmentPost.getEducations()));
-        recruitment.setCareerSet(updateCareers(recruitment, recruitmentPost.getCareers()));
+        recruitment.getRecruitingJobSet().clear();
+        recruitment.getEducationSet().clear();
+        recruitment.getRecruitmentTypeSet().clear();
+        recruitment.getCareerSet().clear();
+        entityManager.flush();
+
+        recruitment.getRecruitingJobSet().addAll(updateRecruitingJobs(recruitment, recruitmentPost.getRecruitingJobNames()));
+        recruitment.getRecruitmentTypeSet().addAll(updateRecruitmentTypes(recruitment, recruitmentPost.getRecruitmentTypeNames()));
+        recruitment.getEducationSet().addAll(updateEducations(recruitment, recruitmentPost.getEducations()));
+        recruitment.getCareerSet().addAll(updateCareers(recruitment, recruitmentPost.getCareers()));
 
         // Update other fields
         recruitment.setRecruitmentStartDate(LocalDateTimeStringConverter.StringToLocalDateTime(recruitmentPost.getRecruitmentStartDate()));

@@ -51,7 +51,7 @@ public class CommunityCommentResponseDto {
                     .reportCnt(communityComment.getReportCnt())
                     .recommendCnt(communityComment.getRecommendCnt())
                     .isView(communityComment.getIsView())
-                    .writer(UserResponseDto.UserSimple.of(communityComment.getWriter()))
+                    .writer(UserResponseDto.UserSimple.of(communityComment.getIsAnonymous() ? null : communityCommentUser.getUser()))
                     .communityCommentUserInfo(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentUser))
                     .build();
         }

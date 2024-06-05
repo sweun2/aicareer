@@ -11,8 +11,10 @@ import co.unlearning.aicareer.domain.job.education.dto.EducationResponseDto;
 import co.unlearning.aicareer.domain.job.recruitmenttype.dto.RecruitmentTypeResponseDto;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
 import co.unlearning.aicareer.domain.job.recrutingjob.dto.RecruitingJobResponseDto;
+import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -27,14 +29,14 @@ public class UserResponseDto {
     public static class UserSimple {
         private Integer userId;
         private String nickname;
+        private String profileImageUrl;
         public static UserSimple of(User user) {
-            if(user != null){
-                return UserSimple.builder()
-                        .userId(user.getId())
-                        .nickname(user.getNickname())
-                        .build();
-            } else
-                return UserSimple.builder().build();
+            if(user == null) return UserSimple.builder().build();
+            return UserSimple.builder()
+                    .userId(user.getId())
+                    .nickname(user.getNickname())
+                    .profileImageUrl(user.getProfileImage() != null ? ImagePathLengthConverter.extendImagePathLength(user.getProfileImage().getImageUrl()) : StringUtils.EMPTY)
+                    .build();
         }
 
         public static List<UserSimple> of(List<User> users) {
@@ -58,7 +60,10 @@ public class UserResponseDto {
         private UserTermsInfo isAgreeUseTerms;
         private UserTermsInfo isAgreePrivacyTerms;
         private Boolean isInterest;
+        private String profileImageUrl;
+
         public static UserInfo of(User user) {
+            if(user == null ) return UserInfo.builder().build();
             return UserInfo.builder()
                     .userId(user.getId())
                     .nickname(user.getNickname())
@@ -71,9 +76,9 @@ public class UserResponseDto {
                     .isAgreeUseTerms(UserTermsInfo.of(user.getIsAgreeUseTerms()))
                     .isAgreePrivacyTerms(UserTermsInfo.of(user.getIsAgreePrivacyTerms()))
                     .isInterest(user.getIsInterest())
+                    .profileImageUrl(user.getProfileImage() != null ? ImagePathLengthConverter.extendImagePathLength(user.getProfileImage().getImageUrl()) : StringUtils.EMPTY)
                     .build();
         }
-
         public static List<UserInfo> of(List<User> users) {
             return users.stream().map(UserInfo::of).collect(Collectors.toList());
         }

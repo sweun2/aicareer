@@ -34,13 +34,13 @@ public class Recruitment {
     private String uid; // 채용 공고 uid
     @ManyToOne
     private Company company;
-    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
     private Set<RecruitingJob> recruitingJobSet;
-    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
     private Set<RecruitmentType> recruitmentTypeSet; //채용 유형 -> new table
-    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
     private Set<Education> educationSet; //최종 학력
-    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
     private Set<Career> careerSet; // 요구 경력
     @Column
     private LocalDateTime recruitmentStartDate; // 모집 시작일

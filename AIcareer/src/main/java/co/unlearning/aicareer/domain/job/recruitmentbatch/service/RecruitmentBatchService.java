@@ -1,5 +1,7 @@
 package co.unlearning.aicareer.domain.job.recruitmentbatch.service;
 
+import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
+import co.unlearning.aicareer.domain.common.Image.service.ImageService;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitment.RecruitmentDeadlineType;
 import co.unlearning.aicareer.domain.job.recruitmentbatch.repository.RecruitmentBatchRepository;
@@ -35,6 +37,8 @@ public class RecruitmentBatchService {
     private final RecruitmentService recruitmentService;
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentBatchRepository recruitmentBatchRepository;
+    private final ImageService imageService;
+    private final ImageRepository imageRepository;
     private final EmailService emailService;
 
     private final ServletContext servletContext;
@@ -95,6 +99,12 @@ public class RecruitmentBatchService {
 
         List<Recruitment> recruitmentList = recruitmentService.findAllNotInRecruitmentDeadlineTypes(List.of(RecruitmentDeadlineType.DUE_DATE, RecruitmentDeadlineType.EXPIRED));
         new HashSet<>(recruitmentList).stream().toList().forEach(this::processBadResponseRecruitment);
+    }
+
+    @Scheduled(cron = "0 0 2 * * *")
+    @Transactional
+    public void removeUnrelatedImage() {
+        imageRepository.deleteAll(imageRepository.findAllByIsRelatedFalse());
     }
 
     /*@Transactional

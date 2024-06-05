@@ -26,8 +26,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class ImageController {
     private final ImageService imageService;
-    private final UserService userService;
-    private final RecruitmentBatchService recruitmentBatchService;
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping(value = "/one",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

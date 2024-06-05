@@ -18,7 +18,6 @@ import co.unlearning.aicareer.domain.community.communitypostinguser.repository.C
 import co.unlearning.aicareer.domain.community.communitypostinguser.service.CommunityPostingUserService;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
-import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import jakarta.persistence.EntityManager;
@@ -29,7 +28,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +36,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +72,7 @@ public class CommunityPostingService {
                 .communityCommentSet(new HashSet<>())
                 .communityPostingUserSet(new HashSet<>())
                 .writer(user)
+                .isAnonymous(communityPostingPost.getIsAnonymous() != null ? communityPostingPost.getIsAnonymous() : true)
                 .build();
 
 
@@ -105,8 +103,10 @@ public class CommunityPostingService {
         communityPostingRepository.save(communityPosting);
         siteMapService.registerCommunityPostingSiteMap(communityPosting);
 
-        return Map.entry(communityPosting,communityPostingUser);
+        return Map.entry(communityPosting, communityPostingUser);
     }
+
+
     public Map.Entry<CommunityPosting,CommunityPostingUser> updateCommunityPost(String uid, CommunityPostingRequirementDto.CommunityPostingPost communityPostingPost) {
         User user = userService.getLoginUser();
         CommunityPosting communityPosting = getCommunityPostingByUid(uid).getKey();
@@ -125,11 +125,10 @@ public class CommunityPostingService {
         communityPosting.setLastModified(LocalDateTime.now());
         communityPosting.setTitle(communityPostingPost.getTitle());
         communityPosting.setContent(communityPostingPost.getContent());
-
+        communityPosting.setIsAnonymous(communityPostingPost.getIsAnonymous() != null ? communityPostingPost.getIsAnonymous() : true);
 
         communityPostingRepository.save(communityPosting);
-
-        return Map.entry(communityPosting,communityPostingUser);
+        return Map.entry(communityPosting, communityPostingUser);
     }
 
     private void updateSubImages(CommunityPosting communityPosting, List<String> newSubImageUrls) {
@@ -179,7 +178,7 @@ public class CommunityPostingService {
             userService.checkAdmin();
             communityPosting.setIsView(communityPostingIsView.getIsView());
         }
-        return Map.entry(communityPostingRepository.save(communityPosting),communityPostingUserService.getMockCommunityPostingUserFromLoginUser(communityPosting));
+        return Map.entry(communityPostingRepository.save(communityPosting),communityPostingUserService.getMockCommunityPostingUserIfNotLogin(communityPosting));
     }
     public void deleteCommunityPostByUid(String uid) {
         User user  = userService.getLoginUser();
@@ -210,7 +209,8 @@ public class CommunityPostingService {
         }
 
         CommunityPostingUser communityPostingUser;
-        communityPostingUser = communityPostingUserService.getMockCommunityPostingUserFromLoginUser(communityPosting);
+        communityPostingUser = communityPostingUserService.getMockCommunityPostingUserIfNotLogin(communityPosting);
+
         return Map.entry(communityPosting,communityPostingUser);
     }
 
@@ -231,7 +231,12 @@ public class CommunityPostingService {
                 return communityPostingRepository.findAllByContentContainsOrTitleContains(keyword, keyword,pageable).stream().toList();
             }
         }
-        return communityPostingRepository.findAllByContentContainsOrTitleContainsAndIsViewTrue(keyword, keyword,pageable).stream().toList();
+        return communityPostingRepository.findAllByContentContainsOrTitleContainsAndIsViewTrue(keyword, keyword,pageable).stream()
+                .peek(communityPosting -> {
+                    if(communityPosting.getIsAnonymous()) {
+                        communityPosting.setWriter(null);
+                    }
+                }).toList();
     }
     public CommunityPostingUser recommendCommunityPosting(String uid,Boolean status) {
         User user = userService.getLoginUser();
@@ -305,7 +310,12 @@ public class CommunityPostingService {
         LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
 
         Pageable topThree = PageRequest.of(0, 3);
-        return communityPostingRepository.findTopPostsWithIsViewTrue(startOfDay, endOfDay, topThree);
+        return communityPostingRepository.findTopPostsWithIsViewTrue(startOfDay, endOfDay, topThree)
+                .stream().peek(communityPosting -> {
+                    if(communityPosting.getIsAnonymous()) {
+                        communityPosting.setWriter(null);
+                    }
+                }).toList();
     }
     public void updatePostingHits(HttpServletRequest request, HttpServletResponse response, String uid) {
         String cookieValue = null;

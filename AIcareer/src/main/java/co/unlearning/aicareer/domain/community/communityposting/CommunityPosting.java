@@ -4,6 +4,7 @@ import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
 import co.unlearning.aicareer.domain.community.communitycomment.CommunityComment;
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
+import co.unlearning.aicareer.domain.community.communityvote.CommunityVote;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -46,8 +47,12 @@ public class CommunityPosting {
     private Set<CommunityComment> communityCommentSet;
     @OneToMany(mappedBy = "communityPosting",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private Set<CommunityPostingUser> communityPostingUserSet;
-    @ManyToOne //글쓴이
+    @ManyToOne(fetch = FetchType.EAGER) //글쓴이
     private User writer;
     @OneToMany(mappedBy ="communityPosting",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<CommunityPostingImage> subImages;
+    @OneToOne
+    private CommunityVote communityVote;
+    @Column
+    private Boolean isAnonymous;
 }

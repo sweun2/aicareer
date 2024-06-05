@@ -47,11 +47,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/")
 public class MainController {
-    private final RecruitmentService recruitmentService;
     private final KaKaoTalkService kaKaoTalkService;
-    private final UserRepository userRepository;
-    private final ImageService imageService;
-    private final ImageRepository imageRepository;
 
     @Value("${back-url}")
     private String backUrl;
@@ -102,39 +98,4 @@ public class MainController {
                 "redirect_uri=https://api.aicareer.co.kr/kakao&response_type=code&scope=talk_message";
         return new RedirectView(externalURL);
     }
-
-    @Value("${nickname.file:classpath:nickname-list.txt}")
-    private String nicknameFilePath;
-    private final ResourceLoader resourceLoader;
-    private List<String> nicknames;
-    @PostConstruct
-    public void init() throws IOException {
-        Resource resource = resourceLoader.getResource(nicknameFilePath);
-        List<String> lines = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8);
-        nicknames = lines.stream().map(String::trim).collect(Collectors.toList());
-    }
-    public String generateUniqueNickname() throws IOException {
-        Random random = new Random();
-        String nickname;
-        do {
-            String randomNickname = nicknames.get(random.nextInt(nicknames.size()));
-            int randomNumber = 10000 + random.nextInt(90000); // 5자리 랜덤 숫자 생성
-            nickname = randomNickname + " " + randomNumber;
-        } while (userRepository.findByNickname(nickname).isPresent());
-
-        return nickname;
-    }
-/*    @ResponseBody
-    @GetMapping("/make")
-    public void make() {
-        List<User> userList = userRepository.findAll();
-        userList.forEach(user -> {
-            try {
-                user.setNickname(generateUniqueNickname());
-                userRepository.save(user);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }*/
 }

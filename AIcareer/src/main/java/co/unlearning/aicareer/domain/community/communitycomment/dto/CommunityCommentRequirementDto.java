@@ -14,6 +14,8 @@ public class CommunityCommentRequirementDto {
         private String postingUid;
         @Schema(description = "댓글 내용")
         private String content;
+        @Schema(description = "익명 여부")
+        private Boolean isAnonymous;
     }
     @Getter
     @Setter
@@ -23,6 +25,8 @@ public class CommunityCommentRequirementDto {
     public static class CommunityCommentUpdate {
         @Schema(description = "댓글 내용")
         private String content;
+        @Schema(description = "익명 여부")
+        private Boolean isAnonymous;
     }
 
 

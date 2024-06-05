@@ -1,5 +1,7 @@
 package co.unlearning.aicareer.domain.job.boardimage.service;
 
+import co.unlearning.aicareer.domain.common.Image.Image;
+import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
 import co.unlearning.aicareer.domain.job.boardimage.BoardImage;
 import co.unlearning.aicareer.domain.job.boardimage.repository.BoardImageRepository;
@@ -16,14 +18,15 @@ import org.springframework.stereotype.Service;
 public class BoardImageService {
     private final BoardImageRepository boardImageRepository;
     private final ImageService imageService;
+    private final ImageRepository imageRepository;
     private final EntityManager entityManager;
 
     public void removeBoardImage(BoardImage boardImage) {
         String imageUrl = boardImage.getImage().getImageUrl();
-
-        boardImage.setImage(null);
+        Image image = imageService.getImageByUrl(imageUrl);
+        image.setIsRelated(false);
+        imageRepository.save(image);
         boardImageRepository.delete(boardImage);
-        imageService.deleteImageByUrl(imageUrl);
         entityManager.flush();
     }
 }

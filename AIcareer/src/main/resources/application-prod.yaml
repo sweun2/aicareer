@@ -81,7 +81,7 @@ server:
 logging:
   level:
     org:
-      springframework: ERROR
+      springframework: DEBUG
 back-url: "https://api.aicareer.co.kr"
 front-url: "https://aicareer.co.kr"
 

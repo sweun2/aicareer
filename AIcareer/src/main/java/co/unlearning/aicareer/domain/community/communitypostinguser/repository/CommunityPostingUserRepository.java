@@ -8,10 +8,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CommunityPostingUserRepository extends JpaRepository<CommunityPostingUser,Integer> {
 
     Optional<CommunityPostingUser> findCommunityPostingUserByCommunityPostingAndUser(CommunityPosting communityPosting, User user);
+    @Query("SELECT cpu FROM CommunityPostingUser cpu " +
+            "JOIN cpu.communityPosting cp " +
+            "WHERE cpu.isReport = false " +
+            "AND cpu.isRecommend = false " +
+            "AND cp.id <> cpu.user.id")
+    List<CommunityPostingUser> findCommunityPostingUserAllOptionFalseAndNotWriter();
 }

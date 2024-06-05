@@ -5,6 +5,7 @@ import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.common.user.UserTerms;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
+import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.global.security.jwt.Token;
 import co.unlearning.aicareer.global.security.jwt.TokenService;
 import jakarta.annotation.PostConstruct;
@@ -37,27 +38,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final UserRepository userRepository;
     @Value("${front-url}")
     private String frontURL;
-    @Value("${nickname.file:classpath:nickname-list.txt}")
-    private String nicknameFilePath;
-    private final ResourceLoader resourceLoader;
-    private List<String> nicknames;
-    @PostConstruct
-    public void init() throws IOException {
-        Resource resource = resourceLoader.getResource(nicknameFilePath);
-        List<String> lines = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8);
-        nicknames = lines.stream().map(String::trim).collect(Collectors.toList());
-    }
-    public String generateUniqueNickname() throws IOException {
-        Random random = new Random();
-        String nickname;
-        do {
-            String randomNickname = nicknames.get(random.nextInt(nicknames.size()));
-            int randomNumber = 10000 + random.nextInt(90000); // 5자리 랜덤 숫자 생성
-            nickname = randomNickname + " " + randomNumber;
-        } while (userRepository.findByNickname(nickname).isPresent());
-
-        return nickname;
-    }
+    private final UserService userService;
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -67,16 +48,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()){
-
-
             User user = User.builder()
                     .email(email)
                     .name(oAuth2User.getAttribute("name"))
-                    .nickname(generateUniqueNickname())
+                    .nickname(userService.generateUniqueNickname())
                     .password("none")
                     .recommender("none")
                     .userRole(UserRole.GUEST)
                     .joinDate(LocalDateTime.now())
+                    .profileImage(null)
                     .build();
             userRepository.save(user);
             UserInterest userInterest = new UserInterest();

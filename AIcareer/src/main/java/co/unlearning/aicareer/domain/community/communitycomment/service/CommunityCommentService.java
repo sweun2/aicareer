@@ -14,7 +14,6 @@ import co.unlearning.aicareer.domain.community.communityposting.repository.Commu
 import co.unlearning.aicareer.domain.community.communityposting.service.CommunityPostingService;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
-import com.amazonaws.transform.MapEntry;
 import org.springframework.data.domain.Pageable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -46,10 +45,9 @@ public class CommunityCommentService {
                 : communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(communityPosting, pageable).stream().toList();
 
         comments.forEach(communityComment -> {
-            CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserFromLoginUser(communityComment);
+            CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserIfNotLogin(communityComment);
             entry.add(Map.entry(communityComment, communityCommentUser));
         });
-
         return entry;
     }
 
@@ -69,6 +67,7 @@ public class CommunityCommentService {
                 .reportCnt(0)
                 .recommendCnt(0)
                 .writer(user)
+                .isAnonymous(communityCommentPost.getIsAnonymous() !=null ? communityCommentPost.getIsAnonymous() : true)
                 .build();
 
         CommunityCommentUser communityCommentUser = CommunityCommentUser.builder()
@@ -82,7 +81,16 @@ public class CommunityCommentService {
 
         communityPostingRepository.save(communityPosting);
         communityCommentRepository.save(communityComment);
-        return Map.entry(communityComment,communityCommentUser);
+        return Map.entry(communityComment, communityCommentUser);
+    }
+
+    public CommunityCommentUser getMockCommunityCommentUser(CommunityComment communityComment) {
+        return CommunityCommentUser.builder()
+                .communityComment(communityComment)
+                .user(null)
+                .isReport(false)
+                .isRecommend(false)
+                .build();
     }
     public Map.Entry<CommunityComment,CommunityCommentUser> updateCommunityComment(String commentUid, CommunityCommentRequirementDto.CommunityCommentUpdate communityCommentUpdate) {
         User user = userService.getLoginUser();
@@ -90,13 +98,17 @@ public class CommunityCommentService {
         CommunityComment communityComment = communityCommentRepository.findByUid(commentUid).orElseThrow(
                 ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
-        if(user != communityCommentUserService.getCommunityCommentUserByCommunityComment(communityComment).getUser()) {
+        if(user != communityComment.getWriter()) {
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
         }
+        CommunityCommentUser communityCommentUser = communityCommentUserRepository.findByUserAndCommunityComment(user,communityComment).orElseThrow(
+                ()->new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED)
+        );
 
+        communityComment.setIsAnonymous(communityCommentUpdate.getIsAnonymous() != null ? communityCommentUpdate.getIsAnonymous() : communityComment.getIsAnonymous());
         communityComment.setContent(communityCommentUpdate.getContent());
         communityCommentRepository.save(communityComment);
-        return Map.entry(communityComment, CommunityCommentUser.builder().build());
+        return Map.entry(communityComment, communityCommentUser);
     }
     public Map.Entry<CommunityComment,CommunityCommentUser> updateIsView(CommunityCommentRequirementDto.CommunityCommentIsView communityCommentIsView) {
         CommunityComment communityComment = communityCommentRepository.findByUid(communityCommentIsView.getUid()).orElseThrow(
@@ -119,7 +131,7 @@ public class CommunityCommentService {
                 ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
 
-        if(user != communityCommentUserService.getCommunityCommentUserByCommunityComment(communityComment).getUser()) {
+        if(user != communityComment.getWriter()) {
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
         }
 
@@ -135,7 +147,7 @@ public class CommunityCommentService {
         CommunityCommentUser communityCommentUser;
 
         if(communityCommentUserOptional.isEmpty()) {
-            communityCommentUser = CommunityCommentUser.builder()
+            communityCommentUser  = CommunityCommentUser.builder()
                     .communityComment(communityComment)
                     .user(user)
                     .isRecommend(false)

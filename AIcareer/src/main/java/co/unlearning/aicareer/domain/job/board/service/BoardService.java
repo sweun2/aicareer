@@ -106,10 +106,52 @@ public class BoardService {
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
 
-        updateSubImages(board, boardPost.getSubImage());
         // 배너 이미지 업데이트
-        updateBannerImage(boardPost.getDesktopBannerImage(), board.getDesktopBannerImage(), board::setDesktopBannerImage);
-        updateBannerImage(boardPost.getMobileBannerImage(), board.getMobileBannerImage(), board::setMobileBannerImage);
+        updateBannerImage(boardPost.getDesktopBannerImage(), board.getDesktopBannerImage(), board::setDesktopBannerImage, board);
+        updateBannerImage(boardPost.getMobileBannerImage(), board.getMobileBannerImage(), board::setMobileBannerImage, board);
+
+        // 서브 이미지 업데이트
+        List<String> newSubImageUrls = boardPost.getSubImage();
+        List<BoardImage> currentBoardImages = board.getSubImages().stream()
+                .filter(boardImage -> boardImage.getImageOrder() != null && boardImage.getImageOrder() != 0)
+                .collect(Collectors.toList());
+
+        if (!currentBoardImages.isEmpty()) {
+            currentBoardImages.forEach(bi -> {
+                bi.getImage().setIsRelated(false);
+                imageService.deleteImageByUrl(bi.getImage().getImageUrl());
+            });
+            boardImageRepository.deleteAll(currentBoardImages);
+            entityManager.flush();
+        }
+
+        board.getSubImages().removeAll(currentBoardImages);
+        board.getSubImages().forEach(boardImage -> log.info(boardImage.getImage().getImageUrl()));
+        boardRepository.save(board);
+
+        for (int order = 0; order < newSubImageUrls.size(); order++) {
+            String imageUrl = newSubImageUrls.get(order);
+            String slicedImageUrl = ImagePathLengthConverter.slicingImagePathLength(imageUrl);
+            Image image = imageRepository.findByImageUrl(slicedImageUrl).orElseThrow(
+                    () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
+            );
+            Optional<BoardImage> boardImageOptional = boardImageRepository.findByImage(image);
+            if (boardImageOptional.isEmpty()) {
+                BoardImage newBoardImage = new BoardImage();
+                newBoardImage.setBoard(board);
+                image.setIsRelated(true);
+                newBoardImage.setImage(image);
+                newBoardImage.setImageOrder(order + 1);
+
+                board.getSubImages().add(newBoardImage);
+                boardImageRepository.save(newBoardImage);
+            } else {
+                boardImageOptional.get().setImageOrder(order + 1);
+                boardImageRepository.save(boardImageOptional.get());
+            }
+        }
+
+        boardRepository.save(board);
 
         // 기타 정보 업데이트
         board.setPageLinkUrl(boardPost.getPageLink());
@@ -117,12 +159,12 @@ public class BoardService {
         board.setContent(boardPost.getContent());
         board.setLastModified(LocalDateTime.now());
 
-
         boardRepository.save(board);
         siteMapService.registerBoardSiteMap(board);
         return board;
     }
-    public void updateBannerImage(String newImageUrl, BoardImage currentBoardImage, Consumer<BoardImage> setBoardImage) {
+
+    private void updateBannerImage(String newImageUrl, BoardImage currentBoardImage, Consumer<BoardImage> setBoardImage, Board board) {
         if (newImageUrl != null && !newImageUrl.isEmpty()) {
             Image newImage = imageRepository.findByImageUrl(ImagePathLengthConverter.slicingImagePathLength(newImageUrl)).orElseThrow(
                     () -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL)
@@ -131,9 +173,8 @@ public class BoardService {
                 if (!newImage.getImageUrl().equals(currentBoardImage.getImage().getImageUrl())) {
                     currentBoardImage.getImage().setIsRelated(false);
                     boardImageService.removeBoardImage(currentBoardImage);
+                    board.getSubImages().remove(currentBoardImage); // 서브 이미지 목록에서 제거
 
-
-                    // 새로운 BoardImage를 설정합니다.
                     BoardImage newBoardImage = BoardImage.builder()
                             .imageOrder(0)
                             .image(newImage)
@@ -141,17 +182,29 @@ public class BoardService {
                             .build();
                     newImage.setIsRelated(true);
                     setBoardImage.accept(newBoardImage);
-                    boardImageRepository.save(newBoardImage); // 새로운 이미지를 저장
+                    boardImageRepository.save(newBoardImage);
+                    board.getSubImages().add(newBoardImage); // 새로운 이미지를 서브 이미지 목록에 추가
                 }
+            } else {
+                BoardImage newBoardImage = BoardImage.builder()
+                        .imageOrder(0)
+                        .image(newImage)
+                        .board(board)
+                        .build();
+                newImage.setIsRelated(true);
+                setBoardImage.accept(newBoardImage);
+                boardImageRepository.save(newBoardImage);
+                board.getSubImages().add(newBoardImage); // 새로운 이미지를 서브 이미지 목록에 추가
             }
         } else if (currentBoardImage != null) {
-            // 새로운 이미지 URL이 없고 현재 이미지가 있는 경우, 현재 BoardImage를 삭제합니다.
             currentBoardImage.getImage().setIsRelated(false);
             boardImageService.removeBoardImage(currentBoardImage);
             setBoardImage.accept(null);
-            entityManager.flush(); // 삭제 작업을 즉시 반영
+            board.getSubImages().remove(currentBoardImage); // 서브 이미지 목록에서 제거
+            entityManager.flush();
         }
     }
+
 
 
     public void updateSubImages(Board board, List<String> newSubImageUrls) {
@@ -172,7 +225,6 @@ public class BoardService {
         // 현재 서브 이미지를 보드에서 제거
         board.getSubImages().removeAll(currentBoardImages);
         board.getSubImages().forEach(boardImage -> log.info(boardImage.getImage().getImageUrl()));
-        log.info("test");
         boardRepository.save(board); // 보드를 저장하여 상태를 반영
 
         // 새로운 서브 이미지를 생성하고 추가

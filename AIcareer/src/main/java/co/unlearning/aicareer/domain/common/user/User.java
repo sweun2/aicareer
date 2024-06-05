@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.common.user;
 
+import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.community.communitycommentuser.CommunityCommentUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
@@ -55,4 +56,6 @@ public class User {
     private Set<CommunityCommentUser> communityCommentUserSet;
     @Column(unique = true)
     private String nickname;
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    private Image profileImage;
 }
