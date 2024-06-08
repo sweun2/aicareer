@@ -22,7 +22,8 @@ public class CompanyType {
         MIDDLE_MARKET("중견기업"),
         PUBLIC("공기업"),
         FOREIGN("외국계"),
-        ETC("기타");
+        ETC("기타"),
+        PUBLIC_INSTITUTION("공공기관");
 
         private final String koreanName;
 

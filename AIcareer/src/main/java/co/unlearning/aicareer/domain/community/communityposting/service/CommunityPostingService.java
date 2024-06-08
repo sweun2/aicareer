@@ -49,13 +49,15 @@ public class CommunityPostingService {
     private final CommunityPostingUserService communityPostingUserService;
     private final CommunityPostingUserRepository communityPostingUserRepository;
     private final ImageRepository imageRepository;
-    private final ImageService imageService;
     private final CommunityPostingImageService communityPostingImageService;
     private final CommunityPostingImageRepository communityPostingImageRepository;
     private final EntityManager entityManager;
-    private final TokenService tokenService;
     public Map.Entry<CommunityPosting,CommunityPostingUser> addCommunityPost(CommunityPostingRequirementDto.CommunityPostingPost communityPostingPost) {
         User user = userService.getLoginUser();
+        log.info(user.getUserRole().toString());
+        log.info(user.getEmail());
+        log.info(user.getNickname());
+
         isNonBlockedCommunityUser(user);
 
         CommunityPosting communityPosting = CommunityPosting.builder()
@@ -74,7 +76,7 @@ public class CommunityPostingService {
                 .writer(user)
                 .isAnonymous(communityPostingPost.getIsAnonymous() != null ? communityPostingPost.getIsAnonymous() : true)
                 .build();
-
+        communityPostingRepository.save(communityPosting);
 
         List<CommunityPostingImage> subImages = new ArrayList<>();
         int order = 0;
@@ -100,6 +102,7 @@ public class CommunityPostingService {
                 .build();
         communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
 
+        communityPosting.setWriter(user);
         communityPostingRepository.save(communityPosting);
         siteMapService.registerCommunityPostingSiteMap(communityPosting);
 
@@ -107,7 +110,7 @@ public class CommunityPostingService {
     }
 
 
-    public Map.Entry<CommunityPosting,CommunityPostingUser> updateCommunityPost(String uid, CommunityPostingRequirementDto.CommunityPostingPost communityPostingPost) {
+    public Map.Entry<CommunityPosting,CommunityPostingUser> updateCommunityPost(String uid, CommunityPostingRequirementDto.CommunityPostingUpdate communityPostingUpdate) {
         User user = userService.getLoginUser();
         CommunityPosting communityPosting = getCommunityPostingByUid(uid).getKey();
         CommunityPostingUser communityPostingUser = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,user).orElseThrow(
@@ -118,19 +121,21 @@ public class CommunityPostingService {
         if(user != communityPostingUser.getUser()) {
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
         }
+        // Ensure the writer is not null before updating
+        if (communityPosting.getWriter() == null) {
+            communityPosting.setWriter(user);
+        }
 
         // Update sub images
-        updateSubImages(communityPosting, communityPostingPost.getImageUrls());
+        updateSubImages(communityPosting, communityPostingUpdate.getImageUrls());
 
         communityPosting.setLastModified(LocalDateTime.now());
-        communityPosting.setTitle(communityPostingPost.getTitle());
-        communityPosting.setContent(communityPostingPost.getContent());
-        communityPosting.setIsAnonymous(communityPostingPost.getIsAnonymous() != null ? communityPostingPost.getIsAnonymous() : true);
+        communityPosting.setTitle(communityPostingUpdate.getTitle());
+        communityPosting.setContent(communityPostingUpdate.getContent());
 
         communityPostingRepository.save(communityPosting);
         return Map.entry(communityPosting, communityPostingUser);
     }
-
     private void updateSubImages(CommunityPosting communityPosting, List<String> newSubImageUrls) {
         List<CommunityPostingImage> currentCommunityPostingImages = communityPosting.getSubImages().stream()
                 .filter(communityPostingImage -> communityPostingImage.getImageOrder() != null && communityPostingImage.getImageOrder() != 0)
@@ -231,12 +236,7 @@ public class CommunityPostingService {
                 return communityPostingRepository.findAllByContentContainsOrTitleContains(keyword, keyword,pageable).stream().toList();
             }
         }
-        return communityPostingRepository.findAllByContentContainsOrTitleContainsAndIsViewTrue(keyword, keyword,pageable).stream()
-                .peek(communityPosting -> {
-                    if(communityPosting.getIsAnonymous()) {
-                        communityPosting.setWriter(null);
-                    }
-                }).toList();
+        return communityPostingRepository.findAllByContentContainsOrTitleContainsAndIsViewTrue(keyword, keyword,pageable).stream().toList();
     }
     public CommunityPostingUser recommendCommunityPosting(String uid,Boolean status) {
         User user = userService.getLoginUser();
@@ -310,12 +310,7 @@ public class CommunityPostingService {
         LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
 
         Pageable topThree = PageRequest.of(0, 3);
-        return communityPostingRepository.findTopPostsWithIsViewTrue(startOfDay, endOfDay, topThree)
-                .stream().peek(communityPosting -> {
-                    if(communityPosting.getIsAnonymous()) {
-                        communityPosting.setWriter(null);
-                    }
-                }).toList();
+        return communityPostingRepository.findTopPostsWithIsViewTrue(startOfDay, endOfDay, topThree);
     }
     public void updatePostingHits(HttpServletRequest request, HttpServletResponse response, String uid) {
         String cookieValue = null;

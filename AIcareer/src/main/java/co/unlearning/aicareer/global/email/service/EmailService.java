@@ -144,7 +144,11 @@ public class EmailService {
                             .collect(Collectors.joining(","));
 
                     String initialUrl = "https://aicareer.co.kr/generator/mail?ids=" + idList;
-                    userUrlMap.put(userInterest, initialUrl);
+                    if(userUrlMap.containsKey(userInterest) && userUrlMap.containsValue(initialUrl)) {
+                        return;
+                    } else {
+                        userUrlMap.put(userInterest, initialUrl);
+                    }
                 }
             }
         });

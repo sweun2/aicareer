@@ -1,15 +1,22 @@
 package co.unlearning.aicareer.domain.community.communityposting.dto;
 
+import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
+import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting;
 import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
+import co.unlearning.aicareer.global.utils.ApplicationContextUtil;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
+import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
+import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.PostConstruct;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,12 +53,23 @@ public class CommunityPostingResponseDto {
         private Integer recommendCnt; //내용
         @Schema(description = "볼 수 있는지 여부/ 신고 횟수 초과시 가려짐")
         private Boolean isView;
+        @Schema(description = "익명 여부")
+        private Boolean isAnonymous;
         @Schema(description = "글쓴이 정보")
         private UserResponseDto.UserSimple writer;
         @Schema(description = "로그인 유저의 정보")
         private CommunityPostingUserResponseDto.CommunityPostingUserInfo communityPostingUserInfo;
 
+
         public static CommunityPostInfo of(Map.Entry<CommunityPosting,CommunityPostingUser> postingUserEntry) {
+            UserService userService = ApplicationContextUtil.getBean(UserService.class);
+            User loginUser;
+            if(userService.isLogin()) {
+                 loginUser = userService.getLoginUser(); // 로그인 유저 정보 가져오기
+            } else {
+                loginUser = null;
+            }
+
             CommunityPosting communityPosting = postingUserEntry.getKey();
             CommunityPostingUser communityPostingUser = postingUserEntry.getValue();
             CommunityPostInfoBuilder builder = CommunityPostInfo.builder()
@@ -65,9 +83,15 @@ public class CommunityPostingResponseDto {
                     .reportCnt(communityPosting.getReportCnt())
                     .recommendCnt(communityPosting.getRecommendCnt())
                     .isView(communityPosting.getIsView())
+                    .isAnonymous(communityPosting.getIsAnonymous())
                     .communityPostingUserInfo(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingUser))
-                    .writer(UserResponseDto.UserSimple.of(communityPosting.getIsAnonymous() ? null : communityPosting.getWriter()))
                     ;
+            if (loginUser!=null && communityPosting.getWriter().getId().equals(loginUser.getId())) {
+                builder.writer(UserResponseDto.UserSimple.of(communityPosting.getWriter()));
+            } else {
+                builder.writer(UserResponseDto.UserSimple.of(communityPosting.getIsAnonymous() ? null : communityPosting.getWriter()));
+            }
+
             if(!communityPosting.getSubImages().isEmpty()) {
                 builder.imageUrls(
                         communityPosting.getSubImages().stream()
@@ -120,11 +144,14 @@ public class CommunityPostingResponseDto {
         private Boolean isView;
         @Schema(description = "글쓴이 정보")
         private UserResponseDto.UserSimple writer;
+        @Schema(description = "익명 여부")
+        private Boolean isAnonymous;
+
         public static CommunityPostSimple of(CommunityPosting communityPosting) {
             String simpleContent = communityPosting.getContent();
             int contentLength = 100;
-            if(communityPosting.getContent().length() > contentLength) {
-                simpleContent = simpleContent.substring(0,contentLength);
+            if (communityPosting.getContent().length() > contentLength) {
+                simpleContent = simpleContent.substring(0, contentLength);
             }
 
             CommunityPostSimpleBuilder builder = CommunityPostSimple.builder()
@@ -137,15 +164,32 @@ public class CommunityPostingResponseDto {
                     .commentCnt(communityPosting.getCommentCnt())
                     .reportCnt(communityPosting.getReportCnt())
                     .recommendCnt(communityPosting.getRecommendCnt())
-                    .writer(UserResponseDto.UserSimple.of(communityPosting.getIsAnonymous() ? null : communityPosting.getWriter()))
+                    .isAnonymous(communityPosting.getIsAnonymous())
                     .isView(communityPosting.getIsView());
 
-            if(!communityPosting.getSubImages().isEmpty()) {
+            UserService userService = ApplicationContextUtil.getBean(UserService.class);
+            User loginUser;
+            if (userService.isLogin()) {
+                loginUser = userService.getLoginUser();
+            } else {
+                loginUser = null;
+            }
+
+            if (loginUser != null && communityPosting.getWriter() != null && communityPosting.getWriter().getId().equals(loginUser.getId())) {
+                builder.writer(UserResponseDto.UserSimple.of(communityPosting.getWriter()));
+            } else {
+                builder.writer(UserResponseDto.UserSimple.of(communityPosting.getIsAnonymous() ? null : communityPosting.getWriter()));
+            }
+
+            if (!communityPosting.getSubImages().isEmpty()) {
                 builder.mainImageUrl(
                         ImagePathLengthConverter.extendImagePathLength(
                                 communityPosting.getSubImages().stream()
-                                        .filter(recruitmentImage->recruitmentImage.getImageOrder() == 1).toList().get(0)
-                                        .getImage().getImageUrl())
+                                        .filter(recruitmentImage -> recruitmentImage.getImageOrder() == 1)
+                                        .findFirst()
+                                        .orElseThrow(() -> new BusinessException(ResponseErrorCode.INVALID_IMAGE_URL))
+                                        .getImage().getImageUrl()
+                        )
                 );
             } else {
                 builder.mainImageUrl(StringUtils.EMPTY);
@@ -153,6 +197,7 @@ public class CommunityPostingResponseDto {
 
             return builder.build();
         }
+
         public static List<CommunityPostSimple> of(List<CommunityPosting> communityPostings) {
             return communityPostings.stream().map(CommunityPostSimple::of).collect(Collectors.toList());
         }

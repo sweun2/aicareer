@@ -105,7 +105,6 @@ public class CommunityCommentService {
                 ()->new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED)
         );
 
-        communityComment.setIsAnonymous(communityCommentUpdate.getIsAnonymous() != null ? communityCommentUpdate.getIsAnonymous() : communityComment.getIsAnonymous());
         communityComment.setContent(communityCommentUpdate.getContent());
         communityCommentRepository.save(communityComment);
         return Map.entry(communityComment, communityCommentUser);

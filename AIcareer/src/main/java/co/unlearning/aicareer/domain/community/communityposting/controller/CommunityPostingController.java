@@ -71,8 +71,8 @@ public class CommunityPostingController {
     public ResponseEntity<CommunityPostingResponseDto.CommunityPostInfo> updateCommunityPost(
             @Parameter(name = "uid", description = "게시글 uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid,
-            @RequestBody CommunityPostingRequirementDto.CommunityPostingPost communityPostingPost) throws Exception {
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostingResponseDto.CommunityPostInfo.of(communityPostingService.updateCommunityPost(uid,communityPostingPost)));
+            @RequestBody CommunityPostingRequirementDto.CommunityPostingUpdate communityPostingUpdate) throws Exception {
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommunityPostingResponseDto.CommunityPostInfo.of(communityPostingService.updateCommunityPost(uid,communityPostingUpdate)));
     }
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "커뮤니티 글삭제", description = "커뮤니티 글삭제")

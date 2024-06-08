@@ -28,6 +28,20 @@ public class CommunityPostingRequirementDto {
     @Builder
     @RequiredArgsConstructor
     @AllArgsConstructor
+    public static class CommunityPostingUpdate {
+        @Schema(description = "제목")
+        private String title;
+        @Schema(description = "내용")
+        private String content;
+
+        @Schema(description = "이미지 urls, 첫번째 사진이 mainImageUrl로 반환")
+        private List<String> imageUrls;
+    }
+    @Getter
+    @Setter
+    @Builder
+    @RequiredArgsConstructor
+    @AllArgsConstructor
     public static class CommunityPostingIsView {
         @Schema(description = "커뮤니티 글 uid")
         private String uid;

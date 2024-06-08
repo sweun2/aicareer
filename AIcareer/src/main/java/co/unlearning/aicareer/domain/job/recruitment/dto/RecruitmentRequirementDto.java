@@ -23,7 +23,7 @@ public class RecruitmentRequirementDto {
         private String companyAddress;
         @Schema(description = "회사명")
         private String companyName;
-        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC","FOREIGN","ETC"})
+        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC","FOREIGN","ETC","PUBLIC_INSTITUTION"})
         private String companyType;
         @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PM_PO","CONSULTANT","SOFTWARE_ENGINEER","SALES","OPERATION"})
         @NotNull
@@ -42,7 +42,7 @@ public class RecruitmentRequirementDto {
         private RecruitmentDeadLine recruitmentDeadline; //모집 마감일
         @Schema(description = "모집 공고 링크")
         private String recruitmentAnnouncementLink; //모집 공고 링크
-        @Schema(description = "모집 지역",allowableValues = {"SEOUL", "GANGNAM","MAPO","GURO_GARSAN_GAME","BUNDANG_PANGYO","ETC"})
+        @Schema(description = "모집 지역",allowableValues = {"SEOUL", "GANGNAM","MAPO","GURO_GARSAN_GAME","BUNDANG_PANGYO","ETC","YEOUIDO"})
         private String recruitmentAddress; //지역
         @Schema(description = "제목")
         private String title; //title
@@ -75,17 +75,17 @@ public class RecruitmentRequirementDto {
         private String sortCondition;
         @Schema(description = "정렬 순서, 내림차 순/오름차 순", allowableValues = {"DESC","ASC"})
         private String orderBy;
-        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC", "ETC"})
+        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC", "ETC","FOREIGN","PUBLIC_INSTITUTION"})
         private List<String> companyTypes;
         @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PM_PO","CONSULTANT","SOFTWARE_ENGINEER","SALES","OPERATION"})
         private List<String> recruitingJobNames;
-        @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH"})
+        @Schema(description = "채용 유형",allowableValues = {"INTERN" ,"FULL_TIME","CONTRACT","INDUSTRIAL_TECHNICAL","PROFESSIONAL_RESEARCH","ETC"})
         private List<String> recruitmentTypeNames;
         @Schema(description = "학력 조건",allowableValues = {"IRRELEVANCE", "HIGH_SCHOOL", "BACHELOR", "MASTER", "DOCTOR"})
         private List<String> educations;
         @Schema(description = "요구 경력", allowableValues = {"NEW_COMER","JUNIOR","SENIOR","MIDDLE","LEADER"})
         private List<String> careers;
-        @Schema(description = "모집 지역",allowableValues = {"SEOUL", "GANGNAM","MAPO","GURO_GARSAN_GAME","BUNDANG_PANGYO","ETC"})
+        @Schema(description = "모집 지역",allowableValues = {"SEOUL", "GANGNAM","MAPO","GURO_GARSAN_GAME","BUNDANG_PANGYO","ETC","YEOUIDO"})
         private List<String> recruitmentAddress; //지역
         @Schema(description = "채용 공고 마감 종류", allowableValues = {"ALL_TIME", "CLOSE_WHEN_RECRUITMENT", "DUE_DATE", "EXPIRED"})
         private List<String> recruitmentDeadlineType; //마감 타입
