@@ -2,7 +2,6 @@ package co.unlearning.aicareer.domain.community.communityposting.service;
 
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
-import co.unlearning.aicareer.domain.common.Image.service.ImageService;
 import co.unlearning.aicareer.domain.common.sitemap.service.SiteMapService;
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserRole;
@@ -16,7 +15,6 @@ import co.unlearning.aicareer.domain.community.communitypostingimage.service.Com
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.repository.CommunityPostingUserRepository;
 import co.unlearning.aicareer.domain.community.communitypostinguser.service.CommunityPostingUserService;
-import co.unlearning.aicareer.global.security.jwt.TokenService;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
@@ -304,15 +302,17 @@ public class CommunityPostingService {
         communityPosting.setIsView(false);
         communityPostingRepository.save(communityPosting);
     }
-    public List<CommunityPosting> getTopPostsForToday() {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+    public List<CommunityPosting> getTopPosts() {
+            LocalDate threeDaysAgo = LocalDate.now().minusDays(7);
+            LocalDate today = LocalDate.now();
+            LocalDateTime startOfThreeDaysAgo = threeDaysAgo.atStartOfDay();
+            LocalDateTime endOfDayToday = today.atTime(LocalTime.MAX);
 
-        Pageable topThree = PageRequest.of(0, 3);
-        return communityPostingRepository.findTopPostsWithIsViewTrue(startOfDay, endOfDay, topThree);
-    }
-    public void updatePostingHits(HttpServletRequest request, HttpServletResponse response, String uid) {
+            Pageable topThree = PageRequest.of(0, 3);
+            return communityPostingRepository.findTopPostsWithIsViewTrue(startOfThreeDaysAgo, endOfDayToday, topThree);
+        }
+
+        public void updatePostingHits(HttpServletRequest request, HttpServletResponse response, String uid) {
         String cookieValue = null;
 
         // 쿠키에서 토큰 가져오기

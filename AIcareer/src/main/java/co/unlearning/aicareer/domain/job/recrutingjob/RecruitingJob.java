@@ -29,7 +29,8 @@ public class RecruitingJob {
         CONSULTANT("컨설턴트"),
         SOFTWARE_ENGINEER("소프트웨어 엔지니어"),
         SALES("세일즈"),
-        OPERATION("운영")
+        OPERATION("운영"),
+        BUSINESS("비즈니스"),
         ;
         private final String koreanName;
         RecruitingJobName(String koreanName) {

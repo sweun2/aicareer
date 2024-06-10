@@ -3,7 +3,6 @@ package co.unlearning.aicareer.domain.community.communityposting.controller;
 import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingRequirementDto;
 import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingResponseDto;
 import co.unlearning.aicareer.domain.community.communityposting.service.CommunityPostingService;
-import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
 import co.unlearning.aicareer.domain.community.communitypostinguser.service.CommunityPostingUserService;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
@@ -192,7 +191,7 @@ public class CommunityPostingController {
     })
     @GetMapping("/hot")
     public ResponseEntity<List<CommunityPostingResponseDto.CommunityPostSimple>> searchAllRecruitmentSimple() {
-        return ResponseEntity.ok(CommunityPostingResponseDto.CommunityPostSimple.of(communityPostingService.getTopPostsForToday()));
+        return ResponseEntity.ok(CommunityPostingResponseDto.CommunityPostSimple.of(communityPostingService.getTopPosts()));
     }
     @Operation(summary = "게시글 isView 설정", description = "커뮤니티 게시글 블라인드 처리 여부")
     @ApiResponse(
