@@ -13,10 +13,6 @@ nickname: "./nickname-list.txt"
 s3-url: "aicareer-image-bucket.s3.ap-northeast-2.amazonaws.com"
 
 
----
-spring:
-  profiles:
-    active: prod
 
 
 
@@ -31,3 +27,9 @@ spring:
 spring:
   profiles:
     active: dev
+
+
+---
+spring:
+  profiles:
+    active: prod

@@ -59,9 +59,9 @@ public class CommunityCommentResponseDto {
 
             UserResponseDto.UserSimple writerInfo;
             if (loginUser!=null && communityComment.getWriter().getId().equals(loginUser.getId())) {
-                writerInfo = UserResponseDto.UserSimple.of(communityCommentUser.getUser());
+                writerInfo = UserResponseDto.UserSimple.of(communityComment.getWriter());
             } else {
-                writerInfo = UserResponseDto.UserSimple.of(communityComment.getIsAnonymous() ? null : communityCommentUser.getUser());
+                writerInfo = UserResponseDto.UserSimple.of(communityComment.getIsAnonymous() ? null : communityComment.getWriter());
             }
 
             return CommunityCommentInfo.builder()
