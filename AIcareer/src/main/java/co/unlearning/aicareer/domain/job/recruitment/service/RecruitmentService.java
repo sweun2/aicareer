@@ -1,8 +1,6 @@
 package co.unlearning.aicareer.domain.job.recruitment.service;
 
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
-import co.unlearning.aicareer.domain.job.board.Board;
-import co.unlearning.aicareer.domain.job.boardimage.BoardImage;
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.job.bookmark.repository.BookmarkRepository;
 import co.unlearning.aicareer.domain.job.companytype.CompanyType;
@@ -45,9 +43,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -120,7 +121,7 @@ public class RecruitmentService {
         recruitment.setRecruitmentAddress(new EnumValidator<RecruitmentAddress>()
                 .validateEnumString(recruitmentPost.getRecruitmentAddress(), RecruitmentAddress.class));
         recruitment.setTitle(recruitmentPost.getTitle());
-        recruitment.setContent(recruitmentPost.getContent());
+        recruitment.setContent(processBase64RecruitmentImage(recruitmentPost.getContent(),recruitment));
         recruitment.setLastModified(LocalDateTime.now());
 
         // Save recruitment
@@ -130,6 +131,15 @@ public class RecruitmentService {
         siteMapService.registerRecruitmentSiteMap(recruitment);
 
         return recruitment;
+    }
+
+    public String processBase64RecruitmentImage(String content, Recruitment recruitment) {
+        return imageService.processBase64Images(content, image -> {
+            RecruitmentImage recruitmentImage = recruitmentImageService.addNewRecruitmentImage(image, recruitment);
+            recruitment.getSubImages().add(recruitmentImage);
+            image.setIsRelated(true);
+            recruitmentRepository.save(recruitment);
+        });
     }
 
     private void updateMainImage(String newImageUrl, RecruitmentImage currentRecruitmentImage, Consumer<RecruitmentImage> setRecruitmentImage) {
@@ -307,7 +317,6 @@ public class RecruitmentService {
                 .uploadDate(LocalDateTime.now())
                 .lastModified(LocalDateTime.now())
                 .recruitmentAnnouncementLink(recruitmentPost.getRecruitmentAnnouncementLink())
-                .content(recruitmentPost.getContent())
                 .recruitmentAddress(recruitmentAddress)
                 .title(recruitmentPost.getTitle())
                 .textType(textType)
@@ -389,17 +398,15 @@ public class RecruitmentService {
                     .imageOrder(++order)
                     .build());
         }
-
         // Set relationships
         recruitment.setRecruitingJobSet(recruitingJobs);
         recruitment.setRecruitmentTypeSet(recruitmentTypes);
         recruitment.setEducationSet(educations);
         recruitment.setCareerSet(careers);
         recruitment.setSubImages(subImages);
-
+        recruitment.setContent(processBase64RecruitmentImage(recruitmentPost.getContent(),recruitment));
         // Save recruitment
         recruitmentRepository.save(recruitment);
-
         // Register recruitment to site map
         siteMapService.registerRecruitmentSiteMap(recruitment);
         return recruitment;

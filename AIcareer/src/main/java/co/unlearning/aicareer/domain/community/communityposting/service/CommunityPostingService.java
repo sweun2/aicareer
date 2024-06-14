@@ -2,6 +2,7 @@ package co.unlearning.aicareer.domain.community.communityposting.service;
 
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
+import co.unlearning.aicareer.domain.common.Image.service.ImageService;
 import co.unlearning.aicareer.domain.common.sitemap.service.SiteMapService;
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserRole;
@@ -32,8 +33,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +54,7 @@ public class CommunityPostingService {
     private final CommunityPostingImageService communityPostingImageService;
     private final CommunityPostingImageRepository communityPostingImageRepository;
     private final EntityManager entityManager;
+    private final ImageService imageService;
     public Map.Entry<CommunityPosting,CommunityPostingUser> addCommunityPost(CommunityPostingRequirementDto.CommunityPostingPost communityPostingPost) {
         User user = userService.getLoginUser();
         log.info(user.getUserRole().toString());
@@ -63,7 +68,6 @@ public class CommunityPostingService {
                 .uploadDate(LocalDateTime.now())
                 .lastModified(LocalDateTime.now())
                 .title(communityPostingPost.getTitle())
-                .content(communityPostingPost.getContent())
                 .isView(true)
                 .commentCnt(0)
                 .recommendCnt(0)
@@ -77,7 +81,7 @@ public class CommunityPostingService {
         communityPostingRepository.save(communityPosting);
 
         List<CommunityPostingImage> subImages = new ArrayList<>();
-        int order = 0;
+        int order = 1;
         for (String subImageUrl : communityPostingPost.getImageUrls()) {
             Image subImage = imageRepository.findByImageUrl(
                             ImagePathLengthConverter.slicingImagePathLength(subImageUrl))
@@ -86,8 +90,9 @@ public class CommunityPostingService {
             subImages.add(CommunityPostingImage.builder()
                     .image(subImage)
                     .communityPosting(communityPosting)
-                    .imageOrder(++order)
+                    .imageOrder(order)
                     .build());
+            order++;
         }
         communityPosting.setSubImages(subImages);
 
@@ -101,6 +106,7 @@ public class CommunityPostingService {
         communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
 
         communityPosting.setWriter(user);
+        communityPosting.setContent(processBase64CommunityPostingImage(communityPostingPost.getContent(), communityPosting));
         communityPostingRepository.save(communityPosting);
         siteMapService.registerCommunityPostingSiteMap(communityPosting);
 
@@ -129,7 +135,7 @@ public class CommunityPostingService {
 
         communityPosting.setLastModified(LocalDateTime.now());
         communityPosting.setTitle(communityPostingUpdate.getTitle());
-        communityPosting.setContent(communityPostingUpdate.getContent());
+        communityPosting.setContent(processBase64CommunityPostingImage(communityPostingUpdate.getContent(), communityPosting));
 
         communityPostingRepository.save(communityPosting);
         return Map.entry(communityPosting, communityPostingUser);
@@ -160,13 +166,13 @@ public class CommunityPostingService {
                 CommunityPostingImage newCommunityPostingImage = CommunityPostingImage.builder()
                         .communityPosting(communityPosting)
                         .image(image)
-                        .imageOrder(order + 1)
+                        .imageOrder(order+1)
                         .build();
                 image.setIsRelated(true);
                 communityPosting.getSubImages().add(newCommunityPostingImage);
                 communityPostingImageRepository.save(newCommunityPostingImage);
             } else {
-                communityPostingImageOptional.get().setImageOrder(order + 1);
+                communityPostingImageOptional.get().setImageOrder(order);
                 communityPostingImageRepository.save(communityPostingImageOptional.get());
             }
         }
@@ -297,6 +303,14 @@ public class CommunityPostingService {
         }
         communityPostingRepository.save(communityPosting);
         return communityPostingUser;
+    }
+    public String processBase64CommunityPostingImage(String content, CommunityPosting communityPosting) {
+        return imageService.processBase64Images(content, image -> {
+            CommunityPostingImage communityPostingImage = communityPostingImageService.addNewCommunityImage(image, communityPosting);
+            communityPosting.getSubImages().add(communityPostingImage);
+            image.setIsRelated(true);
+            communityPostingRepository.save(communityPosting);
+        });
     }
     public void hideCommunityPosting(CommunityPosting communityPosting) {
         communityPosting.setIsView(false);

@@ -3,8 +3,6 @@ package co.unlearning.aicareer.domain.community.communitypostingimage.repository
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting;
 import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
-import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
-import co.unlearning.aicareer.domain.job.recruitmentImage.RecruitmentImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +15,5 @@ public interface CommunityPostingImageRepository extends JpaRepository<Community
     List<CommunityPostingImage> findAllByCommunityPosting(CommunityPosting communityPosting);
     Optional<CommunityPostingImage> findByCommunityPosting(CommunityPosting communityPosting);
     Optional<CommunityPostingImage> findByImage(Image image);
+    Optional<CommunityPostingImage> findFirstByCommunityPostingOrderByImageOrderDesc(CommunityPosting communityPosting);
 }

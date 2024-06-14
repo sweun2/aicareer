@@ -1,8 +1,6 @@
 package co.unlearning.aicareer.domain.job.recruitmentImage.repository;
 
 import co.unlearning.aicareer.domain.common.Image.Image;
-import co.unlearning.aicareer.domain.job.board.Board;
-import co.unlearning.aicareer.domain.job.boardimage.BoardImage;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;
 import co.unlearning.aicareer.domain.job.recruitmentImage.RecruitmentImage;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +15,7 @@ public interface RecruitmentImageRepository extends JpaRepository<RecruitmentIma
     List<RecruitmentImage> findAllByRecruitment(Recruitment recruitment);
     Optional<RecruitmentImage> findByRecruitment(Recruitment recruitment);
     Optional<RecruitmentImage> findByImage(Image image);
+    Optional<RecruitmentImage> findFirstByRecruitmentOrderByImageOrderDesc(Recruitment recruitment);
+
+
 }

@@ -53,6 +53,10 @@ public enum ResponseErrorCode {
     NOT_FOUND_IMAGE_FILE(HttpStatus.NOT_FOUND.value(), "IMAGE_002","image 파일이 비어있습니다."),
     @ExplainError("이미지 파일이 형식 에러,이미지 파일 형식을 확인해 주세요. jpg, png 만 가능합니다. ")
     INVALID_IMAGE_CONTENT_TYPE(HttpStatus.BAD_REQUEST.value(), "IMAGE_003","잘못된 image 파일 형식입니다."),
+    @ExplainError("잘못된 공고 이미지 입니다. 이미지를 다시 확인해 주세요.")
+    INVALID_RECRUITMENT_IMAGE(HttpStatus.BAD_REQUEST.value(), "IMAGE_004","잘못된 공고 이미지 입니다."),
+    @ExplainError("잘못된 커뮤니티 이미지 입니다. 이미지를 다시 확인해 주세요.")
+    INVALID_COMMUNITY_IMAGE(HttpStatus.BAD_REQUEST.value(), "IMAGE_005","잘못된 커뮤니티 이미지 입니다."),
     ;
     private final int status;
     private final String code;
