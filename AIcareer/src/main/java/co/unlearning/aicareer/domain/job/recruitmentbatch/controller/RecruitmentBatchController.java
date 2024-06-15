@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.*;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -94,5 +95,10 @@ public class RecruitmentBatchController {
             log.info(e.getMessage());
             return ResponseEntity.status(500).body("Failed to extract text");
         }
+    }
+    @GetMapping("/clean-unrelated-image")
+    public ResponseEntity<Void> cleanText() {
+        recruitmentBatchService.removeUnrelatedImage();
+        return ResponseEntity.ok().build();
     }
 }

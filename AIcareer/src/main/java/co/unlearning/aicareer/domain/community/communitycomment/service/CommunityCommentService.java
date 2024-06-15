@@ -41,8 +41,8 @@ public class CommunityCommentService {
 
         boolean isAdmin = userService.isLogin() && userService.getLoginUser().getUserRole() == UserRole.ADMIN;
         List<CommunityComment> comments = isAdmin
-                ? communityCommentRepository.findAllByCommunityPostingOrderByUploadDateDesc(communityPosting, pageable).stream().toList()
-                : communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(communityPosting, pageable).stream().toList();
+                ? communityCommentRepository.findAllByCommunityPostingOrderByUploadDateAsc(communityPosting, pageable).stream().toList()
+                : communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateAsc(communityPosting, pageable).stream().toList();
 
         comments.forEach(communityComment -> {
             CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserIfNotLogin(communityComment);

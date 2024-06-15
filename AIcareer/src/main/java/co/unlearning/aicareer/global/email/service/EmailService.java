@@ -138,21 +138,17 @@ public class EmailService {
                 Sort sort = Sort.by("hits").descending();
                 PageRequest pageableWithSort = PageRequest.of(0, pageSize, sort);
                 List<Recruitment> resultList = recruitmentRepository.findAll(specification, pageableWithSort).stream().toList();
-                if(!resultList.isEmpty()) {
+                if (!resultList.isEmpty()) {
                     String idList = resultList.stream()
                             .map(Recruitment::getUid)
                             .collect(Collectors.joining(","));
 
                     String initialUrl = "https://aicareer.co.kr/generator/mail?ids=" + idList;
-                    if(userUrlMap.containsKey(userInterest) && userUrlMap.containsValue(initialUrl)) {
-                        return;
-                    } else {
-                        userUrlMap.put(userInterest, initialUrl);
-                    }
+
+                    userUrlMap.put(userInterest, initialUrl);
                 }
             }
         });
-
         return userUrlMap;
     }
 
