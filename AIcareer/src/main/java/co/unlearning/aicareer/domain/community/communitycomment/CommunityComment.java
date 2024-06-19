@@ -37,11 +37,15 @@ public class CommunityComment {
     private Integer reportCnt;
     @Column
     private Integer recommendCnt;
-    @OneToMany(mappedBy = "communityComment",fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @OneToMany(mappedBy = "communityComment", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private Set<CommunityCommentUser> communityCommentUserSet;
     @ManyToOne
     private User writer;
     @Column
     private Boolean isAnonymous;
+    @ManyToOne
+    private CommunityComment parentComment;
+    @OneToMany(mappedBy = "parentComment", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    private Set<CommunityComment> childComments;
 }
 

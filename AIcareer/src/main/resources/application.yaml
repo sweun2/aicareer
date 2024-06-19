@@ -16,8 +16,7 @@ s3-url: "aicareer-image-bucket.s3.ap-northeast-2.amazonaws.com"
 ---
 spring:
   profiles:
-    active: local
-
+    active: prod
 
 ---
 spring:
@@ -27,4 +26,4 @@ spring:
 ---
 spring:
   profiles:
-    active: prod
+    active: local

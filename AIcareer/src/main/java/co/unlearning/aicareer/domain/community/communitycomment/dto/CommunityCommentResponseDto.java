@@ -11,6 +11,7 @@ import co.unlearning.aicareer.global.utils.ApplicationContextUtil;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -42,8 +43,10 @@ public class CommunityCommentResponseDto {
         private Boolean isAnonymous;
         @Schema(description = "글쓴이 정보")
         private UserResponseDto.UserSimple writer;
+        @Schema(description = "상위 댓글 uid")
+        private String parentCommentUid;
+        @Schema(description = "댓글 유저 정보")
         private CommunityCommentUserResponseDto.CommunityCommentUserInfo communityCommentUserInfo;
-        private static UserService userService;
 
         public static CommunityCommentInfo of(Map.Entry<CommunityComment, CommunityCommentUser> commentUserEntry) {
             UserService userService = ApplicationContextUtil.getBean(UserService.class);
@@ -74,6 +77,7 @@ public class CommunityCommentResponseDto {
                     .isView(communityComment.getIsView())
                     .isAnonymous(communityComment.getIsAnonymous())
                     .writer(writerInfo)
+                    .parentCommentUid(communityComment.getParentComment() == null ? StringUtils.EMPTY : communityComment.getParentComment().getUid())
                     .communityCommentUserInfo(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentUser))
                     .build();
         }

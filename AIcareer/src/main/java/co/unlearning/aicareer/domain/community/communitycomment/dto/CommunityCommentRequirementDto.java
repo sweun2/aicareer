@@ -16,6 +16,8 @@ public class CommunityCommentRequirementDto {
         private String content;
         @Schema(description = "익명 여부")
         private Boolean isAnonymous;
+        @Schema(description = "상위 댓글 uid, 없을시 안보내면 됨")
+        private String parentCommentUid;
     }
     @Getter
     @Setter

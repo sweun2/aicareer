@@ -69,6 +69,13 @@ public class CommunityCommentService {
                 .writer(user)
                 .isAnonymous(communityCommentPost.getIsAnonymous() !=null ? communityCommentPost.getIsAnonymous() : true)
                 .build();
+        if(communityCommentPost.getParentCommentUid() != null) {
+            CommunityComment parentComment = communityCommentRepository.findByUid(communityCommentPost.getParentCommentUid()).orElseThrow(
+                    ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+            );
+            communityComment.setParentComment(parentComment);
+            parentComment.getChildComments().add(communityComment);
+        }
 
         CommunityCommentUser communityCommentUser = CommunityCommentUser.builder()
                 .communityComment(communityComment)
@@ -82,15 +89,6 @@ public class CommunityCommentService {
         communityPostingRepository.save(communityPosting);
         communityCommentRepository.save(communityComment);
         return Map.entry(communityComment, communityCommentUser);
-    }
-
-    public CommunityCommentUser getMockCommunityCommentUser(CommunityComment communityComment) {
-        return CommunityCommentUser.builder()
-                .communityComment(communityComment)
-                .user(null)
-                .isReport(false)
-                .isRecommend(false)
-                .build();
     }
     public Map.Entry<CommunityComment,CommunityCommentUser> updateCommunityComment(String commentUid, CommunityCommentRequirementDto.CommunityCommentUpdate communityCommentUpdate) {
         User user = userService.getLoginUser();
@@ -127,15 +125,19 @@ public class CommunityCommentService {
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
         CommunityComment communityComment = communityCommentRepository.findByUid(commentUid).orElseThrow(
-                ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+                () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
 
-        if(user != communityComment.getWriter()) {
+        if (!user.equals(communityComment.getWriter())) {
             throw new BusinessException(ResponseErrorCode.USER_NOT_ALLOWED);
         }
 
+        if (communityComment.getParentComment() != null) {
+            communityComment.getParentComment().getChildComments().remove(communityComment);
+        }
+
         CommunityPosting communityPosting = communityComment.getCommunityPosting();
-        communityPosting.setCommentCnt(communityPosting.getCommentCnt()-1);
+        communityPosting.setCommentCnt(communityPosting.getCommentCnt() - 1);
 
         communityCommentRepository.delete(communityComment);
     }
