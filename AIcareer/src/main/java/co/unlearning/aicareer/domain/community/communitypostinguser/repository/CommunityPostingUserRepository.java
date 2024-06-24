@@ -19,6 +19,6 @@ public interface CommunityPostingUserRepository extends JpaRepository<CommunityP
             "JOIN cpu.communityPosting cp " +
             "WHERE cpu.isReport = false " +
             "AND cpu.isRecommend = false " +
-            "AND cp.id <> cpu.user.id")
+            "AND cp.writer.id <> cpu.user.id")
     List<CommunityPostingUser> findCommunityPostingUserAllOptionFalseAndNotWriter();
 }

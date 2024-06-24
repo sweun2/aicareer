@@ -14,6 +14,7 @@ import co.unlearning.aicareer.domain.community.communityposting.repository.Commu
 import co.unlearning.aicareer.domain.community.communityposting.service.CommunityPostingService;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,8 @@ public class CommunityCommentService {
                 .writer(user)
                 .isAnonymous(communityCommentPost.getIsAnonymous() !=null ? communityCommentPost.getIsAnonymous() : true)
                 .build();
-        if(communityCommentPost.getParentCommentUid() != null) {
+        if(communityCommentPost.getParentCommentUid() != null && !(communityCommentPost.getParentCommentUid().equals(StringUtils.EMPTY)))
+        {
             CommunityComment parentComment = communityCommentRepository.findByUid(communityCommentPost.getParentCommentUid()).orElseThrow(
                     ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
             );

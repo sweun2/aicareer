@@ -2,6 +2,8 @@ package co.unlearning.aicareer.domain.common.user.service;
 
 
 import co.unlearning.aicareer.domain.common.Image.Image;
+import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
+import co.unlearning.aicareer.domain.common.Image.service.ImageService;
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.common.user.dto.UserRequestDto;
@@ -26,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseCookie;
@@ -50,6 +53,8 @@ public class UserService {
     private final EducationRepository educationRepository;
     private final CompanyTypeRepository companyTypeRepository;
     private final EntityManager entityManager;
+    private final ImageService imageService;
+    private final ImageRepository imageRepository;
     @Value("${front-url}")
     private String frontURL;
     private static final Random random = new Random();
@@ -302,31 +307,43 @@ public class UserService {
     }
     public User updateUserInfo(UserRequestDto.UserData userData) {
         User user = getLoginUser();
-        if(userData.getNickname() != null && !Objects.equals(userData.getNickname(), user.getNickname())) {
-            if(!userData.getNickname().equals(getLoginUser().getNickname()) && userRepository.findByNickname(userData.getNickname()).isPresent())
-                throw new BusinessException(ResponseErrorCode.USER_NICKNAME_DUPLICATE);
 
+        // Update nickname if it has changed and is not a duplicate
+        if (userData.getNickname() != null && !Objects.equals(userData.getNickname(), user.getNickname())) {
+            if (userRepository.findByNickname(userData.getNickname()).isPresent()) {
+                throw new BusinessException(ResponseErrorCode.USER_NICKNAME_DUPLICATE);
+            }
             user.setNickname(userData.getNickname());
         }
-        if(userData.getProfileImageUrl() != null) {
-            if(user.getProfileImage() == null) {
-                user.setProfileImage(Image.builder()
-                                .createdDate(LocalDateTime.now())
-                                .isRelated(true)
-                                .imageUrl(ImagePathLengthConverter.slicingImagePathLength(userData.getProfileImageUrl()))
-                        .build());
-            }
-            else {
-                user.getProfileImage().setIsRelated(false);
 
-                user.setProfileImage(Image.builder()
-                        .id(user.getProfileImage().getId())
-                        .createdDate(LocalDateTime.now())
-                        .isRelated(true)
-                        .imageUrl(ImagePathLengthConverter.slicingImagePathLength(userData.getProfileImageUrl()))
-                        .build());
+        // Update profile image
+        if (userData.getProfileImageUrl() != null) {
+            updateUserProfileImage(user, userData.getProfileImageUrl());
+        }
+
+        return userRepository.save(user);
+    }
+
+    private void updateUserProfileImage(User user, String profileImageUrl) {
+        if(user.getProfileImage() == null) {
+            Image newImage = imageService.getImageByUrl(ImagePathLengthConverter.slicingImagePathLength(profileImageUrl));
+            newImage.setIsRelated(true);
+            imageRepository.save(newImage);
+            user.setProfileImage(newImage);
+        }
+        else{
+            if (profileImageUrl.equals(StringUtils.EMPTY)) {
+                user.getProfileImage().setIsRelated(false);
+                imageRepository.save(user.getProfileImage());
+                user.setProfileImage(null);
+            } else {
+                Image newImage = imageService.getImageByUrl(ImagePathLengthConverter.slicingImagePathLength(profileImageUrl));
+                newImage.setIsRelated(true);
+                user.getProfileImage().setIsRelated(false);
+                imageRepository.saveAll(List.of(newImage, user.getProfileImage()));
+
+                user.setProfileImage(newImage);
             }
         }
-        return userRepository.save(user);
     }
 }

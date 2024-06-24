@@ -20,6 +20,6 @@ public interface CommunityCommentUserRepository extends JpaRepository<CommunityC
             "JOIN ccu.communityComment cc " +
             "WHERE ccu.isReport = false " +
             "AND ccu.isRecommend = false " +
-            "AND cc.id <> ccu.user.id")
+            "AND cc.writer.id <> ccu.user.id")
     List<CommunityCommentUser> findCommunityCommentUserAllOptionFalseAndNotWriter();
 }

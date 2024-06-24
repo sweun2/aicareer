@@ -4,7 +4,6 @@ import co.unlearning.aicareer.domain.common.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -13,16 +12,14 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VoteOption {
+public class VoteUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column
-    private String option;
-    @Column
-    private Integer voteCnt;
+    @ManyToOne
+    private User user;
+    @ManyToOne
+    private VoteOption voteOption;
     @ManyToOne
     private CommunityVote communityVote;
-    @OneToMany(mappedBy = "voteOption")
-    private Set<VoteUser> voteUserSet;
 }

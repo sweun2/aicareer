@@ -33,4 +33,6 @@ public class CommunityVote {
     private List<VoteOption> voteOption;
     @OneToOne
     private CommunityPosting communityPosting;
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.ALL}, orphanRemoval = true,mappedBy = "communityVote")
+    private List<VoteUser> voteUser;
 }

@@ -57,6 +57,20 @@ public enum ResponseErrorCode {
     INVALID_RECRUITMENT_IMAGE(HttpStatus.BAD_REQUEST.value(), "IMAGE_004","잘못된 공고 이미지 입니다."),
     @ExplainError("잘못된 커뮤니티 이미지 입니다. 이미지를 다시 확인해 주세요.")
     INVALID_COMMUNITY_IMAGE(HttpStatus.BAD_REQUEST.value(), "IMAGE_005","잘못된 커뮤니티 이미지 입니다."),
+
+
+    @ExplainError("투표가 이미 종료된 경우, 투표를 다시 생성해 주세요.")
+    VOTE_ALREADY_END(HttpStatus.BAD_REQUEST.value(), "VOTE_001", "투표가 이미 종료되었습니다."),
+    @ExplainError("투표 선택지가 2개 미만인 경우, 투표 선택지를 2개 이상 입력해 주세요.")
+    VOTE_OPTION_BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "VOTE_002", "투표 선택지가 2개 미만입니다."),
+    @ExplainError("투표가 존재하지 않습니다. 투표를 다시 생성해 주세요.")
+    VOTE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "VOTE_003", "투표가 존재하지 않습니다."),
+    @ExplainError("투표 선택지가 존재하지 않습니다. 투표 선택지를 다시 생성해 주세요.")
+    VOTE_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "VOTE_004", "투표 선택지가 존재하지 않습니다."),
+    @ExplainError("이미 투표를 했습니다.")
+    VOTE_ALREADY_CASTED(HttpStatus.BAD_REQUEST.value(), "VOTE_005", "이미 투표를 했습니다."),
+    @ExplainError("이미 투표를 취소했습니다.")
+    VOTE_ALREADY_CANCEL(HttpStatus.BAD_REQUEST.value(), "VOTE_006", "이미 투표를 취소했습니다."),
     ;
     private final int status;
     private final String code;
