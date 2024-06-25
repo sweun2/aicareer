@@ -71,6 +71,10 @@ public enum ResponseErrorCode {
     VOTE_ALREADY_CASTED(HttpStatus.BAD_REQUEST.value(), "VOTE_005", "이미 투표를 했습니다."),
     @ExplainError("이미 투표를 취소했습니다.")
     VOTE_ALREADY_CANCEL(HttpStatus.BAD_REQUEST.value(), "VOTE_006", "이미 투표를 취소했습니다."),
+    @ExplainError("중복된 선택지가 있습니다.")
+    DUPLICATE_OPTIONS_NOT_ALLOWED(HttpStatus.BAD_REQUEST.value(), "VOTE_007", "중복된 선택지가 있습니다."),
+    @ExplainError("투표가 이미 존재합니다.")
+    VOTE_ALREADY_EXIST(HttpStatus.BAD_REQUEST.value(), "VOTE_008", "투표가 이미 존재합니다."),
     ;
     private final int status;
     private final String code;

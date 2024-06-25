@@ -20,7 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,6 +37,7 @@ public class CommunityVoteService {
     private final VoteOptionRepository voteOptionRepository;
     public CommunityVote createVote(CommunityVoteRequestDto.VotePost votePost) {
         log.info("createVote");
+        User user = userService.getLoginUser();
         CommunityVote communityVote = CommunityVote.builder()
                 .title(votePost.getTitle())
                 .description(votePost.getDescription())
@@ -44,22 +48,53 @@ public class CommunityVoteService {
                 .voteUser(new ArrayList<>())
                 .build();
 
-        communityVote.setCommunityPosting(communityPostingRepository.findByUid(votePost.getPostingUid()).orElseThrow(
-                () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
-        ));
-
         votePost.getVoteOption().forEach(option -> {
-            addVoteOption(option, communityVote);
+            addVoteOption(option.trim(), communityVote);
         });
 
+        if(communityVote.getVoteOption().size()<2)
+            throw new BusinessException(ResponseErrorCode.VOTE_OPTION_BAD_REQUEST);
 
         return communityVoteRepository.save(communityVote);
     }
+    public CommunityVote updateVote(CommunityVoteRequestDto.VotePost votePost, Integer voteId) {
+        log.info("updateVote");
+
+        CommunityVote communityVote = communityVoteRepository.findById(voteId).orElseThrow(
+                () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+        );
+
+        // Update the basic fields
+        communityVote.setTitle(votePost.getTitle());
+        communityVote.setDescription(votePost.getDescription());
+        communityVote.setIsMultiple(votePost.getIsMultiple());
+        communityVote.setIsAnonymous(votePost.getIsAnonymous());
+        communityVote.setEndDate(LocalDateTimeStringConverter.StringToLocalDateTime(votePost.getEndDate()));
+
+        Set<VoteOption> existingOptions = new HashSet<>(communityVote.getVoteOption());
+        Set<String> newOptionTexts = votePost.getVoteOption().stream().map(String::trim).collect(Collectors.toSet());
+        Set<VoteOption> optionsToRemove = existingOptions.stream()
+                .filter(option -> !newOptionTexts.contains(option.getOption().trim()))
+                .collect(Collectors.toSet());
+
+        optionsToRemove.forEach(option -> deleteVoteOption(option, communityVote));
+        newOptionTexts.removeAll(existingOptions.stream().map(VoteOption::getOption).toList());
+        newOptionTexts.forEach(option -> {
+            addVoteOption(option.trim(), communityVote);
+        });
+
+        if(communityVote.getVoteOption().size()<2)
+            throw new BusinessException(ResponseErrorCode.VOTE_OPTION_BAD_REQUEST);
+
+        return communityVoteRepository.save(communityVote);
+    }
+
 
     public void addVoteOption(String option, CommunityVote communityVote) {
         VoteOption voteOption = VoteOption.builder()
                 .option(option)
                 .communityVote(communityVote)
+                .voteCnt(0)
                 .build();
         communityVote.getVoteOption().add(voteOption);
     }
@@ -69,8 +104,14 @@ public class CommunityVoteService {
     public void deleteVote(CommunityVote communityVote) {
         communityVoteRepository.delete(communityVote);
     }
+    public void deleteVoteById(Integer voteId) {
+        CommunityVote communityVote = communityVoteRepository.findById(voteId).orElseThrow(
+                () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+        );
+        communityVoteRepository.delete(communityVote);
+    }
 
-    public CommunityVote castVote(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
+    public CommunityVote voteCasting(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
         CommunityPosting communityPosting = communityPostingRepository.findByUid(castVoteOption.getPostingUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
@@ -79,14 +120,17 @@ public class CommunityVoteService {
         } else {
             CommunityVote communityVote = communityPosting.getCommunityVote();
             User user = userService.getLoginUser();
-            if(communityVote.getVoteUser().stream().anyMatch(voteUser -> voteUser.getUser().equals(user))) {
-                throw new BusinessException(ResponseErrorCode.VOTE_ALREADY_CASTED);
-            }
+            communityVote.getVoteUser().forEach(voteUser -> {
+                if(voteUser.getUser().equals(user)) {
+                    throw new BusinessException(ResponseErrorCode.VOTE_ALREADY_CASTED);
+                }
+            });
 
             castVoteOption.getVoteOptionId().forEach(id -> {
                 VoteOption voteOption = voteOptionRepository.findById(id).orElseThrow(
                         () -> new BusinessException(ResponseErrorCode.VOTE_OPTION_NOT_FOUND)
                 );
+                voteOption.setVoteCnt(voteOption.getVoteCnt()+1);
                 VoteUser voteUser = VoteUser.builder()
                         .user(user)
                         .communityVote(communityVote)
@@ -97,7 +141,7 @@ public class CommunityVoteService {
             return communityVoteRepository.save(communityVote);
         }
     }
-    public CommunityVote updateCastVote(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
+    public CommunityVote updateVoteCasting(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
         CommunityPosting communityPosting = communityPostingRepository.findByUid(castVoteOption.getPostingUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
@@ -107,12 +151,14 @@ public class CommunityVoteService {
             CommunityVote communityVote = communityPosting.getCommunityVote();
             User user = userService.getLoginUser();
             List<VoteUser> voteUserList = voteUserRepository.findByUserAndCommunityVote(user,communityVote);
+            communityVote.getVoteUser().forEach(voteUser -> voteUser.getVoteOption().setVoteCnt(voteUser.getVoteOption().getVoteCnt()-1));
             communityVote.getVoteUser().removeAll(voteUserList);
 
             castVoteOption.getVoteOptionId().forEach(id -> {
                 VoteOption voteOption = voteOptionRepository.findById(id).orElseThrow(
                         () -> new BusinessException(ResponseErrorCode.VOTE_OPTION_NOT_FOUND)
                 );
+                voteOption.setVoteCnt(voteOption.getVoteCnt()+1);
                 VoteUser voteUser = VoteUser.builder()
                         .user(user)
                         .communityVote(communityVote)
@@ -124,7 +170,7 @@ public class CommunityVoteService {
         }
 
     }
-    public CommunityVote cancelVote(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
+    public CommunityVote cancelVoteCasting(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
         CommunityPosting communityPosting = communityPostingRepository.findByUid(castVoteOption.getPostingUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
@@ -148,5 +194,9 @@ public class CommunityVoteService {
             return communityVoteRepository.save(communityVote);
         }
     }
-
+    public CommunityVote getVoteById(Integer voteId) {
+        return communityVoteRepository.findById(voteId).orElseThrow(
+                () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
+        );
+    }
 }

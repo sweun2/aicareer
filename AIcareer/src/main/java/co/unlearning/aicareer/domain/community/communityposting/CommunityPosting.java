@@ -51,7 +51,7 @@ public class CommunityPosting {
     private User writer;
     @OneToMany(mappedBy ="communityPosting",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<CommunityPostingImage> subImages;
-    @OneToOne
+    @OneToOne(mappedBy = "communityPosting",fetch = FetchType.EAGER, cascade = {CascadeType.ALL}, orphanRemoval = true)
     private CommunityVote communityVote;
     @Column
     private Boolean isAnonymous;

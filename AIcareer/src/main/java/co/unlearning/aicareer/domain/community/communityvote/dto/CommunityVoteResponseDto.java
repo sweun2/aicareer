@@ -3,27 +3,13 @@ package co.unlearning.aicareer.domain.community.communityvote.dto;
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.dto.UserResponseDto;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
-import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting;
-import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
-import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
-import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
 import co.unlearning.aicareer.domain.community.communityvote.CommunityVote;
-import co.unlearning.aicareer.domain.community.communityvote.VoteOption;
+import co.unlearning.aicareer.domain.community.communityvote.VoteUser;
 import co.unlearning.aicareer.global.utils.ApplicationContextUtil;
-import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
-import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
-import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.*;
-import org.apache.commons.lang3.StringUtils;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommunityVoteResponseDto {
@@ -33,13 +19,13 @@ public class CommunityVoteResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CommunityVoteInfo {
+        private Integer id;
         private String title;
         private String description;
         private Boolean isMultiple;
         private Boolean isAnonymous;
         private String endDate;
         private List<VoteOptionInfo> voteOptionInfos;
-        private Integer communityPostingUid;
         public static CommunityVoteInfo of(CommunityVote communityVote) {
             UserService userService = ApplicationContextUtil.getBean(UserService.class);
             User loginUser;
@@ -50,6 +36,7 @@ public class CommunityVoteResponseDto {
             }
 
             CommunityVoteInfoBuilder builder = CommunityVoteInfo.builder()
+                    .id(communityVote.getId())
                     .title(communityVote.getTitle())
                     .description(communityVote.getDescription())
                     .isMultiple(communityVote.getIsMultiple())
@@ -57,11 +44,10 @@ public class CommunityVoteResponseDto {
                     .endDate(LocalDateTimeStringConverter.LocalDateTimeToString(communityVote.getEndDate()))
                     .voteOptionInfos(communityVote.getVoteOption().stream().map(voteOption -> {
                         VoteOptionInfo.VoteOptionInfoBuilder voteOptionInfoBuilder = VoteOptionInfo.builder()
+                                .voteOptionId(voteOption.getId())
                                 .voteOption(voteOption.getOption())
-                                .isVoted(false);
-                        if(loginUser != null) {
-                            voteOptionInfoBuilder.userSimple(UserResponseDto.UserSimple.of(loginUser));
-                        }
+                                .isVoted(communityVote.getVoteUser().stream().anyMatch(voteUser -> voteUser.getUser().equals(loginUser) && voteUser.getVoteOption().equals(voteOption)))
+                                .userSimpleList(UserResponseDto.UserSimple.of(communityVote.getVoteUser().stream().map(VoteUser::getUser).collect(Collectors.toList())));
                         return voteOptionInfoBuilder.build();
                     }).collect(Collectors.toList()));
 
@@ -77,6 +63,6 @@ public class CommunityVoteResponseDto {
         private Integer voteOptionId;
         private String voteOption;
         private Boolean isVoted;
-        private UserResponseDto.UserSimple userSimple;
+        private List<UserResponseDto.UserSimple> userSimpleList;
     }
 }

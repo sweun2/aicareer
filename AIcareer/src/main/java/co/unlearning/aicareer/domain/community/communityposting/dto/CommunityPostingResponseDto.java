@@ -7,6 +7,8 @@ import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting
 import co.unlearning.aicareer.domain.community.communitypostingimage.CommunityPostingImage;
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
+import co.unlearning.aicareer.domain.community.communityvote.dto.CommunityVoteRequestDto;
+import co.unlearning.aicareer.domain.community.communityvote.dto.CommunityVoteResponseDto;
 import co.unlearning.aicareer.global.utils.ApplicationContextUtil;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
@@ -59,6 +61,8 @@ public class CommunityPostingResponseDto {
         private UserResponseDto.UserSimple writer;
         @Schema(description = "로그인 유저의 정보")
         private CommunityPostingUserResponseDto.CommunityPostingUserInfo communityPostingUserInfo;
+        @Schema(description = "투표 정보")
+        private CommunityVoteResponseDto.CommunityVoteInfo communityVoteInfo;
 
 
         public static CommunityPostInfo of(Map.Entry<CommunityPosting,CommunityPostingUser> postingUserEntry) {
@@ -85,6 +89,7 @@ public class CommunityPostingResponseDto {
                     .isView(communityPosting.getIsView())
                     .isAnonymous(communityPosting.getIsAnonymous())
                     .communityPostingUserInfo(CommunityPostingUserResponseDto.CommunityPostingUserInfo.of(communityPostingUser))
+                    .communityVoteInfo(communityPosting.getCommunityVote() == null ? null : CommunityVoteResponseDto.CommunityVoteInfo.of(communityPosting.getCommunityVote()));
                     ;
             if (loginUser!=null && communityPosting.getWriter().getId().equals(loginUser.getId())) {
                 builder.writer(UserResponseDto.UserSimple.of(communityPosting.getWriter()));
@@ -146,6 +151,8 @@ public class CommunityPostingResponseDto {
         private UserResponseDto.UserSimple writer;
         @Schema(description = "익명 여부")
         private Boolean isAnonymous;
+        @Schema(description = "투표 정보")
+        private CommunityVoteResponseDto.CommunityVoteInfo communityVoteInfo;
 
         public static CommunityPostSimple of(CommunityPosting communityPosting) {
             String simpleContent = communityPosting.getContent();
@@ -165,7 +172,9 @@ public class CommunityPostingResponseDto {
                     .reportCnt(communityPosting.getReportCnt())
                     .recommendCnt(communityPosting.getRecommendCnt())
                     .isAnonymous(communityPosting.getIsAnonymous())
-                    .isView(communityPosting.getIsView());
+                    .isView(communityPosting.getIsView())
+                    .communityVoteInfo(communityPosting.getCommunityVote() == null ? null : CommunityVoteResponseDto.CommunityVoteInfo.of(communityPosting.getCommunityVote()))
+                    ;
 
             UserService userService = ApplicationContextUtil.getBean(UserService.class);
             User loginUser;

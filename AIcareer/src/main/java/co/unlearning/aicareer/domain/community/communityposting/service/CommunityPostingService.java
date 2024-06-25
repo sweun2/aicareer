@@ -16,6 +16,8 @@ import co.unlearning.aicareer.domain.community.communitypostingimage.service.Com
 import co.unlearning.aicareer.domain.community.communitypostinguser.CommunityPostingUser;
 import co.unlearning.aicareer.domain.community.communitypostinguser.repository.CommunityPostingUserRepository;
 import co.unlearning.aicareer.domain.community.communitypostinguser.service.CommunityPostingUserService;
+import co.unlearning.aicareer.domain.community.communityvote.CommunityVote;
+import co.unlearning.aicareer.domain.community.communityvote.service.CommunityVoteService;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
 import co.unlearning.aicareer.global.utils.error.exception.BusinessException;
@@ -55,12 +57,9 @@ public class CommunityPostingService {
     private final CommunityPostingImageRepository communityPostingImageRepository;
     private final EntityManager entityManager;
     private final ImageService imageService;
+    private final CommunityVoteService communityVoteService;
     public Map.Entry<CommunityPosting,CommunityPostingUser> addCommunityPost(CommunityPostingRequirementDto.CommunityPostingPost communityPostingPost) {
         User user = userService.getLoginUser();
-        log.info(user.getUserRole().toString());
-        log.info(user.getEmail());
-        log.info(user.getNickname());
-
         isNonBlockedCommunityUser(user);
 
         CommunityPosting communityPosting = CommunityPosting.builder()
@@ -107,9 +106,19 @@ public class CommunityPostingService {
 
         communityPosting.setWriter(user);
         communityPosting.setContent(processBase64CommunityPostingImage(communityPostingPost.getContent(), communityPosting));
-        communityPostingRepository.save(communityPosting);
-        siteMapService.registerCommunityPostingSiteMap(communityPosting);
 
+
+        if(communityPostingPost.getVoteId() != null && !communityPostingPost.getVoteId().toString().equals(StringUtils.EMPTY)) {
+            CommunityVote communityVote = communityVoteService.getVoteById(communityPostingPost.getVoteId());
+            if(communityPosting.getCommunityVote() != null) {
+                throw new BusinessException(ResponseErrorCode.VOTE_ALREADY_EXIST);
+            }
+            communityPosting.setCommunityVote(communityVote);
+            communityVote.setCommunityPosting(communityPosting);
+        }
+
+        siteMapService.registerCommunityPostingSiteMap(communityPosting);
+        communityPostingRepository.save(communityPosting);
         return Map.entry(communityPosting, communityPostingUser);
     }
 
@@ -136,6 +145,14 @@ public class CommunityPostingService {
         communityPosting.setLastModified(LocalDateTime.now());
         communityPosting.setTitle(communityPostingUpdate.getTitle());
         communityPosting.setContent(processBase64CommunityPostingImage(communityPostingUpdate.getContent(), communityPosting));
+
+        if(communityPostingUpdate.getVoteId() != null && !communityPostingUpdate.getVoteId().toString().equals(StringUtils.EMPTY)) {
+            CommunityVote communityVote = communityVoteService.getVoteById(communityPostingUpdate.getVoteId());
+            if(communityPosting.getCommunityVote() != null) {
+                throw new BusinessException(ResponseErrorCode.VOTE_ALREADY_EXIST);
+            }
+            communityPosting.setCommunityVote(communityVote);
+        }
 
         communityPostingRepository.save(communityPosting);
         return Map.entry(communityPosting, communityPostingUser);

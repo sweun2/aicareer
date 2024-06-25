@@ -22,6 +22,8 @@ public class CommunityPostingRequirementDto {
         private List<String> imageUrls;
         @Schema(description = "익명 여부")
         private Boolean isAnonymous;
+        @Schema(description = "투표 id, 투표를 생성했을시에만 추가")
+        private Integer voteId;
     }
     @Getter
     @Setter
@@ -33,9 +35,10 @@ public class CommunityPostingRequirementDto {
         private String title;
         @Schema(description = "내용")
         private String content;
-
         @Schema(description = "이미지 urls, 첫번째 사진이 mainImageUrl로 반환")
         private List<String> imageUrls;
+        @Schema(description = "투표 id, 투표를 생성했을시에만 추가")
+        private Integer voteId;
     }
     @Getter
     @Setter
