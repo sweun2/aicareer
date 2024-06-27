@@ -20,6 +20,7 @@ public class CompanyType {
         MAJOR("대기업"),
         UNICORN("유니콘"),
         MIDDLE_MARKET("중견기업"),
+        SMALL_MARKET("중소기업"),
         PUBLIC("공기업"),
         FOREIGN("외국계"),
         ETC("기타"),

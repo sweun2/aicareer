@@ -27,7 +27,7 @@ public class CommunityComment {
     private String uid;
     @Column
     private LocalDateTime lastModified;
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String content; //내용
     @Column
     private Boolean isView;

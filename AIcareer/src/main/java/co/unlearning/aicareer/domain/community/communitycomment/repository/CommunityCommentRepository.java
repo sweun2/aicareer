@@ -12,9 +12,11 @@ import java.util.Optional;
 
 @Repository
 public interface CommunityCommentRepository extends JpaRepository<CommunityComment,Integer> {
-    //Page<CommunityComment> findAllByCommunityPostingAndIsViewTrueOrderByUploadDateDesc(CommunityPosting communityPosting, Pageable pageable);
-    //Page<CommunityComment> findAllByCommunityPostingOrderByUploadDateDesc(CommunityPosting communityPosting, Pageable pageable);
     Page<CommunityComment> findAllByCommunityPostingOrderByUploadDateAsc(CommunityPosting communityPosting, Pageable pageable);
     Page<CommunityComment> findAllByCommunityPostingAndIsViewTrueOrderByUploadDateAsc(CommunityPosting communityPosting, Pageable pageable);
+    Page<CommunityComment> findAllByCommunityPostingAndParentCommentIsNullOrderByUploadDateAsc(CommunityPosting communityPosting, Pageable pageable);
+    Page<CommunityComment> findAllByCommunityPostingAndIsViewTrueAndParentCommentIsNullOrderByUploadDateAsc(CommunityPosting communityPosting, Pageable pageable);
+    Page<CommunityComment>  findAllByParentCommentOrderByUploadDateAsc(CommunityComment parentComment, Pageable pageable);
+    Page<CommunityComment> findAllByParentCommentAndIsViewTrueOrderByUploadDateAsc(CommunityComment parentComment, Pageable pageable);
     Optional<CommunityComment> findByUid(String uid);
 }

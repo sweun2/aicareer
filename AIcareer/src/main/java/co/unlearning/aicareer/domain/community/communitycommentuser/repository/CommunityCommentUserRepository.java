@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface CommunityCommentUserRepository extends JpaRepository<CommunityCommentUser,Integer> {
     Optional<CommunityCommentUser> findByUserAndCommunityComment(User user, CommunityComment communityComment);
-    Optional<CommunityCommentUser> findByCommunityComment(CommunityComment communityComment);
+    List<CommunityCommentUser> findByCommunityComment(CommunityComment communityComment);
 
     @Query("SELECT ccu FROM CommunityCommentUser ccu " +
             "JOIN ccu.communityComment cc " +

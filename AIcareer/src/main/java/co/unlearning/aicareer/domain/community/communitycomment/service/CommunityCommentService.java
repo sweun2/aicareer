@@ -36,14 +36,14 @@ public class CommunityCommentService {
     private final CommunityCommentUserRepository communityCommentUserRepository;
     private final UserService userService;
 
-    public List<Map.Entry<CommunityComment, CommunityCommentUser>> getCommunityCommentsByCommunityPosting(String uid, Pageable pageable) {
+    public List<Map.Entry<CommunityComment, CommunityCommentUser>> getParentCommunityCommentsByCommunityPosting(String uid, Pageable pageable) {
         CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(uid).getKey();
         List<Map.Entry<CommunityComment, CommunityCommentUser>> entry = new ArrayList<>();
 
         boolean isAdmin = userService.isLogin() && userService.getLoginUser().getUserRole() == UserRole.ADMIN;
         List<CommunityComment> comments = isAdmin
-                ? communityCommentRepository.findAllByCommunityPostingOrderByUploadDateAsc(communityPosting, pageable).stream().toList()
-                : communityCommentRepository.findAllByCommunityPostingAndIsViewTrueOrderByUploadDateAsc(communityPosting, pageable).stream().toList();
+                ? communityCommentRepository.findAllByCommunityPostingAndParentCommentIsNullOrderByUploadDateAsc(communityPosting, pageable).stream().toList()
+                : communityCommentRepository.findAllByCommunityPostingAndIsViewTrueAndParentCommentIsNullOrderByUploadDateAsc(communityPosting, pageable).stream().toList();
 
         comments.forEach(communityComment -> {
             CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserIfNotLogin(communityComment);
@@ -51,7 +51,24 @@ public class CommunityCommentService {
         });
         return entry;
     }
+    public List<Map.Entry<CommunityComment, CommunityCommentUser>> getChildCommunityCommentsByParentUid(String parentUid,Pageable pageable) {
+        CommunityComment parentComment = communityCommentRepository.findByUid(parentUid)
+                .orElseThrow(() -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND));
 
+        List<Map.Entry<CommunityComment, CommunityCommentUser>> entry = new ArrayList<>();
+
+        boolean isAdmin = userService.isLogin() && userService.getLoginUser().getUserRole() == UserRole.ADMIN;
+        List<CommunityComment> comments = isAdmin
+                ? communityCommentRepository.findAllByParentCommentOrderByUploadDateAsc(parentComment,pageable).stream().toList()
+                : communityCommentRepository.findAllByParentCommentAndIsViewTrueOrderByUploadDateAsc(parentComment,pageable).stream().toList();
+
+        comments.forEach(communityComment -> {
+            CommunityCommentUser communityCommentUser = communityCommentUserService.getMockCommunityCommentUserIfNotLogin(communityComment);
+            entry.add(Map.entry(communityComment, communityCommentUser));
+        });
+
+        return entry;
+    }
     public Map.Entry<CommunityComment,CommunityCommentUser> addCommunityComment(CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost){
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);

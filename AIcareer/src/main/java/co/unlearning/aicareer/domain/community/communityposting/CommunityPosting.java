@@ -31,7 +31,7 @@ public class CommunityPosting {
     private LocalDateTime lastModified;
     @Column
     private String title; //제목
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String content; //내용
     @Column
     private Boolean isView;

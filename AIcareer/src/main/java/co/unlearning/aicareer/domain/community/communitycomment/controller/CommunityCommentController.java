@@ -5,8 +5,6 @@ import co.unlearning.aicareer.domain.community.communitycomment.dto.CommunityCom
 import co.unlearning.aicareer.domain.community.communitycomment.dto.CommunityCommentResponseDto;
 import co.unlearning.aicareer.domain.community.communitycomment.service.CommunityCommentService;
 import co.unlearning.aicareer.domain.community.communitycommentuser.dto.CommunityCommentUserResponseDto;
-import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingRequirementDto;
-import co.unlearning.aicareer.domain.community.communityposting.dto.CommunityPostingResponseDto;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;
@@ -54,7 +52,28 @@ public class CommunityCommentController {
             @RequestParam("page") Integer page) {
         PageRequest pageRequest = PageRequest.of(page, 10);
 
-        return ResponseEntity.ok(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.getCommunityCommentsByCommunityPosting(uid,pageRequest)));
+        return ResponseEntity.ok(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.getParentCommunityCommentsByCommunityPosting(uid,pageRequest)));
+    }
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "대댓글 반환", description = "한 댓글에 대해 대댓글 리스트 반환")
+    @ApiResponse(
+            responseCode = "200",
+            description = "정상 응답",
+            content = @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = CommunityCommentResponseDto.CommunityCommentInfo.class))))
+    @ApiErrorCodeExamples({
+            @ApiErrorCodeExample(ResponseErrorCode.INTERNAL_SERVER_ERROR),
+            @ApiErrorCodeExample(ResponseErrorCode.UID_NOT_FOUND)
+    })
+    @GetMapping("/child/{uid}")
+    public ResponseEntity<List<CommunityCommentResponseDto.CommunityCommentInfo>> getChildComments(
+            @Parameter(name = "uid", description = "comment uid", in = ParameterIn.PATH)
+            @PathVariable("uid") String uid,
+            @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
+            @RequestParam("page") Integer page) {
+        PageRequest pageRequest = PageRequest.of(page, 5);
+
+        return ResponseEntity.ok(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.getChildCommunityCommentsByParentUid(uid,pageRequest)));
     }
 
     @SecurityRequirement(name = "bearerAuth")

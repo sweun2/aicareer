@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -70,7 +71,6 @@ public class CommunityVoteService {
         communityVote.setIsMultiple(votePost.getIsMultiple());
         communityVote.setIsAnonymous(votePost.getIsAnonymous());
         communityVote.setEndDate(LocalDateTimeStringConverter.StringToLocalDateTime(votePost.getEndDate()));
-
         Set<VoteOption> existingOptions = new HashSet<>(communityVote.getVoteOption());
         Set<String> newOptionTexts = votePost.getVoteOption().stream().map(String::trim).collect(Collectors.toSet());
         Set<VoteOption> optionsToRemove = existingOptions.stream()
@@ -119,6 +119,9 @@ public class CommunityVoteService {
             throw new BusinessException(ResponseErrorCode.VOTE_NOT_FOUND);
         } else {
             CommunityVote communityVote = communityPosting.getCommunityVote();
+            validateVoteMultipleCast(castVoteOption, communityVote);
+            validateVoteEndDate(communityVote);
+
             User user = userService.getLoginUser();
             communityVote.getVoteUser().forEach(voteUser -> {
                 if(voteUser.getUser().equals(user)) {
@@ -141,6 +144,15 @@ public class CommunityVoteService {
             return communityVoteRepository.save(communityVote);
         }
     }
+
+    private static void validateVoteMultipleCast(CommunityVoteRequestDto.CastVoteOption castVoteOption, CommunityVote communityVote) {
+        if(!communityVote.getIsMultiple()) {
+            if(castVoteOption.getVoteOptionId().size() > 1) {
+                throw new BusinessException(ResponseErrorCode.VOTE_OPTION_BAD_REQUEST);
+            }
+        }
+    }
+
     public CommunityVote updateVoteCasting(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
         CommunityPosting communityPosting = communityPostingRepository.findByUid(castVoteOption.getPostingUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
@@ -149,6 +161,10 @@ public class CommunityVoteService {
             throw new BusinessException(ResponseErrorCode.VOTE_NOT_FOUND);
         } else {
             CommunityVote communityVote = communityPosting.getCommunityVote();
+            //validate
+            validateVoteMultipleCast(castVoteOption, communityVote);
+            validateVoteEndDate(communityVote);
+
             User user = userService.getLoginUser();
             List<VoteUser> voteUserList = voteUserRepository.findByUserAndCommunityVote(user,communityVote);
             communityVote.getVoteUser().forEach(voteUser -> voteUser.getVoteOption().setVoteCnt(voteUser.getVoteOption().getVoteCnt()-1));
@@ -170,6 +186,13 @@ public class CommunityVoteService {
         }
 
     }
+
+    private static void validateVoteEndDate(CommunityVote communityVote) {
+        if(communityVote.getEndDate() != null && communityVote.getEndDate().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(ResponseErrorCode.VOTE_END_DATE_EXPIRED);
+        }
+    }
+
     public CommunityVote cancelVoteCasting(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
         CommunityPosting communityPosting = communityPostingRepository.findByUid(castVoteOption.getPostingUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)

@@ -53,7 +53,7 @@ public class Recruitment {
     private LocalDateTime uploadDate = LocalDateTime.now(); //업로드 날짜
     @Column
     private String title; //제목
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String content; //내용
     @Column
     private String recruitmentAnnouncementLink; //모집 공고 링크

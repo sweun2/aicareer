@@ -23,7 +23,7 @@ public class RecruitmentRequirementDto {
         private String companyAddress;
         @Schema(description = "회사명")
         private String companyName;
-        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC","FOREIGN","ETC","PUBLIC_INSTITUTION"})
+        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC","FOREIGN","ETC","PUBLIC_INSTITUTION", "SMALL_MARKET"})
         private String companyType;
         @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PM_PO","BUSINESS","SOFTWARE_ENGINEER","SALES","OPERATION"})
         @NotNull
@@ -75,7 +75,7 @@ public class RecruitmentRequirementDto {
         private String sortCondition;
         @Schema(description = "정렬 순서, 내림차 순/오름차 순", allowableValues = {"DESC","ASC"})
         private String orderBy;
-        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC", "ETC","FOREIGN","PUBLIC_INSTITUTION"})
+        @Schema(description = "회사 타입", allowableValues = {"STARTUP", "MAJOR", "UNICORN", "MIDDLE_MARKET","PUBLIC", "ETC","FOREIGN","PUBLIC_INSTITUTION","SMALL_MARKET"})
         private List<String> companyTypes;
         @Schema(description = "모집 직무",allowableValues = {"MACHINE_LEARNING_ENGINEER", "DATA_SCIENTIST","DATA_ANALYST","DATA_ENGINEER","NLP","RESEARCH","COMPUTER_VISION", "GENERATIVE_AI","ETC","PM_PO","BUSINESS","SOFTWARE_ENGINEER","SALES","OPERATION"})
         private List<String> recruitingJobNames;

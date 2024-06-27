@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.community.communitycommentuser.service;
 
+import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.domain.community.communitycomment.CommunityComment;
 import co.unlearning.aicareer.domain.community.communitycommentuser.CommunityCommentUser;
@@ -22,10 +23,12 @@ import java.util.Optional;
 public class CommunityCommentUserService {
     private final CommunityCommentUserRepository communityCommentUserRepository;
     private final UserService userService;
-    public CommunityCommentUser getCommunityCommentUserByCommunityComment (CommunityComment communityComment) {
-        return communityCommentUserRepository.findByCommunityComment(communityComment).orElseThrow(
-                ()-> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
-        );
+    public List<CommunityCommentUser> getCommunityCommentUserByCommunityComment (CommunityComment communityComment) {
+        return communityCommentUserRepository.findByCommunityComment(communityComment);
+    }
+    public CommunityCommentUser getCommunityCommentUserByUserAndCommunityComment(User user, CommunityComment communityComment) {
+        Optional<CommunityCommentUser> communityCommentUserOptional = communityCommentUserRepository.findByUserAndCommunityComment(user,communityComment);
+        return communityCommentUserOptional.orElseThrow(() -> new BusinessException(ResponseErrorCode.COMMENT_USER_NOT_FOUND));
     }
     public CommunityCommentUser getMockCommunityCommentUserIfNotLogin(CommunityComment communityComment) {
         CommunityCommentUser communityCommentUser;

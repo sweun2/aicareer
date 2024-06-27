@@ -6,6 +6,7 @@ import co.unlearning.aicareer.domain.common.user.service.UserService;
 import co.unlearning.aicareer.domain.community.communitycomment.CommunityComment;
 import co.unlearning.aicareer.domain.community.communitycommentuser.CommunityCommentUser;
 import co.unlearning.aicareer.domain.community.communitycommentuser.dto.CommunityCommentUserResponseDto;
+import co.unlearning.aicareer.domain.community.communitycommentuser.service.CommunityCommentUserService;
 import co.unlearning.aicareer.domain.community.communitypostinguser.dto.CommunityPostingUserResponseDto;
 import co.unlearning.aicareer.global.utils.ApplicationContextUtil;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
@@ -14,6 +15,7 @@ import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,11 +47,14 @@ public class CommunityCommentResponseDto {
         private UserResponseDto.UserSimple writer;
         @Schema(description = "상위 댓글 uid")
         private String parentCommentUid;
+        @Schema(description = "하위 댓글 정보")
+        private List<CommunityCommentInfo> childComments;
         @Schema(description = "댓글 유저 정보")
         private CommunityCommentUserResponseDto.CommunityCommentUserInfo communityCommentUserInfo;
 
         public static CommunityCommentInfo of(Map.Entry<CommunityComment, CommunityCommentUser> commentUserEntry) {
             UserService userService = ApplicationContextUtil.getBean(UserService.class);
+            CommunityCommentUserService communityCommentUserService = ApplicationContextUtil.getBean(CommunityCommentUserService.class);
             User loginUser;
             if(userService.isLogin()) {
                 loginUser = userService.getLoginUser(); // 로그인 유저 정보 가져오기
@@ -67,6 +72,20 @@ public class CommunityCommentResponseDto {
                 writerInfo = UserResponseDto.UserSimple.of(communityComment.getIsAnonymous() ? null : communityComment.getWriter());
             }
 
+            List<CommunityCommentInfo> sortedChildComments = null;
+            if (communityComment.getChildComments() != null) {
+                sortedChildComments = communityComment.getChildComments().stream()
+                        .sorted(Comparator.comparing(CommunityComment::getUploadDate))
+                        .limit(3)
+                        .map(childComment -> {
+                            CommunityCommentUser childCommentUser = (loginUser != null)
+                                    ? communityCommentUserService.getCommunityCommentUserByUserAndCommunityComment(loginUser, childComment)
+                                    : communityCommentUserService.getMockCommunityCommentUserIfNotLogin(childComment);
+                            return of(Map.entry(childComment, childCommentUser));
+                        })
+                        .collect(Collectors.toList());
+            }
+
             return CommunityCommentInfo.builder()
                     .uid(communityComment.getUid())
                     .uploadDate(LocalDateTimeStringConverter.LocalDateTimeToString(communityComment.getUploadDate()))
@@ -78,6 +97,7 @@ public class CommunityCommentResponseDto {
                     .isAnonymous(communityComment.getIsAnonymous())
                     .writer(writerInfo)
                     .parentCommentUid(communityComment.getParentComment() == null ? StringUtils.EMPTY : communityComment.getParentComment().getUid())
+                    .childComments(sortedChildComments)
                     .communityCommentUserInfo(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentUser))
                     .build();
         }

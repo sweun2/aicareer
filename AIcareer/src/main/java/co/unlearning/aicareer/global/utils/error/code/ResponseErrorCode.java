@@ -75,7 +75,11 @@ public enum ResponseErrorCode {
     DUPLICATE_OPTIONS_NOT_ALLOWED(HttpStatus.BAD_REQUEST.value(), "VOTE_007", "중복된 선택지가 있습니다."),
     @ExplainError("투표가 이미 존재합니다.")
     VOTE_ALREADY_EXIST(HttpStatus.BAD_REQUEST.value(), "VOTE_008", "투표가 이미 존재합니다."),
-    ;
+    @ExplainError("투표가 종료되었습니다.")
+    VOTE_END_DATE_EXPIRED(HttpStatus.BAD_REQUEST.value(), "VOTE_009", "투표가 종료되었습니다."),
+
+    @ExplainError("댓글 유저 정보가 없습니다.")
+    COMMENT_USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "COMMENT_001", "댓글 유저 정보가 없습니다."),;
     private final int status;
     private final String code;
     private final String reason;

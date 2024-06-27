@@ -47,7 +47,7 @@ public class CommunityVoteResponseDto {
                                 .voteOptionId(voteOption.getId())
                                 .voteOption(voteOption.getOption())
                                 .isVoted(communityVote.getVoteUser().stream().anyMatch(voteUser -> voteUser.getUser().equals(loginUser) && voteUser.getVoteOption().equals(voteOption)))
-                                .userSimpleList(UserResponseDto.UserSimple.of(communityVote.getVoteUser().stream().map(VoteUser::getUser).collect(Collectors.toList())));
+                                .userSimpleList(communityVote.getIsAnonymous() ? null : voteOption.getVoteUserSet().stream().map(VoteUser::getUser).map(UserResponseDto.UserSimple::of).collect(Collectors.toList()));
                         return voteOptionInfoBuilder.build();
                     }).collect(Collectors.toList()));
 
@@ -62,6 +62,7 @@ public class CommunityVoteResponseDto {
     public static class VoteOptionInfo {
         private Integer voteOptionId;
         private String voteOption;
+        private Integer voteCnt;
         private Boolean isVoted;
         private List<UserResponseDto.UserSimple> userSimpleList;
     }
