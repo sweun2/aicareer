@@ -59,8 +59,6 @@ public class RecruitmentBatchController {
             @ApiErrorCodeExample(ResponseErrorCode.USER_NOT_ALLOWED)
 
     })
-
-
     @GetMapping("/extract")
     public ResponseEntity<String> extractTextFromUrl(@RequestParam String url) {
         try {
@@ -70,32 +68,38 @@ public class RecruitmentBatchController {
             for (Element img : images) {
                 String imgUrl = img.absUrl("src");
                 if (!imgUrl.isEmpty()) {
-                    MultipartFile file = MultipartFileUtil.convertUrlToMultipartFile(imgUrl);
-                    String ocrResult = recruitmentBatchService.performOcr(file,imgUrl);
+                    String fileExtension = recruitmentBatchService.getFileExtension(imgUrl);
+                    if (recruitmentBatchService.isValidImageFormat(fileExtension)) {
+                        MultipartFile file = MultipartFileUtil.convertUrlToMultipartFile(imgUrl);
+                        String ocrResult = recruitmentBatchService.performOcr(file, imgUrl);
 
-                    JsonNode ocrResultJson = objectMapper.readTree(ocrResult);
-                    JsonNode imagesNode = ocrResultJson.path("images");
+                        JsonNode ocrResultJson = objectMapper.readTree(ocrResult);
+                        JsonNode imagesNode = ocrResultJson.path("images");
 
-                    for (JsonNode imageNode : imagesNode) {
-                        JsonNode fieldsNode = imageNode.path("fields");
-                        for (JsonNode fieldNode : fieldsNode) {
-                            String inferText = fieldNode.path("inferText").asText();
-                            result.append(inferText).append(" ");
+                        for (JsonNode imageNode : imagesNode) {
+                            JsonNode fieldsNode = imageNode.path("fields");
+                            for (JsonNode fieldNode : fieldsNode) {
+                                String inferText = fieldNode.path("inferText").asText();
+                                result.append(inferText).append(" ");
+                            }
                         }
+                    } else {
+                        log.info("Unsupported image format: " + fileExtension);
                     }
                 }
             }
-
-            String pageText = doc.body().text();
+            String pageText = doc.body().toString();
+            String title = doc.title();
             result.append(pageText);
 
-
-            return ResponseEntity.ok(gptService.requestToOpenAI(result.toString()));
+            return ResponseEntity.ok(gptService.requestToOpenAI(title,result.toString()));
         } catch (Exception e) {
             log.info(e.getMessage());
             return ResponseEntity.status(500).body("Failed to extract text");
         }
     }
+
+
     @GetMapping("/clean-unrelated-image")
     public ResponseEntity<Void> cleanText() {
         recruitmentBatchService.removeUnrelatedImage();

@@ -47,7 +47,17 @@ public class RecruitmentBatchService {
     private String ocrApiUrl;
     @Value("${clova.ocr.secret}")
     private String ocrSecret;
+    public boolean isValidImageFormat(String extension) {
+        return extension.matches("(?i)^(jpg|jpeg|png|tif|tiff|pdf)$");
+    }
 
+    public String getFileExtension(String url) {
+        try {
+            return url.substring(url.lastIndexOf(".") + 1).toLowerCase();
+        } catch (Exception e) {
+            return "";
+        }
+    }
     @Async
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void processBadResponseRecruitment(Recruitment recruitment) {
