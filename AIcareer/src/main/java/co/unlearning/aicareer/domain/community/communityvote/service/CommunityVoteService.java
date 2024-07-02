@@ -194,6 +194,7 @@ public class CommunityVoteService {
     }
 
     public CommunityVote cancelVoteCasting(CommunityVoteRequestDto.CastVoteOption castVoteOption) {
+        log.info("cancelVoteCasting");
         CommunityPosting communityPosting = communityPostingRepository.findByUid(castVoteOption.getPostingUid()).orElseThrow(
                 () -> new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
         );
