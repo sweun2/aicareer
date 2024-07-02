@@ -39,7 +39,6 @@ public class OpenApiConfig {
 
         Info info = new Info().title("AI career API").version("1.0.0")
                 .description("에이아이커리어 api server 입니다.")
-                //.termsOfService("http://swagger.io/terms/")
                 .contact(new Contact().name("sweun2").url("https://github.com/sweun2").email("sweun3@gmail.com"));
         Server server = new Server();
         server.setUrl(serverUrl);
