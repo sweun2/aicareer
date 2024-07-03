@@ -60,9 +60,18 @@ public class RecruitmentBatchController {
 
     })
     @GetMapping("/extract")
-    public ResponseEntity<String> extractTextFromUrl(@RequestParam String url) {
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> extractTextFromUrl(@RequestParam String url) {
         try {
             Document doc = Jsoup.connect(url).get();
+            Elements scripts = doc.select("script");
+            for (Element script : scripts) {
+                script.remove();
+            }
+            // Optionally remove style elements
+            Elements styles = doc.select("style");
+            for (Element style : styles) {
+                style.remove();
+            }
             Elements images = doc.select("img");
             StringBuilder result = new StringBuilder();
             for (Element img : images) {
@@ -88,15 +97,15 @@ public class RecruitmentBatchController {
                     }
                 }
             }
-            String pageText = doc.body().toString();
+            String pageText = doc.body().html();
+            log.info(pageText);
             String title = doc.title();
             result.append(pageText);
-
-            return ResponseEntity.ok(gptService.requestToOpenAI(title,result.toString()));
+            return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(gptService.requestToOpenAI(title,result.toString(),url))));
         } catch (Exception e) {
             log.info(e.getMessage());
-            return ResponseEntity.status(500).body("Failed to extract text");
         }
+        return ResponseEntity.ok().build();
     }
 
 
