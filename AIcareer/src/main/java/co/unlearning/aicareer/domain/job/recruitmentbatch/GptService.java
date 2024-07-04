@@ -100,6 +100,7 @@ public class GptService {
                     recruitmentAddress에는 일하는 곳의 주소를 기준으로 넣어줘.
                     날짜들에는 "yyyy-MM-dd HH:mm" 형식으로 넣어줘.
                     content에는 공고 내용을 너가 예쁘게 작성해서 넣어줘 content의 길이는 10줄 이상이면 좋겠고, 볼드체나 글씨 크기 등 스타일 요소도 너가 예쁘게 작성해줘.
+                    p 태그나 div 태그 등을 이용해서 내용을 구분해줘.
                     """.formatted(url);
 
                 Map<String, String> userMessage2 = new HashMap<>();

@@ -60,7 +60,7 @@ public class RecruitmentBatchController {
 
     })
     @GetMapping("/extract")
-    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> extractTextFromUrl(@RequestParam String url) {
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> extractTextFromUrl(@RequestParam("url") String url){
         try {
             Document doc = Jsoup.connect(url).get();
             Elements scripts = doc.select("script");
