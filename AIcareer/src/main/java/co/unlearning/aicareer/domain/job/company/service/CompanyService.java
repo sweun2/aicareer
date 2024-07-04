@@ -44,6 +44,14 @@ public class CompanyService {
                     .build();
 
             return companyRepository.save(company);
-        }else return companyOptional.get();
+        }else {
+            Company existingCompany = companyOptional.get();
+            existingCompany.setCompanyAddress(companyInfo.getCompanyAddress());
+
+            EnumValidator<CompanyType.CompanyTypeName> companyTypeNameEnumValidator = new EnumValidator<>();
+            CompanyType.CompanyTypeName companyTypeName = companyTypeNameEnumValidator.validateEnumString(companyInfo.getCompanyType(), CompanyType.CompanyTypeName.class);
+            existingCompany.getCompanyType().setCompanyTypeName(companyTypeName);
+            return companyRepository.save(existingCompany);
+        }
     }
 }
