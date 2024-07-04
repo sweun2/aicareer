@@ -107,7 +107,6 @@ public class CommunityPostingService {
         communityPosting.setWriter(user);
         communityPosting.setContent(processBase64CommunityPostingImage(communityPostingPost.getContent(), communityPosting));
 
-
         if(communityPostingPost.getVoteId() != null && !communityPostingPost.getVoteId().toString().equals(StringUtils.EMPTY)) {
             CommunityVote communityVote = communityVoteService.getVoteById(communityPostingPost.getVoteId());
             if(communityPosting.getCommunityVote() != null) {
@@ -121,7 +120,6 @@ public class CommunityPostingService {
         communityPostingRepository.save(communityPosting);
         return Map.entry(communityPosting, communityPostingUser);
     }
-
 
     public Map.Entry<CommunityPosting,CommunityPostingUser> updateCommunityPost(String uid, CommunityPostingRequirementDto.CommunityPostingUpdate communityPostingUpdate) {
         User user = userService.getLoginUser();

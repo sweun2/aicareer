@@ -101,18 +101,26 @@ public class UserService {
                 ()->new BusinessException(ResponseErrorCode.USER_NOT_FOUND)
         );
     }
-    public User getLoginUser(){
+    public User getLoginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication.getPrincipal().equals("anonymousUser")){
+        if (authentication.getPrincipal().equals("anonymousUser")) {
             throw new BusinessException(ResponseErrorCode.USER_UNAUTHORIZED);
         }
-        User user = (User) authentication.getPrincipal();
-        return userRepository.findById(user.getId()).orElseThrow(
-                ()-> new BusinessException(ResponseErrorCode.USER_NOT_FOUND));
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof User user) {
+            return userRepository.findById(user.getId()).orElseThrow(
+                    () -> new BusinessException(ResponseErrorCode.USER_NOT_FOUND));
+        } else {
+            throw new BusinessException(ResponseErrorCode.USER_UNAUTHORIZED);
+        }
     }
     public Boolean isLogin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return !authentication.getPrincipal().equals("anonymousUser");
+        Object principal = authentication.getPrincipal();
+        if (principal.equals("anonymousUser")) {
+            return false;
+        } else return principal instanceof User;
     }
 
     public Boolean verifyLoginUser(User user) {

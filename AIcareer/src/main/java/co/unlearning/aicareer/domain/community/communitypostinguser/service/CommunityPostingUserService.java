@@ -38,7 +38,7 @@ public class CommunityPostingUserService {
                     .isRecommend(false)
                     .communityPosting(communityPosting)
                     .build());
-            communityPostingUserRepository.save(communityPostingUser);
+            return communityPostingUserRepository.save(communityPostingUser);
         } else {
             communityPostingUser = CommunityPostingUser.builder()
                     .user(null)
@@ -46,8 +46,8 @@ public class CommunityPostingUserService {
                     .isRecommend(false)
                     .communityPosting(communityPosting)
                     .build();
+            return communityPostingUser;
         }
-        return communityPostingUser;
     }
 
     public void deleteCommunityPostingUserOptionFalse() {
