@@ -1,4 +1,4 @@
-FROM tomcat:10-jdk17
+FROM arm64v8/tomcat:10-jdk17
 
 # 톰캣 타임존 설정
 RUN ["rm", "/etc/localtime"]

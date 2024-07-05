@@ -29,23 +29,32 @@ public class CommunityPostingUserService {
         );
     }
     public CommunityPostingUser getMockCommunityPostingUserIfNotLogin(CommunityPosting communityPosting) {
-        CommunityPostingUser communityPostingUser;
-        if(userService.isLogin()) {
-            Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting,userService.getLoginUser());
-            communityPostingUser = communityPostingUserOptional.orElseGet(() -> CommunityPostingUser.builder()
-                    .user(userService.getLoginUser())
-                    .isReport(false)
-                    .isRecommend(false)
-                    .communityPosting(communityPosting)
-                    .build());
+        User loginUser = userService.isLogin() ? userService.getLoginUser() : null;
+
+        Optional<CommunityPostingUser> communityPostingUserOptional = communityPostingUserRepository.findCommunityPostingUserByCommunityPostingAndUser(communityPosting, loginUser);
+        if (communityPostingUserOptional.isPresent()) {
+            return communityPostingUserOptional.get();
+        }
+
+        CommunityPostingUser communityPostingUser = CommunityPostingUser.builder()
+                .user(loginUser)
+                .isReport(false)
+                .isRecommend(false)
+                .communityPosting(communityPosting)
+                .build();
+
+        if (loginUser != null) {
+            communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
+
+            List<CommunityPostingUser> communityPostingUsers = communityPostingUserRepository.findDuplicateCommunityPostingUsers();
+            communityPostingUsers.forEach(cpu -> {
+                if (cpu.getIsReport() || cpu.getIsRecommend()) {
+                    communityPostingUserRepository.delete(cpu);
+                }
+            });
+
             return communityPostingUserRepository.save(communityPostingUser);
         } else {
-            communityPostingUser = CommunityPostingUser.builder()
-                    .user(null)
-                    .isReport(false)
-                    .isRecommend(false)
-                    .communityPosting(communityPosting)
-                    .build();
             return communityPostingUser;
         }
     }

@@ -21,4 +21,16 @@ public interface CommunityPostingUserRepository extends JpaRepository<CommunityP
             "AND cpu.isRecommend = false " +
             "AND cp.writer.id <> cpu.user.id")
     List<CommunityPostingUser> findCommunityPostingUserAllOptionFalseAndNotWriter();
+
+    @Query("SELECT c FROM CommunityPostingUser c WHERE c.id IN (" +
+            "  SELECT MIN(c2.id) FROM CommunityPostingUser c2 " +
+            "  WHERE (c2.communityPosting.id, c2.user.id) IN (" +
+            "    SELECT c3.communityPosting.id, c3.user.id " +
+            "    FROM CommunityPostingUser c3 " +
+            "    GROUP BY c3.communityPosting.id, c3.user.id " +
+            "    HAVING COUNT(c3.id) > 1" +
+            "  ) " +
+            "  GROUP BY c2.communityPosting.id, c2.user.id" +
+            ")")
+    List<CommunityPostingUser> findDuplicateCommunityPostingUsers();
 }
