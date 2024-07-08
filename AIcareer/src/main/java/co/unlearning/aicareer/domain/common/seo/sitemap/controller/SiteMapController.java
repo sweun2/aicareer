@@ -1,7 +1,7 @@
-package co.unlearning.aicareer.domain.common.sitemap.controller;
+package co.unlearning.aicareer.domain.common.seo.sitemap.controller;
 
-import co.unlearning.aicareer.domain.common.sitemap.dto.SiteMapResponseDto;
-import co.unlearning.aicareer.domain.common.sitemap.service.SiteMapService;
+import co.unlearning.aicareer.domain.common.seo.sitemap.service.SiteMapService;
+import co.unlearning.aicareer.domain.common.seo.sitemap.dto.SiteMapResponseDto;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExample;
 import co.unlearning.aicareer.global.utils.error.ApiErrorCodeExamples;
 import co.unlearning.aicareer.global.utils.error.code.ResponseErrorCode;

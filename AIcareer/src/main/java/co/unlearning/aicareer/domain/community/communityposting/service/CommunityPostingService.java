@@ -3,7 +3,7 @@ package co.unlearning.aicareer.domain.community.communityposting.service;
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
-import co.unlearning.aicareer.domain.common.sitemap.service.SiteMapService;
+import co.unlearning.aicareer.domain.common.seo.sitemap.service.SiteMapService;
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
@@ -35,11 +35,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service

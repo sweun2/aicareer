@@ -6,7 +6,7 @@ import co.unlearning.aicareer.domain.job.board.repository.BoardRepository;
 import co.unlearning.aicareer.domain.common.Image.Image;
 import co.unlearning.aicareer.domain.common.Image.repository.ImageRepository;
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
-import co.unlearning.aicareer.domain.common.sitemap.service.SiteMapService;
+import co.unlearning.aicareer.domain.common.seo.sitemap.service.SiteMapService;
 import co.unlearning.aicareer.domain.job.boardimage.BoardImage;
 import co.unlearning.aicareer.domain.job.boardimage.repository.BoardImageRepository;
 import co.unlearning.aicareer.domain.job.boardimage.service.BoardImageService;

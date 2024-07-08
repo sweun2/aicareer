@@ -1,4 +1,4 @@
-package co.unlearning.aicareer.domain.common.sitemap;
+package co.unlearning.aicareer.domain.common.seo.sitemap;
 
 import jakarta.persistence.*;
 import lombok.*;

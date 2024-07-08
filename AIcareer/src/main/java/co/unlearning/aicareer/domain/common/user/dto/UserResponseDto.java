@@ -4,12 +4,8 @@ import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.UserInterest;
 import co.unlearning.aicareer.domain.common.user.UserRole;
 import co.unlearning.aicareer.domain.common.user.UserTerms;
-import co.unlearning.aicareer.domain.job.companytype.CompanyType;
 import co.unlearning.aicareer.domain.job.companytype.dto.CompanyTypeResponseDto;
-import co.unlearning.aicareer.domain.job.education.Education;
 import co.unlearning.aicareer.domain.job.education.dto.EducationResponseDto;
-import co.unlearning.aicareer.domain.job.recruitmenttype.dto.RecruitmentTypeResponseDto;
-import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
 import co.unlearning.aicareer.domain.job.recrutingjob.dto.RecruitingJobResponseDto;
 import co.unlearning.aicareer.global.utils.converter.ImagePathLengthConverter;
 import co.unlearning.aicareer.global.utils.converter.LocalDateTimeStringConverter;
@@ -17,8 +13,10 @@ import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import static co.unlearning.aicareer.global.utils.EncodeUtil.encodeWithHmacSHA256;
+
 
 public class UserResponseDto {
     @Builder
@@ -30,9 +28,11 @@ public class UserResponseDto {
         private Integer userId;
         private String nickname;
         private String profileImageUrl;
+        private String hashedChannelTalkMemberId;
         public static UserSimple of(User user) {
             if(user == null) return UserSimple.builder().build();
             return UserSimple.builder()
+                    .hashedChannelTalkMemberId(encodeWithHmacSHA256(user.getId().toString()))
                     .userId(user.getId())
                     .nickname(user.getNickname())
                     .profileImageUrl(user.getProfileImage() != null ? ImagePathLengthConverter.extendImagePathLength(user.getProfileImage().getImageUrl()) : StringUtils.EMPTY)
@@ -43,6 +43,8 @@ public class UserResponseDto {
             return users.stream().map(UserSimple::of).collect(Collectors.toList());
         }
     }
+
+
     @Builder
     @Getter
     @Setter
@@ -61,10 +63,12 @@ public class UserResponseDto {
         private UserTermsInfo isAgreePrivacyTerms;
         private Boolean isInterest;
         private String profileImageUrl;
+        private String hashedChannelTalkMemberId;
 
         public static UserInfo of(User user) {
             if(user == null ) return UserInfo.builder().build();
             return UserInfo.builder()
+                    .hashedChannelTalkMemberId(encodeWithHmacSHA256(user.getId().toString()))
                     .userId(user.getId())
                     .nickname(user.getNickname())
                     .name(user.getName())

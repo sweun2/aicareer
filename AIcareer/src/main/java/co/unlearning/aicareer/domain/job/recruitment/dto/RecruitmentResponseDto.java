@@ -57,6 +57,7 @@ public class RecruitmentResponseDto {
         //@Schema(description = "내용")
         private String content; //내용
         private String textType;
+        private List<String> seoKeywords;
         public static RecruitmentInfo of(Recruitment recruitment) {
             RecruitmentInfoBuilder builder =  RecruitmentInfo.builder()
                     .recruitmentUid(String.valueOf(recruitment.getUid()))
@@ -77,7 +78,8 @@ public class RecruitmentResponseDto {
                     .recruitmentAddress(String.valueOf(recruitment.getRecruitmentAddress()))
                     .title(recruitment.getTitle())
                     .content(recruitment.getContent())
-                    .textType(recruitment.getTextType().toString());
+                    .textType(recruitment.getTextType().toString())
+                    .seoKeywords(recruitment.getSeoKeywordSet().stream().map(seoKeyword -> String.valueOf(seoKeyword.getKeyword())).collect(Collectors.toList()));
 
 
             if (recruitment.getMainImage() != null) {
@@ -141,6 +143,7 @@ public class RecruitmentResponseDto {
         private String title; //title
         //@Schema(description = "조회수")
         private Integer hits; //조회수
+        private List<String> seoKeywords;
 
 
         public static RecruitmentSimple of(Recruitment recruitment) {
@@ -160,7 +163,8 @@ public class RecruitmentResponseDto {
                     .lastModified(LocalDateTimeToString(recruitment.getLastModified()))
                     .hits(recruitment.getHits())
                     .recruitmentAddress(String.valueOf(recruitment.getRecruitmentAddress()))
-                    .title(recruitment.getTitle());
+                    .title(recruitment.getTitle())
+                    .seoKeywords(recruitment.getSeoKeywordSet().stream().map(seoKeyword -> String.valueOf(seoKeyword.getKeyword())).collect(Collectors.toList()));
 
             if (recruitment.getMainImage() != null) {
                 builder.mainImageUrl(ImagePathLengthConverter.extendImagePathLength(recruitment.getMainImage().getImage().getImageUrl()));

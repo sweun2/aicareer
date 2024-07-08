@@ -78,7 +78,9 @@ logging:
       springframework: DEBUG
 back-url: "http://localhost:8080"
 front-url: "http://localhost:3000"
-
+server:
+  ssl:
+    enabled: false
 
 jwt:
   secret_key: "안녕하세요. 국내 최초 인공지능 직무 채용 플랫폼 AIcareer입니다. 당신의 AI 커리어를 위한 최신 채용 공고를 매일 업데이트하여 제공합니다. "

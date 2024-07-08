@@ -1,6 +1,7 @@
 package co.unlearning.aicareer.domain.job.recruitment.service;
 
 import co.unlearning.aicareer.domain.common.Image.service.ImageService;
+import co.unlearning.aicareer.domain.common.seo.seokeyword.SeoKeyword;
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.job.bookmark.repository.BookmarkRepository;
 import co.unlearning.aicareer.domain.job.companytype.CompanyType;
@@ -23,7 +24,7 @@ import co.unlearning.aicareer.domain.job.recruitmentImage.repository.Recruitment
 import co.unlearning.aicareer.domain.job.recruitmentImage.service.RecruitmentImageService;
 import co.unlearning.aicareer.domain.job.recruitmenttype.RecruitmentType;
 import co.unlearning.aicareer.domain.job.recrutingjob.RecruitingJob;
-import co.unlearning.aicareer.domain.common.sitemap.service.SiteMapService;
+import co.unlearning.aicareer.domain.common.seo.sitemap.service.SiteMapService;
 import co.unlearning.aicareer.domain.common.user.User;
 import co.unlearning.aicareer.domain.common.user.repository.UserRepository;
 import co.unlearning.aicareer.domain.common.user.service.UserService;
@@ -43,12 +44,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -124,6 +122,16 @@ public class RecruitmentService {
         recruitment.setContent(processBase64RecruitmentImage(recruitmentPost.getContent(),recruitment));
         recruitment.setLastModified(LocalDateTime.now());
 
+        recruitment.getSeoKeywordSet().clear();
+        if(recruitmentPost.getSeoKeywords()!=null && !recruitmentPost.getSeoKeywords().isEmpty()) {
+            recruitment.getSeoKeywordSet().addAll(recruitmentPost.getSeoKeywords().stream()
+                    .map(keyword -> SeoKeyword.builder()
+                            .recruitment(recruitment)
+                            .keyword(keyword)
+                            .build())
+                    .collect(Collectors.toSet())
+            );
+        }
         // Save recruitment
         recruitmentRepository.save(recruitment);
 
@@ -282,7 +290,6 @@ public class RecruitmentService {
                                 .companyType(recruitmentPost.getCompanyType())
                                 .build())
                 );
-
         // Set recruitment start date
         LocalDateTime startDate = (recruitmentPost.getRecruitmentStartDate() == null) ?
                 LocalDateTime.now() :
@@ -321,7 +328,17 @@ public class RecruitmentService {
                 .title(recruitmentPost.getTitle())
                 .textType(textType)
                 .hits(0)
+                .seoKeywordSet(new HashSet<>())
                 .build();
+        if(!recruitmentPost.getSeoKeywords().isEmpty()) {
+            recruitment.getSeoKeywordSet().addAll(recruitmentPost.getSeoKeywords().stream()
+                    .map(keyword -> SeoKeyword.builder()
+                            .recruitment(recruitment)
+                            .keyword(keyword)
+                            .build())
+                    .collect(Collectors.toSet())
+            );
+        }
 
         // Set main image if provided
         if (recruitmentPost.getMainImage() != null) {
@@ -398,6 +415,7 @@ public class RecruitmentService {
                     .imageOrder(++order)
                     .build());
         }
+
         // Set relationships
         recruitment.setRecruitingJobSet(recruitingJobs);
         recruitment.setRecruitmentTypeSet(recruitmentTypes);

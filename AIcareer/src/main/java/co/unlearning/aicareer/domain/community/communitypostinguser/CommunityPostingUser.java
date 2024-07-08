@@ -13,6 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"communityPosting_id", "user_id"}))
 public class CommunityPostingUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

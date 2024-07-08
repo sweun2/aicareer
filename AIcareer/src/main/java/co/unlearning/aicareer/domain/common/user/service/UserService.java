@@ -109,7 +109,7 @@ public class UserService {
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof User user) {
-            return userRepository.findById(user.getId()).orElseThrow(
+            return userRepository.findByEmail(user.getEmail()).orElseThrow(
                     () -> new BusinessException(ResponseErrorCode.USER_NOT_FOUND));
         } else {
             throw new BusinessException(ResponseErrorCode.USER_UNAUTHORIZED);

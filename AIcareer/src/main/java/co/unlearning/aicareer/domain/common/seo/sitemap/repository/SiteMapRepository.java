@@ -1,6 +1,6 @@
-package co.unlearning.aicareer.domain.common.sitemap.repository;
+package co.unlearning.aicareer.domain.common.seo.sitemap.repository;
 
-import co.unlearning.aicareer.domain.common.sitemap.SiteMap;
+import co.unlearning.aicareer.domain.common.seo.sitemap.SiteMap;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

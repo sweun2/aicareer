@@ -1,6 +1,6 @@
-package co.unlearning.aicareer.domain.common.sitemap.dto;
+package co.unlearning.aicareer.domain.common.seo.sitemap.dto;
 
-import co.unlearning.aicareer.domain.common.sitemap.SiteMap;
+import co.unlearning.aicareer.domain.common.seo.sitemap.SiteMap;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,5 +1,6 @@
 package co.unlearning.aicareer.domain.job.recruitment;
 
+import co.unlearning.aicareer.domain.common.seo.seokeyword.SeoKeyword;
 import co.unlearning.aicareer.domain.job.bookmark.Bookmark;
 import co.unlearning.aicareer.domain.job.career.Career;
 import co.unlearning.aicareer.domain.job.company.Company;
@@ -73,4 +74,6 @@ public class Recruitment {
     private RecruitmentBatch recruitmentBatch;
     @Column
     private TextType textType;
+    @OneToMany(mappedBy = "recruitment",fetch = FetchType.EAGER, cascade = {CascadeType.ALL},orphanRemoval = true)
+    private Set<SeoKeyword> seoKeywordSet;
 }

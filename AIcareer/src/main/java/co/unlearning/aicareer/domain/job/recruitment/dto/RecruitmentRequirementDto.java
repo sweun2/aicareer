@@ -50,6 +50,8 @@ public class RecruitmentRequirementDto {
         private String content; //내용
         @Schema(description = "내부 타입",allowableValues = {"MARKDOWN,HTML"})
         private String textType;
+        @Schema(description = "seo 키워드")
+        private List<String> seoKeywords;
     }
     @Getter
     @Setter

@@ -1,7 +1,7 @@
-package co.unlearning.aicareer.domain.common.sitemap.service;
+package co.unlearning.aicareer.domain.common.seo.sitemap.service;
 
-import co.unlearning.aicareer.domain.common.sitemap.SiteMap;
-import co.unlearning.aicareer.domain.common.sitemap.repository.SiteMapRepository;
+import co.unlearning.aicareer.domain.common.seo.sitemap.SiteMap;
+import co.unlearning.aicareer.domain.common.seo.sitemap.repository.SiteMapRepository;
 import co.unlearning.aicareer.domain.community.communityposting.CommunityPosting;
 import co.unlearning.aicareer.domain.job.board.Board;
 import co.unlearning.aicareer.domain.job.recruitment.Recruitment;

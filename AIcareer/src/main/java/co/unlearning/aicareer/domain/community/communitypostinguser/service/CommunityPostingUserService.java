@@ -45,14 +45,6 @@ public class CommunityPostingUserService {
 
         if (loginUser != null) {
             communityPosting.getCommunityPostingUserSet().add(communityPostingUser);
-
-            List<CommunityPostingUser> communityPostingUsers = communityPostingUserRepository.findDuplicateCommunityPostingUsers();
-            communityPostingUsers.forEach(cpu -> {
-                if (cpu.getIsReport() || cpu.getIsRecommend()) {
-                    communityPostingUserRepository.delete(cpu);
-                }
-            });
-
             return communityPostingUserRepository.save(communityPostingUser);
         } else {
             return communityPostingUser;
