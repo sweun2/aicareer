@@ -58,6 +58,7 @@ class AIcareerApplicationTests {
 	}
 
 
+
 	public static Mono<Map<String, Integer>> getResponseStatusCode(String url) {
 		String userAgent = "Mozilla/5.0 Firefox/26.0"; // 사용하고자 하는 User-Agent 값
 		HttpClient client = HttpClient.create()

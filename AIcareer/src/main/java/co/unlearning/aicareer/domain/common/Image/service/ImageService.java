@@ -137,16 +137,11 @@ public class ImageService {
         if(!amazonS3.doesObjectExist(bucket, fileName))
             throw new FileNotFoundException();
     }
-    public byte[] downloadS3Image(String fileName) throws FileNotFoundException {
+    public InputStream downloadS3Image(String fileName) throws FileNotFoundException {
         validateS3ImageExists(fileName);
 
         S3Object s3Object = amazonS3.getObject(bucket, fileName);
-        S3ObjectInputStream s3ObjectContent = s3Object.getObjectContent();
-        try {
-            return IOUtils.toByteArray(s3ObjectContent);
-        }catch (IOException e ){
-            throw new BusinessException(ResponseErrorCode.NOT_FOUND_IMAGE_FILE);
-        }
+        return s3Object.getObjectContent();
     }
 
     public String processBase64Images(String content, Consumer<Image> imageConsumer) {

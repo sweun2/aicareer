@@ -27,6 +27,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,18 +62,34 @@ public class RecruitmentBatchController {
 
     })
     @GetMapping("/extract")
-    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> extractTextFromUrl(@RequestParam("url") String url){
+    @PostMapping("/extractTextFromUrl")
+    public ResponseEntity<RecruitmentResponseDto.RecruitmentInfo> extractTextFromUrl(@RequestParam("url") String url) {
+        WebDriver driver = null;
         try {
-            Document doc = Jsoup.connect(url).get();
+            // WebDriver 경로 설정 (크롬 드라이버 예제)
+            System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver");
+
+            // WebDriver 인스턴스 생성
+            driver = new ChromeDriver();
+
+            // URL 로드
+            driver.get(url);
+
+            // 페이지의 HTML 가져오기
+            String pageSource = driver.getPageSource();
+
+            // JSoup을 사용하여 HTML 파싱
+            Document doc = Jsoup.parse(pageSource);
             Elements scripts = doc.select("script");
             for (Element script : scripts) {
                 script.remove();
             }
-            // Optionally remove style elements
+
             Elements styles = doc.select("style");
             for (Element style : styles) {
                 style.remove();
             }
+
             Elements images = doc.select("img");
             StringBuilder result = new StringBuilder();
             for (Element img : images) {
@@ -81,7 +99,6 @@ public class RecruitmentBatchController {
                     if (recruitmentBatchService.isValidImageFormat(fileExtension)) {
                         MultipartFile file = MultipartFileUtil.convertUrlToMultipartFile(imgUrl);
                         String ocrResult = recruitmentBatchService.performOcr(file, imgUrl);
-
                         JsonNode ocrResultJson = objectMapper.readTree(ocrResult);
                         JsonNode imagesNode = ocrResultJson.path("images");
 
@@ -97,17 +114,20 @@ public class RecruitmentBatchController {
                     }
                 }
             }
-            String pageText = doc.body().wholeOwnText();
-            log.info(pageText);
-            String title = doc.title();
-            result.append(pageText);
-            return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(gptService.requestToOpenAI(title,result.toString(),url))));
+
+            String pageText = doc.body().html();
+            String title = doc.html();
+            result.append(pageText.replaceAll("<[^>]*>", ""));
+            return ResponseEntity.ok(RecruitmentResponseDto.RecruitmentInfo.of(recruitmentService.addRecruitmentPost(gptService.requestToOpenAI(title, result.toString(), url))));
         } catch (Exception e) {
             log.info(e.getMessage());
+            return ResponseEntity.status(500).build();
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
         }
-        return ResponseEntity.ok().build();
     }
-
 
     @GetMapping("/clean-unrelated-image")
     public ResponseEntity<Void> cleanText() {
