@@ -70,9 +70,10 @@ public class CommunityCommentController {
             @Parameter(name = "uid", description = "comment uid", in = ParameterIn.PATH)
             @PathVariable("uid") String uid,
             @Parameter(name = "page", description = "페이지네이션", in = ParameterIn.QUERY)
-            @RequestParam("page") Integer page) {
-        PageRequest pageRequest = PageRequest.of(page, 5);
-
+            @RequestParam("page") Integer page,
+            @Parameter(name = "offset", description = "오프셋", in = ParameterIn.QUERY)
+            @RequestParam("offset") Integer offset) {
+        PageRequest pageRequest = PageRequest.of(page, offset);
         return ResponseEntity.ok(CommunityCommentResponseDto.CommunityCommentInfo.of(communityCommentService.getChildCommunityCommentsByParentUid(uid,pageRequest)));
     }
 
