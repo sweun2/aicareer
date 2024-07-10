@@ -96,10 +96,18 @@ public class GptService {
                     }
 
                     만들어진 공고를 위 DTO에 맞춰서 json 객체로 만들어서 반환해줘.
+                    json에 들어갈 key값들은 위의 DTO에 있는 변수명을 따라가면 되고, 그에 맞는 값을 넣어주면 돼.
+                    company는 절대로 AI Career는 들어갈 수 없어 본문 내용에서 회사명을 찾아서 이에 맞게 넣어줘.
                     announcementLink에는 %s을 넣어주고,
                     recruitmentAddress에는 일하는 곳의 주소를 기준으로 넣어줘.
-                    날짜들에는 "yyyy-MM-dd HH:mm" 형식으로 넣어줘.
-                    content에는 공고 내용을 너가 예쁘게 작성해서 넣어줘 content의 길이는 10줄 이상이면 좋겠고, 볼드체나 글씨 크기 등 스타일 요소도 너가 예쁘게 작성해줘.
+                    String recruitmentStartDate, String recruitmentDeadline 은 "yyyy-MM-dd HH:mm" 형식으로 넣어줘.
+                    본문 내용에 채용모집 시작일이 없다면 recruitmentStartDate는 현재시간으로 해줘.
+                    본문 내용에 채용모집 마감일이 존재하는 경우에만 deadlineType을 DUE_DATE로 해주고, 만약 마감일이 현재시간보다 이전이면 EXPIRED로 해줘.
+                    ALL_TIME, CLOSE_WHEN_RECRUITMENT,EXPIRED 인 경우에는 recruitmentDeadline을 넣어주지 않아도 돼.
+                    ALL_TIME은 상시 채용, CLOSE_WHEN_RECRUITMENT은 모집이 끝날 때까지, EXPIRED는 마감된 경우야.
+                    deadlineType이 DUE_DATE 마감 기한이 정해져있는 경우야.이 때에만 recruitmentDeadline에 값을 넣어야하는데, 이 때 현재 날짜보다 이전인 경우에는 deadlineType을 EXPIRED로 설정해줘.
+                    content에는 공고 내용을 너가 예쁘게 작성해서 넣어줘. 기본적으로 원본 글 내용을 유지하는 방향이었으면 좋겠어.
+                    content의 길이는 10줄 이상이면 좋겠고, 볼드체나 글씨 크기 등 스타일 요소도 너가 예쁘게 작성해줘.
                     p 태그나 div 태그 등을 이용해서 내용을 구분해줘.
                     """.formatted(url);
 
