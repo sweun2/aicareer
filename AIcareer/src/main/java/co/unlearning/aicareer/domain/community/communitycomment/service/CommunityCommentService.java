@@ -167,10 +167,12 @@ public class CommunityCommentService {
 
         if (communityComment.getParentComment() != null) {
             communityComment.getParentComment().getChildComments().remove(communityComment);
+            communityComment.getParentComment().setChildCommentCnt(communityComment.getParentComment().getChildCommentCnt() - 1);
         }
 
         CommunityPosting communityPosting = communityComment.getCommunityPosting();
-        communityPosting.setCommentCnt(communityPosting.getCommentCnt() - 1);
+        // 전체 댓글 수 - (자식 댓글 수 + 자신)
+        communityPosting.setCommentCnt(communityPosting.getCommentCnt() - (communityComment.getChildCommentCnt() + 1));
 
         communityCommentRepository.delete(communityComment);
     }
