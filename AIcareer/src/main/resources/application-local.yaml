@@ -27,6 +27,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        javax:
+          persistence:
+            lock:
+              timeout=5000:
   mvc:
     path match:
       matching-strategy: ant_path_matcher

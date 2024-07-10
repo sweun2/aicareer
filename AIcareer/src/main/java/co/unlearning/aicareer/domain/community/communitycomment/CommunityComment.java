@@ -47,5 +47,7 @@ public class CommunityComment {
     private CommunityComment parentComment;
     @OneToMany(mappedBy = "parentComment", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private Set<CommunityComment> childComments;
+    @Column
+    private Integer childCommentCnt;
 }
 

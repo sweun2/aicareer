@@ -69,10 +69,16 @@ public class CommunityCommentService {
 
         return entry;
     }
-    public Map.Entry<CommunityComment,CommunityCommentUser> addCommunityComment(CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost){
+    public Map.Entry<CommunityComment, CommunityCommentUser> addCommunityComment(CommunityCommentRequirementDto.CommunityCommentPost communityCommentPost) {
         User user = userService.getLoginUser();
         communityPostingService.isNonBlockedCommunityUser(user);
-        CommunityPosting communityPosting = communityPostingService.getCommunityPostingByUid(communityCommentPost.getPostingUid()).getKey();
+
+        // CommunityPosting에 락을 걸기
+        Optional<CommunityPosting> lockedPostingOptional = communityPostingRepository.lockCommunityPosting(communityCommentPost.getPostingUid());
+        if (lockedPostingOptional.isEmpty()) {
+            throw new BusinessException(ResponseErrorCode.UID_NOT_FOUND);
+        }
+        CommunityPosting lockedPosting = lockedPostingOptional.get();
 
         CommunityComment communityComment = CommunityComment.builder()
                 .uid(UUID.randomUUID().toString())
@@ -80,20 +86,27 @@ public class CommunityCommentService {
                 .lastModified(LocalDateTime.now())
                 .content(communityCommentPost.getContent())
                 .isView(true)
-                .communityPosting(communityPosting)
+                .communityPosting(lockedPosting)
                 .communityCommentUserSet(new HashSet<>())
                 .reportCnt(0)
                 .recommendCnt(0)
+                .childCommentCnt(0)
                 .writer(user)
-                .isAnonymous(communityCommentPost.getIsAnonymous() !=null ? communityCommentPost.getIsAnonymous() : true)
+                .isAnonymous(communityCommentPost.getIsAnonymous() != null ? communityCommentPost.getIsAnonymous() : true)
                 .build();
-        if(communityCommentPost.getParentCommentUid() != null && !(communityCommentPost.getParentCommentUid().equals(StringUtils.EMPTY)))
-        {
-            CommunityComment parentComment = communityCommentRepository.findByUid(communityCommentPost.getParentCommentUid()).orElseThrow(
-                    ()->new BusinessException(ResponseErrorCode.UID_NOT_FOUND)
-            );
-            communityComment.setParentComment(parentComment);
+
+        if (communityCommentPost.getParentCommentUid() != null && !communityCommentPost.getParentCommentUid().isEmpty()) {
+            // 부모 댓글을 락 걸고 가져오기
+            Optional<CommunityComment> parentCommentOptional = communityCommentRepository.lockParentComment(communityCommentPost.getParentCommentUid());
+            if (parentCommentOptional.isEmpty()) {
+                throw new BusinessException(ResponseErrorCode.UID_NOT_FOUND);
+            }
+            CommunityComment parentComment = parentCommentOptional.get();
+            // 자식 댓글 수 증가
+            parentComment.setChildCommentCnt(parentComment.getChildCommentCnt() + 1);
+            // 자식 댓글 설정
             parentComment.getChildComments().add(communityComment);
+            communityComment.setParentComment(parentComment);
         }
 
         CommunityCommentUser communityCommentUser = CommunityCommentUser.builder()
@@ -102,10 +115,11 @@ public class CommunityCommentService {
                 .isReport(false)
                 .isRecommend(false)
                 .build();
-        communityPosting.setCommentCnt(communityPosting.getCommentCnt()+1);
+
+        lockedPosting.setCommentCnt(lockedPosting.getCommentCnt() + 1);
         communityComment.getCommunityCommentUserSet().add(communityCommentUser);
 
-        communityPostingRepository.save(communityPosting);
+        communityPostingRepository.save(lockedPosting);
         communityCommentRepository.save(communityComment);
         return Map.entry(communityComment, communityCommentUser);
     }

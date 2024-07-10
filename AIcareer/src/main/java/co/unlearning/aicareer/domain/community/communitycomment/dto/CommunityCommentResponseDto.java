@@ -49,6 +49,8 @@ public class CommunityCommentResponseDto {
         private String parentCommentUid;
         @Schema(description = "하위 댓글 정보")
         private List<CommunityCommentInfo> childComments;
+        @Schema(description = "하위 댓글 개수")
+        private Integer childCommentCnt;
         @Schema(description = "댓글 유저 정보")
         private CommunityCommentUserResponseDto.CommunityCommentUserInfo communityCommentUserInfo;
 
@@ -98,6 +100,7 @@ public class CommunityCommentResponseDto {
                     .writer(writerInfo)
                     .parentCommentUid(communityComment.getParentComment() == null ? StringUtils.EMPTY : communityComment.getParentComment().getUid())
                     .childComments(sortedChildComments)
+                    .childCommentCnt(communityComment.getChildCommentCnt())
                     .communityCommentUserInfo(CommunityCommentUserResponseDto.CommunityCommentUserInfo.of(communityCommentUser))
                     .build();
         }
