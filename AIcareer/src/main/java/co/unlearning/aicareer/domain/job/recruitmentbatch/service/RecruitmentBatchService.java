@@ -24,6 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,17 +65,24 @@ public class RecruitmentBatchService {
         RestTemplate restTemplate = new RestTemplate();
         String recruitmentLink = recruitment.getRecruitmentAnnouncementLink();
 
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                recruitmentLink, String.class);
-        List<Integer> statusCodes = List.of(400, 401, 402, 403, 404);
-        if (statusCodes.contains(response.getStatusCode().value())) {
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(recruitmentLink, String.class);
+        } catch (HttpClientErrorException.BadRequest |
+                 HttpClientErrorException.Unauthorized |
+                 HttpClientErrorException.Forbidden |
+                 HttpClientErrorException.NotFound |
+                 HttpClientErrorException.MethodNotAllowed |
+                 HttpClientErrorException.Conflict e) {
+
             Optional<RecruitmentBatch> recruitmentBatchOptional = recruitmentBatchRepository.findRecruitmentBatchByRecruitment(recruitment);
             if (recruitmentBatchOptional.isEmpty()) {
+                System.out.println("Bad Response: " + recruitment.getRecruitmentAnnouncementLink());
                 recruitmentBatchRepository.save(RecruitmentBatch.builder()
                         .recruitment(recruitment)
                         .badResponseCnt(1)
                         .build());
             } else {
+                System.out.println("Bad Response: " + recruitment.getRecruitmentAnnouncementLink());
                 Integer badResponseCnt = recruitmentBatchOptional.get().getBadResponseCnt();
                 if (badResponseCnt >= 3) {
                     recruitment.setRecruitmentDeadline(LocalDateTime.of(2000, 1, 1, 0, 0));
@@ -82,6 +90,8 @@ public class RecruitmentBatchService {
                     recruitmentRepository.save(recruitment);
                 }
             }
+        } catch (Exception e) {
+            System.err.println("예외 발생: " + e.getMessage());
         }
     }
 
@@ -122,8 +132,6 @@ public class RecruitmentBatchService {
 
     }*/
     public String performOcr(MultipartFile file, String imageUrl) throws Exception {
-        log.info("perform OCR");
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-OCR-SECRET", ocrSecret);
         headers.setContentType(MediaType.APPLICATION_JSON);

@@ -97,7 +97,7 @@ public class RecruitmentBatchController {
                     }
                 }
             }
-            String pageText = doc.body().html();
+            String pageText = doc.body().text();
             log.info(pageText);
             String title = doc.title();
             result.append(pageText);
